@@ -172,6 +172,3 @@ gradle-app.setting
 
 # sqlite db
 *.db
-
-# pna config directory
-config/**
