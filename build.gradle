@@ -21,6 +21,12 @@ repositories {
 
 dependencies {
 	//implementation "org.springframework.boot:spring-boot-starter-security"
+	implementation platform('com.azure:azure-sdk-bom:1.2.19')
+	implementation 'com.azure:azure-identity'
+	implementation 'com.azure:azure-core-management'
+	implementation 'com.azure.resourcemanager:azure-resourcemanager:2.34.0'
+	implementation 'com.azure.resourcemanager:azure-resourcemanager-compute:2.34.0'
+	implementation 'com.azure.resourcemanager:azure-resourcemanager-resources:2.34.0'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -41,6 +47,10 @@ dependencies {
 	testImplementation 'org.mockito:mockito-core:5.6.0'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
 	testImplementation 'org.junit.jupiter:junit-jupiter-params:5.6.0'
+}
+
+test {
+	useJUnitPlatform()
 }
 
 test {
