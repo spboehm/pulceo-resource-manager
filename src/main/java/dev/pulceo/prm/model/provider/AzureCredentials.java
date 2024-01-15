@@ -1,4 +1,4 @@
-package dev.pulceo.prm.model.providers;
+package dev.pulceo.prm.model.provider;
 
 import dev.pulceo.prm.model.BaseEntity;
 
