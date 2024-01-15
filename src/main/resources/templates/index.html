@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tutorial Demo</title>
+  </head>
+  <body>
+    <div id="mountNode"></div>
+    <script src="https://gw.alipayobjects.com/os/lib/antv/g6/4.3.11/dist/g6.min.js"></script>
+    <script>
+      // Define the source data
+      const data = {
+        // The array of nodes
+        nodes: [
+          {
+            id: 'node1',
+            x: 100,
+            y: 200,
+          },
+          {
+            id: 'node2',
+            x: 300,
+            y: 200,
+          },
+          {
+            id: 'node3',
+            x: 400,
+            y: 200,
+          },
+        ],
+        // The array of edges
+        edges: [
+          // An edge links from node1 to node2
+          {
+            id: 'edge1',
+            source: 'node1',
+            target: 'node2',
+            label: '1'
+          }
+        ]
+      };
+
+      // Instantiate a Graph
+      const graph = new G6.Graph({
+        container: 'mountNode', // The id of the container
+        // The width and height of the graph
+        width: 800,
+        height: 500,
+      });
+      // Load the data
+      graph.data(data);
+      // Render the graph
+      graph.render();
+
+      function callback() {
+        graph.updateItem('edge1', {
+            source: 'node1',
+            target: 'node2',
+            label: '2'
+        });
+        console.log("Callback Funktion wird aufgerufen");
+      }
+      setTimeout(callback, 3000); //Ruft die Callback-Funktion nach 3 Sekunden auf
+      console.log("Test"); //Wird sofort, ohne Wartezeit ausgeführt
+
+
+
+    </script>
+  </body>
+</html>
