@@ -7,11 +7,12 @@ import dev.pulceo.prm.service.ProviderService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping(value = "/api/v1/providers")
@@ -32,4 +33,13 @@ public class ProviderController {
         Provider createdProvider = this.providerService.createProvider(provider);
         return new ResponseEntity<>(this.modelMapper.map(createdProvider, ProviderDTO.class), org.springframework.http.HttpStatus.CREATED);
     }
+
+    @ExceptionHandler(value = DataIntegrityViolationException.class)
+    public ResponseEntity<CustomErrorResponse> handleCloudRegistrationException(DataIntegrityViolationException dataIntegrityViolationException) {
+        CustomErrorResponse error = new CustomErrorResponse("BAD_REQUEST", "A provider with these properties does already exist!");
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setTimestamp(LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
 }

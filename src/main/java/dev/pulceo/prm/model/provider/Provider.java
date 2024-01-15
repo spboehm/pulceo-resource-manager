@@ -1,6 +1,7 @@
 package dev.pulceo.prm.model.provider;
 
 import dev.pulceo.prm.model.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class Provider extends BaseEntity {
 
+    @Column(unique = true)
     private String providerName;
     private ProviderType providerType;
 
