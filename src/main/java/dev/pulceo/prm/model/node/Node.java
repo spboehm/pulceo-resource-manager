@@ -1,7 +1,6 @@
 package dev.pulceo.prm.model.node;
 
 import dev.pulceo.prm.model.BaseEntity;
-import dev.pulceo.prm.model.provider.Provider;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -64,8 +63,5 @@ public class Node extends BaseEntity {
 
     @NotBlank(message="Node hostname is required!")
     private String host;
-
-    @NotBlank
-    private Provider provider;
 
 }

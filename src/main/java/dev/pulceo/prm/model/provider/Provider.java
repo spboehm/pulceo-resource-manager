@@ -15,7 +15,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class Provider extends BaseEntity {
 
-    @Column(unique = true)
     private String providerName;
     private ProviderType providerType;
 
