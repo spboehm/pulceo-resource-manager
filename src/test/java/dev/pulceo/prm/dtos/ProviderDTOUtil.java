@@ -6,7 +6,7 @@ import dev.pulceo.prm.model.provider.ProviderType;
 public class ProviderDTOUtil {
     public static CreateNewAzureProviderDTO  createNewAzureProviderDTO() {
         return CreateNewAzureProviderDTO.builder()
-                .providerName("azure-dto-test")
+                .providerName("azure-test")
                 .providerType(ProviderType.AZURE)
                 .clientId("clientId")
                 .clientSecret("clientSecret")
