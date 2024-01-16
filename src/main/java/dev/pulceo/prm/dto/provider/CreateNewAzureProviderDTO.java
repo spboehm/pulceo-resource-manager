@@ -10,9 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateNewProviderDTO {
+public class CreateNewAzureProviderDTO {
 
     private String providerName;
     private ProviderType providerType;
+    private String clientId;
+    private String clientSecret;
+    private String tenantId;
+    private String subscriptionId;
 
 }

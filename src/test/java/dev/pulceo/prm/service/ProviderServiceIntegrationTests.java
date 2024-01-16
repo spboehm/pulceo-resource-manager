@@ -1,17 +1,11 @@
 package dev.pulceo.prm.service;
 
-import dev.pulceo.prm.exception.ProviderServiceException;
-import dev.pulceo.prm.model.provider.Provider;
-import dev.pulceo.prm.repository.ProviderRepository;
-import dev.pulceo.prm.util.ProviderUtil;
+import dev.pulceo.prm.model.provider.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class ProviderServiceIntegrationTests {
@@ -20,24 +14,33 @@ public class ProviderServiceIntegrationTests {
     ProviderService providerService;
 
     @Test
-    public void testCreateProvider() throws ProviderServiceException {
+    public void testCreateAzureProvider () {
         // given
-        Provider testProvider = ProviderUtil.createTestProvider();
-
+        AzureProvider azureProvider = AzureProvider.builder()
+                .providerMetaData(ProviderMetaData.builder().providerName("azure-provider").providerType(ProviderType.AZURE).build())
+                .credentials(AzureCredentials.builder().tenantId("s").clientId("s").clientSecret("s").subscriptionId("s").build())
+                .build();
         // when
-        Provider createdProvider = this.providerService.createProvider(testProvider);
+        AzureProvider actualAzureProvider = this.providerService.createAzureProvider(azureProvider);
 
         // then
-        assertEquals(testProvider, createdProvider);
+        assertEquals(azureProvider, actualAzureProvider);
+
     }
 
     @Test
-    public void testIfDefaultProviderExists() {
+    public void testCreateOnPremProvider () {
         // given
-        Optional<Provider> defaultProvider = this.providerService.readDefaultProvider();
+        OnPremProvider onPremProvider = OnPremProvider.builder()
+                .providerMetaData(ProviderMetaData.builder().providerName("onprem-provider-test").providerType(ProviderType.ON_PREM).build())
+                .build();
+
+        // when
+        OnPremProvider actualOnPremProvider = this.providerService.createOnPremProvider(onPremProvider);
 
         // then
-        assertTrue(defaultProvider.isPresent());
+        assertEquals(onPremProvider, actualOnPremProvider);
     }
+
 
 }
