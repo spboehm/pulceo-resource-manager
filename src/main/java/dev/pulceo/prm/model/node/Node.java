@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.validator.constraints.URL;
 
 @Entity
 @SuperBuilder
@@ -19,9 +18,6 @@ import org.hibernate.validator.constraints.URL;
 @Setter
 @NoArgsConstructor
 public class Node extends BaseEntity {
-
-    @NotBlank(message= "PNA id is required!")
-    private String pnaUUID;
 
     @NotBlank(message="Name is required!")
     private String name;
@@ -56,12 +52,5 @@ public class Node extends BaseEntity {
     @Min(-90)
     @Max(90)
     private double nodeLocationLatitude = 0.000000;
-
-    @NotBlank(message="Node endpoint is required!")
-    @URL
-    private String pnaEndpoint;
-
-    @NotBlank(message="Node hostname is required!")
-    private String host;
 
 }
