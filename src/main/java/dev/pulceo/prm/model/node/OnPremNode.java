@@ -3,9 +3,19 @@ package dev.pulceo.prm.model.node;
 import dev.pulceo.prm.model.BaseEntity;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
+@Entity
+@SuperBuilder
+@Getter
+@Setter
+@NoArgsConstructor
 public class OnPremNode extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private OnPremProvider onPremProvider;

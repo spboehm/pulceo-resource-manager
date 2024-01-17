@@ -39,6 +39,20 @@ public class ProviderService {
         return this.providerMetaDataRepository.findByProviderName(name);
     }
 
+    public Optional<OnPremProvider> readOnPremProviderByProviderMetaData(ProviderMetaData providerMetaData) {
+        return this.onPremProviderRepository.findByProviderMetaData(providerMetaData);
+    }
+
+    public Optional<OnPremProvider> readOnPremProviderByProviderName(String providerName) {
+        Optional<ProviderMetaData> providerMetaData = this.findProviderMetaDataByName(providerName);
+
+        if (providerMetaData.isPresent()) {
+            return this.readOnPremProviderByProviderMetaData(providerMetaData.get());
+        }
+
+        return Optional.empty();
+    }
+
     @PostConstruct
     public void initDefaultProvider() {
         // Check if a default provider already exists

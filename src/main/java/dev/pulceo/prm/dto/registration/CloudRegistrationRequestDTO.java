@@ -1,4 +1,4 @@
-package dev.pulceo.prm.dto.provider.node;
+package dev.pulceo.prm.dto.registration;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateNewOnPremNodeDTO {
+public class CloudRegistrationRequestDTO {
 
-    private String providerName;
-    private String hostname;
+    private String prmUUID;
+    private String prmEndpoint;
     private String pnaInitToken;
 
 }
