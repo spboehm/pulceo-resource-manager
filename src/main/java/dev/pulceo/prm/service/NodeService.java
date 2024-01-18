@@ -62,6 +62,7 @@ public class NodeService {
         // TODO: Transform to CloudRegistration
         CloudRegistration cloudRegistration = this.modelMapper.map(cloudRegistrationResponseDTO, CloudRegistration.class);
 
+
         // Build a CloudRegistrationRequestDTO json with prmUUID, prmEndpoint, and pnaInitToken
 
         return null;
