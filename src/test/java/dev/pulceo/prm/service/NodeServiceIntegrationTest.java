@@ -2,10 +2,14 @@ package dev.pulceo.prm.service;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import dev.pulceo.prm.model.node.OnPremNode;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.WireMockSpring;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
@@ -15,29 +19,43 @@ public class NodeServiceIntegrationTest {
     @Autowired
     private NodeService nodeService;
 
-
     @Value("${pna.test.init.token}")
     private String pnaInitToken;
+
+    // for some reason `dynamicPort()` is not working properly
+    public static WireMockServer wireMockServer = new WireMockServer(WireMockSpring.options().port(7676));
+
+    @BeforeAll
+    static void setupClass() {
+        wireMockServer.start();
+    }
+
+    @AfterEach
+    void after() {
+        wireMockServer.resetAll();
+    }
+
+    @AfterAll
+    static void clean() {
+        wireMockServer.shutdown();
+    }
 
     @Test
     public void testCreateOnPremNode() {
         // given
         String providerName = "default";
         String hostName = "localhost";
-        WireMockServer wireMockServer = new WireMockServer(7676);
-        wireMockServer.start();
-        configureFor("localhost", 7676);
-        stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
+
+        wireMockServer.stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{\"pnaUUID\":\"0247fea1-3ca3-401b-8fa2-b6f83a469680\",\"prmUUID\":\"ecda0beb-dba9-4836-a0f8-da6d0fd0cd0a\",\"prmEndpoint\":\"http://localhost:7878\",\"pnaToken\":\"dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl\"}")));
+                        .withBodyFile("registration/cloud-registration-response.json")));
+
         // when
         OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, this.pnaInitToken);
 
         // then
-        wireMockServer.stop();
-
     }
 
 }

@@ -4,6 +4,7 @@ import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
 import dev.pulceo.prm.model.node.OnPremNode;
 import dev.pulceo.prm.model.provider.OnPremProvider;
+import dev.pulceo.prm.model.registration.CloudRegistration;
 import dev.pulceo.prm.repository.NodeRepository;
 import dev.pulceo.prm.repository.OnPremNoderepository;
 import org.modelmapper.ModelMapper;
@@ -59,8 +60,7 @@ public class NodeService {
                 .block();
 
         // TODO: Transform to CloudRegistration
-        System.out.println(cloudRegistrationResponseDTO);
-
+        CloudRegistration cloudRegistration = this.modelMapper.map(cloudRegistrationResponseDTO, CloudRegistration.class);
 
         // Build a CloudRegistrationRequestDTO json with prmUUID, prmEndpoint, and pnaInitToken
 
