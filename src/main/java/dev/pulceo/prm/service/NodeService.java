@@ -1,10 +1,12 @@
 package dev.pulceo.prm.service;
 
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
+import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
 import dev.pulceo.prm.model.node.OnPremNode;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.repository.NodeRepository;
 import dev.pulceo.prm.repository.OnPremNoderepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ public class NodeService {
     private final NodeRepository nodeRepository;
 
     private final ProviderService providerService;
+
+    private final ModelMapper modelMapper = new ModelMapper();
 
     @Value("${prm.uuid}")
     private String prmUUID;
@@ -47,18 +51,15 @@ public class NodeService {
                 .build();
 
         WebClient webClient = WebClient.create("http://" + hostName + ":7676");
-        String response = webClient.post()
+        CloudRegistrationResponseDTO cloudRegistrationResponseDTO = webClient.post()
                 .uri("/api/v1/cloud-registrations")
                 .bodyValue(cloudRegistrationRequestDTO)
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(CloudRegistrationResponseDTO.class)
                 .block();
 
-        System.out.println(response);
-
-        System.out.println(cloudRegistrationRequestDTO.toString());
-
-        // Store
+        // TODO: Transform to CloudRegistration
+        System.out.println(cloudRegistrationResponseDTO);
 
 
         // Build a CloudRegistrationRequestDTO json with prmUUID, prmEndpoint, and pnaInitToken
