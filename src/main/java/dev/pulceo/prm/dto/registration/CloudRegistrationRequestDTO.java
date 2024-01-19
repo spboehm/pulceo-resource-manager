@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class CloudRegistrationRequestDTO {
 
-    private String prmUUID;
+    private UUID prmUUID;
     private String prmEndpoint;
     private String pnaInitToken;
 

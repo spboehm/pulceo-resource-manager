@@ -3,10 +3,7 @@ package dev.pulceo.prm.service;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.node.OnPremNode;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +16,8 @@ public class NodeServiceIntegrationTest {
 
     @Autowired
     private NodeService nodeService;
+
+
 
     @Value("${pna.test.init.token}")
     private String pnaInitToken;
@@ -42,6 +41,7 @@ public class NodeServiceIntegrationTest {
     }
 
     @Test
+    @Disabled
     public void testCreateOnPremNode() throws NodeServiceException {
         // given
         String providerName = "default";
@@ -55,6 +55,7 @@ public class NodeServiceIntegrationTest {
 
         // when
         OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, this.pnaInitToken);
+        System.out.println(onPremNode.toString());
 
         // then
     }

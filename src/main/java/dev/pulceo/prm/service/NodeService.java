@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class NodeService {
@@ -32,7 +33,7 @@ public class NodeService {
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Value("${prm.uuid}")
-    private String prmUUID;
+    private UUID prmUUID;
     @Value("${prm.endpoint}")
     private String prmEndpoint;
 
