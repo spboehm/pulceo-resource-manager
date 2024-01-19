@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface OnPremNoderepository extends CrudRepository<OnPremNode, Long> {
+public interface OnPremNodeRepository extends CrudRepository<OnPremNode, Long> {
 }

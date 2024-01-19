@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.UUID;
+
 @Entity
 @SuperBuilder
 @Getter
@@ -14,8 +16,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class CloudRegistration extends BaseEntity {
 
-    private String pnaUUID;
-    private String prmUUID;
+    private UUID pnaUUID;
+    private UUID prmUUID;
     private String prmEndpoint;
     private String pnaToken;
 

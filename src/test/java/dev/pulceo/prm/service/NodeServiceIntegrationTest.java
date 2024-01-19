@@ -1,6 +1,7 @@
 package dev.pulceo.prm.service;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.node.OnPremNode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -41,7 +42,7 @@ public class NodeServiceIntegrationTest {
     }
 
     @Test
-    public void testCreateOnPremNode() {
+    public void testCreateOnPremNode() throws NodeServiceException {
         // given
         String providerName = "default";
         String hostName = "localhost";

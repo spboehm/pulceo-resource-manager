@@ -2,11 +2,15 @@ package dev.pulceo.prm.service;
 
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
+import dev.pulceo.prm.exception.NodeServiceException;
+import dev.pulceo.prm.model.node.Node;
+import dev.pulceo.prm.model.node.NodeMetaData;
 import dev.pulceo.prm.model.node.OnPremNode;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.registration.CloudRegistration;
+import dev.pulceo.prm.repository.NodeMetaDataRepository;
 import dev.pulceo.prm.repository.NodeRepository;
-import dev.pulceo.prm.repository.OnPremNoderepository;
+import dev.pulceo.prm.repository.OnPremNodeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,10 +22,12 @@ import java.util.Optional;
 @Service
 public class NodeService {
 
-    private final OnPremNoderepository onPremNoderepository;
+    private final NodeMetaDataRepository nodeMetaDataRepository;
+    private final OnPremNodeRepository onPremNoderepository;
     private final NodeRepository nodeRepository;
 
     private final ProviderService providerService;
+    private final CloudRegistraionService cloudRegistraionService;
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -31,20 +37,25 @@ public class NodeService {
     private String prmEndpoint;
 
     @Autowired
-    public NodeService(OnPremNoderepository onPremNoderepository, NodeRepository nodeRepository, ProviderService providerService) {
+    public NodeService(OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService) {
         this.onPremNoderepository = onPremNoderepository;
+        this.nodeMetaDataRepository = nodeMetaDataRepository;
         this.nodeRepository = nodeRepository;
         this.providerService = providerService;
+        this.cloudRegistraionService = cloudRegistraionService;
     }
 
-    public OnPremNode createOnPremNode(String providerName, String hostName, String pnaInitToken) {
+    public OnPremNode createOnPremNode(String providerName, String hostName, String pnaInitToken) throws NodeServiceException {
 
-        // TODO: look if provider does exist
-        // Goal: find OnPremProvider
         Optional<OnPremProvider> onPremProvider = this.providerService.readOnPremProviderByProviderName(providerName);
+        if (onPremProvider.isEmpty()) {
+            throw new NodeServiceException("Provider does not exist");
+        }
 
-        // TODO: check if the node with the hostname already exists in OnPremNode#NodeMetaData
-        // TOOD: Issue request with CloudRegistrationRequestDTO
+        if (this.hostNameAlreadyExists(hostName)) {
+            throw new NodeServiceException("Hostname already exists");
+        }
+
         CloudRegistrationRequestDTO cloudRegistrationRequestDTO = CloudRegistrationRequestDTO.builder()
                 .prmUUID(this.prmUUID)
                 .prmEndpoint(this.prmEndpoint)
@@ -59,14 +70,27 @@ public class NodeService {
                 .bodyToMono(CloudRegistrationResponseDTO.class)
                 .block();
 
-        // TODO: Transform to CloudRegistration
         CloudRegistration cloudRegistration = this.modelMapper.map(cloudRegistrationResponseDTO, CloudRegistration.class);
 
+        Node node = Node.builder().name(hostName).build();
 
-        // Build a CloudRegistrationRequestDTO json with prmUUID, prmEndpoint, and pnaInitToken
+        NodeMetaData nodeMetaData = NodeMetaData.builder()
+                .pnaUUID(cloudRegistration.getPnaUUID())
+                .hostname(hostName)
+                .build();
 
-        return null;
+        OnPremNode onPremNode = OnPremNode.builder()
+                .onPremProvider(onPremProvider.get())
+                .nodeMetaData(nodeMetaData)
+                .node(node)
+                .cloudRegistration(cloudRegistration)
+                .build();
+
+        return this.onPremNoderepository.save(onPremNode);
     }
 
+    private boolean hostNameAlreadyExists(String hostName) throws NodeServiceException {
+        return this.nodeMetaDataRepository.findByHostname(hostName).isPresent();
+    }
 
 }
