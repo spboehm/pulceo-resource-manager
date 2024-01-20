@@ -1,15 +1,13 @@
 package dev.pulceo.prm.service;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import dev.pulceo.prm.exception.NodeServiceException;
-import dev.pulceo.prm.model.node.OnPremNode;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.WireMockSpring;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 @SpringBootTest
 public class NodeServiceIntegrationTest {
@@ -38,26 +36,6 @@ public class NodeServiceIntegrationTest {
     @AfterAll
     static void clean() {
         wireMockServer.shutdown();
-    }
-
-    @Test
-    @Disabled
-    public void testCreateOnPremNode() throws NodeServiceException {
-        // given
-        String providerName = "default";
-        String hostName = "localhost";
-
-        wireMockServer.stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBodyFile("registration/cloud-registration-response.json")));
-
-        // when
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, this.pnaInitToken);
-        System.out.println(onPremNode.toString());
-
-        // then
     }
 
 }

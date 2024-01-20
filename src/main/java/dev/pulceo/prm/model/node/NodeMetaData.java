@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -23,4 +24,22 @@ public class NodeMetaData extends BaseEntity {
     private UUID pnaUUID;
     @NotBlank(message="Node hostname is required!")
     private String hostname;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NodeMetaData that = (NodeMetaData) o;
+
+        if (!Objects.equals(pnaUUID, that.pnaUUID)) return false;
+        return Objects.equals(hostname, that.hostname);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pnaUUID != null ? pnaUUID.hashCode() : 0;
+        result = 31 * result + (hostname != null ? hostname.hashCode() : 0);
+        return result;
+    }
 }

@@ -73,7 +73,6 @@ public class NodeServiceUnitTests {
     }
 
     @Test
-    @Disabled
     public void testCreateOnPremNode() throws NodeServiceException {
         // given
         String providerName = "default";
@@ -89,8 +88,9 @@ public class NodeServiceUnitTests {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/cloud-registration-response.json")));
+
         // when
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, "pnaInitToken");
+        this.nodeService.createOnPremNode(providerName, hostName, "pnaInitToken");
 
         // then
         OnPremNode extpectedOnPremNode;
@@ -101,7 +101,7 @@ public class NodeServiceUnitTests {
                 .providerName("default")
                 .providerType(ProviderType.ON_PREM)
                 .build()).build();
-        System.out.println(pnaUUID);
+
         NodeMetaData nodeMetaData = NodeMetaData.builder()
                 .pnaUUID(pnaUUID)
                 .hostname("localhost")
@@ -119,7 +119,7 @@ public class NodeServiceUnitTests {
                 .node(node)
                 .cloudRegistration(cloudRegistration)
                 .build();
-
+        // TODO: more verifications
         verify(this.onPremNoderepository, new Times(1)).save(extpectedOnPremNode);
     }
 

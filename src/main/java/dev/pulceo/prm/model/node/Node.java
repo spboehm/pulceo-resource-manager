@@ -9,12 +9,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Objects;
+
 @Entity
 @SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @ToString
 public class Node extends BaseEntity {
 
@@ -52,4 +53,38 @@ public class Node extends BaseEntity {
     @Max(90)
     private double nodeLocationLatitude = 0.000000;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Node node = (Node) o;
+
+        if (layer != node.layer) return false;
+        if (Double.compare(nodeLocationLongitude, node.nodeLocationLongitude) != 0) return false;
+        if (Double.compare(nodeLocationLatitude, node.nodeLocationLatitude) != 0) return false;
+        if (!Objects.equals(name, node.name)) return false;
+        if (type != node.type) return false;
+        if (role != node.role) return false;
+        if (!Objects.equals(nodeLocationCountry, node.nodeLocationCountry))
+            return false;
+        return Objects.equals(nodeLocationCity, node.nodeLocationCity);
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + layer;
+        result = 31 * result + (role != null ? role.hashCode() : 0);
+        result = 31 * result + (nodeLocationCountry != null ? nodeLocationCountry.hashCode() : 0);
+        result = 31 * result + (nodeLocationCity != null ? nodeLocationCity.hashCode() : 0);
+        temp = Double.doubleToLongBits(nodeLocationLongitude);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(nodeLocationLatitude);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }
