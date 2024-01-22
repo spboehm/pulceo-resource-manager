@@ -55,5 +55,4 @@ public class ProviderServiceIntegrationTests {
         assertEquals(onPremProvider, actualOnPremProvider);
     }
 
-
 }
