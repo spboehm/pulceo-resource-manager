@@ -2,14 +2,9 @@ package dev.pulceo.prm.service;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import dev.pulceo.prm.exception.NodeServiceException;
-import dev.pulceo.prm.model.node.Node;
-import dev.pulceo.prm.model.node.NodeMetaData;
 import dev.pulceo.prm.model.node.OnPremNode;
-import dev.pulceo.prm.model.provider.OnPremProvider;
-import dev.pulceo.prm.model.provider.ProviderMetaData;
-import dev.pulceo.prm.model.provider.ProviderType;
-import dev.pulceo.prm.model.registration.CloudRegistration;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
+import dev.pulceo.prm.util.NodeUtil;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +28,7 @@ public class NodeServiceIntegrationTest {
     @Autowired
     private AbstractNodeRepository abstractNodeRepository;
 
-    @Value("${pna.test.init.token}")
+    @Value("${pna-1.test.init.token}")
     private String pnaInitToken;
 
     // for some reason `dynamicPort()` is not working properly
@@ -60,6 +55,7 @@ public class NodeServiceIntegrationTest {
     }
 
     private UUID pnaUUID = UUID.fromString("0247fea1-3ca3-401b-8fa2-b6f83a469680");
+    private String pnaToken = "dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl";
     private UUID prmUUID = UUID.fromString("ecda0beb-dba9-4836-a0f8-da6d0fd0cd0a");
     private String prmEndpoint = "http://localhost:7878";
 
@@ -78,36 +74,9 @@ public class NodeServiceIntegrationTest {
         OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);
 
         // then
-        OnPremProvider onPremProvider = OnPremProvider.builder().providerMetaData(
-                ProviderMetaData.builder()
-                        .providerName("default")
-                        .providerType(ProviderType.ON_PREM)
-                        .build())
-                .build();
+        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pnaUUID, hostName, prmUUID, prmEndpoint, pnaToken);
 
-        NodeMetaData nodeMetaData = NodeMetaData.builder()
-                .pnaUUID(pnaUUID)
-                .hostname(hostName)
-                .build();
-
-        Node node = Node.builder()
-                .name(hostName)
-                .build();
-
-        CloudRegistration cloudRegistration = CloudRegistration.builder()
-                .pnaUUID(pnaUUID)
-                .prmUUID(prmUUID)
-                .prmEndpoint(prmEndpoint)
-                .pnaToken("dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl")
-                .build();
-
-        OnPremNode extpectedOnPremNode = OnPremNode.builder()
-                .onPremProvider(onPremProvider)
-                .nodeMetaData(nodeMetaData)
-                .node(node)
-                .cloudRegistration(cloudRegistration)
-                .build();
-        assertEquals(extpectedOnPremNode, onPremNode);
+        assertEquals(expectedOnPremNode, onPremNode);
     }
 
 
