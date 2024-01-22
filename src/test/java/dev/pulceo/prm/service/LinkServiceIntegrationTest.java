@@ -29,7 +29,9 @@ public class LinkServiceIntegrationTest {
     @Test
     public void testCreateLinkWithExistingNodes() throws InterruptedException {
         // given
-        // TODO: create two Nodes
+        // assume two nodes are already running
+
+
 
     }
 
