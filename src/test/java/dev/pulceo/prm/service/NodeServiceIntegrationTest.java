@@ -72,10 +72,10 @@ public class NodeServiceIntegrationTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBodyFile("registration/cloud-registration-response.json")));
+                        .withBodyFile("registration/pna-1-cloud-registration-response.json")));
 
         // when
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, "pnaInitToken");
+        OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);
 
         // then
         OnPremProvider onPremProvider = OnPremProvider.builder().providerMetaData(
