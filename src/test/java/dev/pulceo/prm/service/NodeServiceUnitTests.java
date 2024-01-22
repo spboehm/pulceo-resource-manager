@@ -9,9 +9,9 @@ import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.provider.ProviderMetaData;
 import dev.pulceo.prm.model.provider.ProviderType;
 import dev.pulceo.prm.model.registration.CloudRegistration;
+import dev.pulceo.prm.repository.AbstractNodeRepository;
 import dev.pulceo.prm.repository.NodeMetaDataRepository;
 import dev.pulceo.prm.repository.NodeRepository;
-import dev.pulceo.prm.repository.OnPremNodeRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,7 +34,7 @@ public class NodeServiceUnitTests {
     @Mock
     private NodeMetaDataRepository nodeMetaDataRepository;
     @Mock
-    private OnPremNodeRepository onPremNoderepository;
+    private AbstractNodeRepository abstractNodeRepository;
     @Mock
     private NodeRepository nodeRepository;
     @Mock
@@ -49,7 +49,7 @@ public class NodeServiceUnitTests {
     private String prmEndpoint = "http://localhost:7878";
 
     // for some reason `dynamicPort()` is not working properly
-    public static WireMockServer wireMockServer = new WireMockServer(WireMockSpring.options().port(7676));
+    public static WireMockServer wireMockServer = new WireMockServer(WireMockSpring.options().bindAddress("127.0.0.2").port(7676));
 
     @BeforeEach
     public void setUp() {
@@ -76,7 +76,7 @@ public class NodeServiceUnitTests {
     public void testCreateOnPremNode() throws NodeServiceException {
         // given
         String providerName = "default";
-        String hostName = "localhost";
+        String hostName = "127.0.0.2";
         when(this.providerService.readOnPremProviderByProviderName(providerName))
                 .thenReturn(Optional.of(
                         OnPremProvider.builder()
@@ -101,11 +101,11 @@ public class NodeServiceUnitTests {
 
         NodeMetaData nodeMetaData = NodeMetaData.builder()
                 .pnaUUID(pnaUUID)
-                .hostname("localhost")
+                .hostname(hostName)
                 .build();
 
         Node node = Node.builder()
-                .name("localhost")
+                .name(hostName)
                 .build();
 
         CloudRegistration cloudRegistration = CloudRegistration.builder().pnaUUID(pnaUUID).prmUUID(prmUUID).prmEndpoint(prmEndpoint).pnaToken("dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl").build();
@@ -117,7 +117,7 @@ public class NodeServiceUnitTests {
                 .cloudRegistration(cloudRegistration)
                 .build();
         // TODO: more verifications
-        verify(this.onPremNoderepository, new Times(1)).save(extpectedOnPremNode);
+        verify(this.abstractNodeRepository, new Times(1)).save(extpectedOnPremNode);
     }
 
 }

@@ -8,6 +8,7 @@ import dev.pulceo.prm.model.node.NodeMetaData;
 import dev.pulceo.prm.model.node.OnPremNode;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.registration.CloudRegistration;
+import dev.pulceo.prm.repository.AbstractNodeRepository;
 import dev.pulceo.prm.repository.NodeMetaDataRepository;
 import dev.pulceo.prm.repository.NodeRepository;
 import dev.pulceo.prm.repository.OnPremNodeRepository;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @Service
 public class NodeService {
 
+    private final AbstractNodeRepository abstractNodeRepository;
     private final NodeMetaDataRepository nodeMetaDataRepository;
     private final OnPremNodeRepository onPremNoderepository;
     private final NodeRepository nodeRepository;
@@ -38,7 +40,8 @@ public class NodeService {
     private String prmEndpoint;
 
     @Autowired
-    public NodeService(OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService) {
+    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService) {
+        this.abstractNodeRepository = abstractNodeRepository;
         this.onPremNoderepository = onPremNoderepository;
         this.nodeMetaDataRepository = nodeMetaDataRepository;
         this.nodeRepository = nodeRepository;
@@ -87,7 +90,7 @@ public class NodeService {
                 .cloudRegistration(cloudRegistration)
                 .build();
 
-        return this.onPremNoderepository.save(onPremNode);
+        return this.abstractNodeRepository.save(onPremNode);
     }
 
     private boolean hostNameAlreadyExists(String hostName) throws NodeServiceException {
