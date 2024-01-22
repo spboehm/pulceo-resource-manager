@@ -82,7 +82,8 @@ public class NodeServiceIntegrationTest {
                 ProviderMetaData.builder()
                         .providerName("default")
                         .providerType(ProviderType.ON_PREM)
-                        .build()).build();
+                        .build())
+                .build();
 
         NodeMetaData nodeMetaData = NodeMetaData.builder()
                 .pnaUUID(pnaUUID)
@@ -93,7 +94,12 @@ public class NodeServiceIntegrationTest {
                 .name(hostName)
                 .build();
 
-        CloudRegistration cloudRegistration = CloudRegistration.builder().pnaUUID(pnaUUID).prmUUID(prmUUID).prmEndpoint(prmEndpoint).pnaToken("dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl").build();
+        CloudRegistration cloudRegistration = CloudRegistration.builder()
+                .pnaUUID(pnaUUID)
+                .prmUUID(prmUUID)
+                .prmEndpoint(prmEndpoint)
+                .pnaToken("dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl")
+                .build();
 
         OnPremNode extpectedOnPremNode = OnPremNode.builder()
                 .onPremProvider(onPremProvider)
