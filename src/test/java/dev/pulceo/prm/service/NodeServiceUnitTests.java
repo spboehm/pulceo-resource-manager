@@ -93,9 +93,6 @@ public class NodeServiceUnitTests {
         this.nodeService.createOnPremNode(providerName, hostName, "pnaInitToken");
 
         // then
-        OnPremNode extpectedOnPremNode;
-        ProviderMetaData providerMetaData;
-
         OnPremProvider onPremProvider = OnPremProvider.builder().providerMetaData(
                 ProviderMetaData.builder()
                 .providerName("default")
@@ -113,7 +110,7 @@ public class NodeServiceUnitTests {
 
         CloudRegistration cloudRegistration = CloudRegistration.builder().pnaUUID(pnaUUID).prmUUID(prmUUID).prmEndpoint(prmEndpoint).pnaToken("dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl").build();
 
-        extpectedOnPremNode = OnPremNode.builder()
+        OnPremNode extpectedOnPremNode = OnPremNode.builder()
                 .onPremProvider(onPremProvider)
                 .nodeMetaData(nodeMetaData)
                 .node(node)
