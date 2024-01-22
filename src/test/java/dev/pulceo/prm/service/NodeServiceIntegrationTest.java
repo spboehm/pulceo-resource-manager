@@ -69,13 +69,12 @@ public class NodeServiceIntegrationTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/pna-1-cloud-registration-response.json")));
+        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pnaUUID, hostName, prmUUID, prmEndpoint, pnaToken);
 
         // when
         OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);
 
         // then
-        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pnaUUID, hostName, prmUUID, prmEndpoint, pnaToken);
-
         assertEquals(expectedOnPremNode, onPremNode);
     }
 
