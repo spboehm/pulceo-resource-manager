@@ -28,7 +28,13 @@ public class NodeServiceIntegrationTest {
     @Autowired
     private AbstractNodeRepository abstractNodeRepository;
 
-    @Value("${pna-1.test.init.token}")
+    @Value("${pna1.test.uuid}")
+    private UUID pna1UUID;
+
+    @Value("${pna2.test.uuid}")
+    private UUID pna2UUID;
+
+    @Value("${pna1.test.init.token}")
     private String pnaInitToken;
 
     // for some reason `dynamicPort()` is not working properly
@@ -54,11 +60,6 @@ public class NodeServiceIntegrationTest {
         this.abstractNodeRepository.deleteAll();
     }
 
-    private UUID pnaUUID = UUID.fromString("0247fea1-3ca3-401b-8fa2-b6f83a469680");
-    private String pnaToken = "dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl";
-    private UUID prmUUID = UUID.fromString("ecda0beb-dba9-4836-a0f8-da6d0fd0cd0a");
-    private String prmEndpoint = "http://localhost:7878";
-
     @Test
     public void testCreateOnPremNode() throws NodeServiceException {
         // given
@@ -69,7 +70,7 @@ public class NodeServiceIntegrationTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/pna-1-cloud-registration-response.json")));
-        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pnaUUID, hostName, prmUUID, prmEndpoint, pnaToken);
+        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pna1UUID, hostName);
 
         // when
         OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);

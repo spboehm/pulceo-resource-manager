@@ -29,8 +29,8 @@ public class LinkServiceIntegrationTest {
     @Test
     public void testCreateLinkWithExistingNodes() throws InterruptedException {
         // given
-        // TODO: one simulated
-        Thread.sleep(10000);
+        // TODO: create two Nodes
+
     }
 
 }

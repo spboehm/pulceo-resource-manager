@@ -88,7 +88,7 @@ public class NodeServiceUnitTests {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/pna-1-cloud-registration-response.json")));
-        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pnaUUID, hostName, prmUUID, prmEndpoint, pnaToken);
+        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pnaUUID, hostName);
 
         // when
         this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);

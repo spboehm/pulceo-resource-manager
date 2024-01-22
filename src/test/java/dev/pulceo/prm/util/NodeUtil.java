@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class NodeUtil {
 
-    public static OnPremNode createTestOnPremNode(UUID pnaUUID, String hostName, UUID prmUUID, String prmEndpoint, String pnaToken) {
+    public static OnPremNode createTestOnPremNode(UUID pnaUUID, String hostName) {
         OnPremProvider onPremProvider = OnPremProvider.builder().providerMetaData(
                 ProviderMetaData.builder()
                         .providerName("default")
@@ -30,9 +30,9 @@ public class NodeUtil {
 
         CloudRegistration cloudRegistration = CloudRegistration.builder()
                 .pnaUUID(pnaUUID)
-                .prmUUID(prmUUID)
-                .prmEndpoint(prmEndpoint)
-                .pnaToken(pnaToken)
+                .prmUUID(UUID.fromString("ecda0beb-dba9-4836-a0f8-da6d0fd0cd0a"))
+                .prmEndpoint("http://localhost:7878")
+                .pnaToken("dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl")
                 .build();
 
         OnPremNode onPremNode = OnPremNode.builder()
