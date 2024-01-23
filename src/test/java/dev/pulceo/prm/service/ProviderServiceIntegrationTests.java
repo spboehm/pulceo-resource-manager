@@ -4,6 +4,7 @@ import dev.pulceo.prm.model.provider.*;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
 import dev.pulceo.prm.repository.AzureProviderRepository;
+import dev.pulceo.prm.repository.OnPremProviderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,9 @@ public class ProviderServiceIntegrationTests {
     @Autowired
     ProviderService providerService;
     @Autowired
-    AzureProviderRepository providerRepository;
+    OnPremProviderRepository onpremProviderRepository;
+    @Autowired
+    AzureProviderRepository azureProviderRepository;
     @Autowired
     AbstractNodeRepository abstractNodeRepository;
     @Autowired
@@ -27,7 +30,8 @@ public class ProviderServiceIntegrationTests {
     public void prepare() {
         this.abstractLinkRepository.deleteAll();
         this.abstractNodeRepository.deleteAll();
-        this.providerRepository.deleteAll();
+        this.onpremProviderRepository.deleteAll();
+        this.azureProviderRepository.deleteAll();
     }
 
     @Test
