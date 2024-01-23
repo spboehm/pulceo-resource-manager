@@ -18,9 +18,9 @@ import lombok.experimental.SuperBuilder;
 public class NodeLink extends AbstractLink {
 
     private String name;
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private AbstractNode srcNode;
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private AbstractNode destNode;
     // TODO: List of metric requests
     // TODO: List of metrics

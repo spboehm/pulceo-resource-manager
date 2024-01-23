@@ -3,6 +3,7 @@ package dev.pulceo.prm.service;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.node.OnPremNode;
+import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
 import dev.pulceo.prm.util.NodeUtil;
 import org.junit.jupiter.api.*;
@@ -27,6 +28,8 @@ public class NodeServiceIntegrationTest {
 
     @Autowired
     private AbstractNodeRepository abstractNodeRepository;
+    @Autowired
+    private AbstractLinkRepository abstractLinkRepository;
 
     @Value("${pna1.test.uuid}")
     private UUID pna1UUID;
@@ -57,6 +60,7 @@ public class NodeServiceIntegrationTest {
 
     @BeforeEach
     public void prepare() {
+        this.abstractLinkRepository.deleteAll();
         this.abstractNodeRepository.deleteAll();
     }
 

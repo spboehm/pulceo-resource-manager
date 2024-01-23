@@ -2,10 +2,7 @@ package dev.pulceo.prm.model.node;
 
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.registration.CloudRegistration;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +16,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 public class OnPremNode extends AbstractNode {
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private OnPremProvider onPremProvider;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private NodeMetaData nodeMetaData;

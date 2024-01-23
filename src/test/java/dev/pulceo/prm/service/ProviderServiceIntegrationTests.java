@@ -1,6 +1,7 @@
 package dev.pulceo.prm.service;
 
 import dev.pulceo.prm.model.provider.*;
+import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
 import dev.pulceo.prm.repository.AzureProviderRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,9 +20,12 @@ public class ProviderServiceIntegrationTests {
     AzureProviderRepository providerRepository;
     @Autowired
     AbstractNodeRepository abstractNodeRepository;
+    @Autowired
+    AbstractLinkRepository abstractLinkRepository;
 
     @BeforeEach
     public void prepare() {
+        this.abstractLinkRepository.deleteAll();
         this.abstractNodeRepository.deleteAll();
         this.providerRepository.deleteAll();
     }

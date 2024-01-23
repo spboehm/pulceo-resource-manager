@@ -36,7 +36,7 @@ public class SimulatedPulceoNodeAgent {
         for (int i = 0; i < list.size(); i++) {
             SimulatedPulceoNodeAgent simulatedPulceoNodeAgent = list.get(i);
             simulatedPulceoNodeAgent.stop();
-            System.out.println("Stopped simulated pulceo-node-agent " + i);
+            System.out.println("Stopped simulated pulceo-node-agent " + (i+1));
         }
     }
 
