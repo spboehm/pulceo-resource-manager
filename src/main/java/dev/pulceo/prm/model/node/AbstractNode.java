@@ -11,6 +11,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class AbstractNode extends BaseEntity {
-
+public abstract class AbstractNode extends BaseEntity implements HasNodeMetaData {
 }

@@ -1,6 +1,7 @@
 package dev.pulceo.prm.service;
 
 
+import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.link.NodeLink;
 import dev.pulceo.prm.model.node.OnPremNode;
@@ -46,7 +47,7 @@ public class LinkServiceIntegrationTest {
 
     @BeforeAll
     static void setupClass() {
-        SimulatedPulceoNodeAgent.createAgents(4);
+        SimulatedPulceoNodeAgent.createAgents(2);
     }
 
     @AfterEach
@@ -60,7 +61,7 @@ public class LinkServiceIntegrationTest {
     }
 
     @Test
-    public void testCreateLinkWithExistingNodes() throws InterruptedException, NodeServiceException {
+    public void testCreateLinkWithExistingNodes() throws NodeServiceException, LinkServiceException {
         // given
         // assume two nodes are already running with simulators
         // create two nodes
@@ -69,7 +70,7 @@ public class LinkServiceIntegrationTest {
         OnPremNode createdSrcOnPremNode = this.nodeService.createOnPremNode(srcNode.getOnPremProvider().getProviderMetaData().getProviderName(),
                 srcNode.getNodeMetaData().getHostname(), pna1InitToken);
         OnPremNode createdDestOnPremNode = this.nodeService.createOnPremNode(destNode.getOnPremProvider().getProviderMetaData().getProviderName(),
-                destNode.getNodeMetaData().getHostname(),pna2InitToken);
+                destNode.getNodeMetaData().getHostname(), pna2InitToken);
         NodeLink nodeLink = NodeLink.builder().name("testLink").srcNode(createdSrcOnPremNode).destNode(createdDestOnPremNode).build();
 
         // when

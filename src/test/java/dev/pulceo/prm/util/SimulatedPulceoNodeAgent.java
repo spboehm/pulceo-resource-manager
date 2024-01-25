@@ -47,11 +47,20 @@ public class SimulatedPulceoNodeAgent {
     }
 
     public void run() {
+        // cloud registration
         this.wireMockServer.stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/pna-"+ this.id + "-cloud-registration-response.json")));
+
+        // create new link
+        this.wireMockServer.stubFor(post(urlEqualTo("/api/v1/links"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("link/pna-create-new-link-response.json")));
+
     }
 
     private void start() {

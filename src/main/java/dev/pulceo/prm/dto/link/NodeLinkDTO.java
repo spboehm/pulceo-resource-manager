@@ -10,7 +10,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NodeLinkDTO {
-    private UUID linkUuid;
+    private UUID linkUUID;
     private String name;
     private UUID srcNodeUUID;
     private UUID destNodeUUID;

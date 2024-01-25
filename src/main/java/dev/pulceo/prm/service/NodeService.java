@@ -3,6 +3,7 @@ package dev.pulceo.prm.service;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
+import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.model.node.Node;
 import dev.pulceo.prm.model.node.NodeMetaData;
 import dev.pulceo.prm.model.node.OnPremNode;
@@ -91,6 +92,10 @@ public class NodeService {
                 .build();
 
         return this.abstractNodeRepository.save(onPremNode);
+    }
+
+    public Optional<AbstractNode> readAbstractNodeByUUID(UUID uuid) {
+        return this.abstractNodeRepository.findByUuid(uuid);
     }
 
     private boolean hostNameAlreadyExists(String hostName) throws NodeServiceException {

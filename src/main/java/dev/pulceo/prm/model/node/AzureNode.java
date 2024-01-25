@@ -2,13 +2,25 @@ package dev.pulceo.prm.model.node;
 
 import dev.pulceo.prm.model.provider.AzureProvider;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
+@Entity
+@SuperBuilder
+@Getter
+@Setter
+@NoArgsConstructor
 public class AzureNode extends AbstractNode {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private AzureProvider azureProvider;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private NodeMetaData nodeMetaData;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Node node;
 
