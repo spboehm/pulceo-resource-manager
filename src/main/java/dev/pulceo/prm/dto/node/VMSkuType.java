@@ -1,4 +1,4 @@
-package dev.pulceo.prm.dto.provider.node;
+package dev.pulceo.prm.dto.node;
 
 public enum VMSkuType {
     Standard_B1S;

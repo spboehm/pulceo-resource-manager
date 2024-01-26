@@ -1,7 +1,7 @@
 package dev.pulceo.prm.controller;
 
-import dev.pulceo.prm.dto.provider.node.AbstractNodeDTO;
-import dev.pulceo.prm.dto.provider.node.CreateNewAbstractNodeDTO;
+import dev.pulceo.prm.dto.node.AbstractNodeDTO;
+import dev.pulceo.prm.dto.node.CreateNewAbstractNodeDTO;
 import dev.pulceo.prm.service.NodeService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;

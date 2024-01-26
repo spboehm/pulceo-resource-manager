@@ -1,4 +1,4 @@
-package dev.pulceo.prm.dto.provider.node;
+package dev.pulceo.prm.dto.node;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
