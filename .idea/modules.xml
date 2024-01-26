@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/e2e-tests/e2e-tests.iml" filepath="$PROJECT_DIR$/e2e-tests/e2e-tests.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/pulceo-resource-manager.main.iml" filepath="$PROJECT_DIR$/.idea/modules/pulceo-resource-manager.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/pulceo-resource-manager.test.iml" filepath="$PROJECT_DIR$/.idea/modules/pulceo-resource-manager.test.iml" />
     </modules>

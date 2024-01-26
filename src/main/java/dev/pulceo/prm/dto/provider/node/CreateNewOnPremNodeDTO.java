@@ -1,15 +1,15 @@
 package dev.pulceo.prm.dto.provider.node;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Data
-@AllArgsConstructor
+@SuperBuilder
 @NoArgsConstructor
-@Builder
-public class CreateNewOnPremNodeDTO {
+@EqualsAndHashCode(callSuper = true)
+@Schema(name = "OnPremNode", description = "Create a new node running on an on-premises node.")
+public class CreateNewOnPremNodeDTO extends CreateNewAbstractNodeDTO {
 
     private String providerName;
     private String hostname;
