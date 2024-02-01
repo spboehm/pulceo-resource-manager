@@ -1,5 +1,6 @@
 package dev.pulceo.prm.model.node;
 
+import dev.pulceo.prm.internal.G6.model.G6Node;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.registration.CloudRegistration;
 import jakarta.persistence.*;
@@ -62,5 +63,13 @@ public class OnPremNode extends AbstractNode {
         result = 31 * result + (node != null ? node.hashCode() : 0);
         result = 31 * result + (cloudRegistration != null ? cloudRegistration.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public G6Node getG6Node() {
+        return G6Node.builder()
+                .id(String.valueOf(this.getUuid()))
+                .name(this.getNode().getName())
+                .build();
     }
 }

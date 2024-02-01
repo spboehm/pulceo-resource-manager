@@ -3,6 +3,7 @@ package dev.pulceo.prm.service;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
+import dev.pulceo.prm.internal.G6.model.G6Node;
 import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.registration.CloudRegistration;
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -96,6 +99,16 @@ public class NodeService {
     @Transactional
     public OnPremNode readOnPremNode(Long id) {
         return this.onPremNoderepository.findById(id).get();
+    }
+
+    @Transactional
+    public List<G6Node> readG6NodeData() {
+        List<G6Node> list = new ArrayList<>();
+        Iterable<AbstractNode> abstractNodeList = this.abstractNodeRepository.findAll();
+        abstractNodeList.forEach(abstractNode -> {
+           list.add(abstractNode.getG6Node());
+        });
+        return list;
     }
 
     public Optional<AbstractNode> readAbstractNodeByUUID(UUID uuid) {

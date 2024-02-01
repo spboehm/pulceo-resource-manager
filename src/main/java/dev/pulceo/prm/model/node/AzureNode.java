@@ -1,5 +1,6 @@
 package dev.pulceo.prm.model.node;
 
+import dev.pulceo.prm.internal.G6.model.G6Node;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -24,4 +25,11 @@ public class AzureNode extends AbstractNode {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Node node;
 
+    @Override
+    public G6Node getG6Node() {
+        return G6Node.builder()
+                .id(String.valueOf(this.getUuid()))
+                .name(this.getNode().getName())
+                .build();
+    }
 }

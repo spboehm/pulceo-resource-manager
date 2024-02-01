@@ -3,13 +3,17 @@ package dev.pulceo.prm.service;
 import dev.pulceo.prm.dto.link.CreateNewNodeLinkDTO;
 import dev.pulceo.prm.dto.link.NodeLinkDTO;
 import dev.pulceo.prm.exception.LinkServiceException;
+import dev.pulceo.prm.internal.G6.model.G6Edge;
 import dev.pulceo.prm.model.link.NodeLink;
 import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
+import dev.pulceo.prm.repository.NodeLinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,12 +21,14 @@ import java.util.UUID;
 public class LinkService {
 
     private final AbstractLinkRepository abstractLinkRepository;
+    private final NodeLinkRepository nodeLinkRepository;
     private final NodeService nodeService;
 
     @Autowired
-    public LinkService(AbstractLinkRepository abstractLinkRepository, NodeService nodeService) {
+    public LinkService(AbstractLinkRepository abstractLinkRepository, NodeService nodeService, NodeLinkRepository nodeLinkRepository) {
         this.abstractLinkRepository = abstractLinkRepository;
         this.nodeService = nodeService;
+        this.nodeLinkRepository = nodeLinkRepository;
     }
 
     public NodeLink createNodeLink(NodeLink nodeLink) throws LinkServiceException {
@@ -85,4 +91,12 @@ public class LinkService {
         return this.abstractLinkRepository.findByUuid(uuid);
     }
 
+    public List<G6Edge> readG6EdgeData() {
+        Iterable<NodeLink> nodeLinks = this.nodeLinkRepository.findAll();
+        List<G6Edge> list = new ArrayList<>();
+        nodeLinks.forEach(nodeLink -> {
+            list.add(nodeLink.getG6Edge());
+        });
+        return list;
+    }
 }

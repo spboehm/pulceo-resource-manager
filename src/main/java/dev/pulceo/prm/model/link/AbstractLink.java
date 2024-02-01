@@ -1,5 +1,6 @@
 package dev.pulceo.prm.model.link;
 
+import dev.pulceo.prm.internal.G6.model.G6LinkRepresentation;
 import dev.pulceo.prm.model.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
@@ -11,6 +12,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
-public class AbstractLink extends BaseEntity {
+public abstract class AbstractLink extends BaseEntity implements G6LinkRepresentation {
 
 }
