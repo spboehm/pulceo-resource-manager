@@ -30,7 +30,6 @@ public class NodeController {
         this.modelMapper = modelMapper;
     }
 
-
     @PostMapping("")
     public ResponseEntity<AbstractNodeDTO> createNode(@Valid @RequestBody CreateNewAbstractNodeDTO createNewAbstractNodeDTO) throws NodeServiceException {
         if (createNewAbstractNodeDTO.getNodeType() == NodeDTOType.ONPREM) {

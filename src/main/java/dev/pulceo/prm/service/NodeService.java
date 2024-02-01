@@ -3,10 +3,7 @@ package dev.pulceo.prm.service;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
-import dev.pulceo.prm.model.node.AbstractNode;
-import dev.pulceo.prm.model.node.Node;
-import dev.pulceo.prm.model.node.NodeMetaData;
-import dev.pulceo.prm.model.node.OnPremNode;
+import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.registration.CloudRegistration;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
@@ -85,6 +82,7 @@ public class NodeService {
                 .build();
 
         OnPremNode onPremNode = OnPremNode.builder()
+                .internalNodeType(InternalNodeType.ONPREM)
                 .onPremProvider(onPremProvider.get())
                 .nodeMetaData(nodeMetaData)
                 .node(node)
