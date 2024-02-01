@@ -2,11 +2,15 @@ package dev.pulceo.prm.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.pulceo.prm.dto.node.*;
-import org.junit.jupiter.api.Test;
+import dev.pulceo.prm.repository.AbstractLinkRepository;
+import dev.pulceo.prm.repository.AbstractNodeRepository;
+import dev.pulceo.prm.util.SimulatedPulceoNodeAgent;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -16,9 +20,36 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class NodeControllerTests {
 
     @Autowired
+    private AbstractNodeRepository abstractNodeRepository;
+
+    @Autowired
+    private AbstractLinkRepository abstractLinkRepository;
+
+    @Autowired
     private MockMvc mockMvc;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    void before() {
+        this.abstractLinkRepository.deleteAll();
+        this.abstractNodeRepository.deleteAll();
+    }
+
+    @BeforeAll
+    static void setupClass() {
+        SimulatedPulceoNodeAgent.createAgents(2);
+    }
+
+    @AfterEach
+    void after() {
+        SimulatedPulceoNodeAgent.resetAgents();
+    }
+
+    @AfterAll
+    static void clean() {
+        SimulatedPulceoNodeAgent.stopAgents();
+    }
 
     @Test
     public void testCreateOnPremNode() throws Exception {
@@ -32,12 +63,13 @@ public class NodeControllerTests {
         String createNewOnPremNodeDTOAsJson = this.objectMapper.writeValueAsString(createNewOnPremNodeDTO);
 
         // when and then
-        this.mockMvc.perform(post("/api/v1/nodes")
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/nodes")
                         .contentType("application/json")
                         .accept("application/json")
                         .content(createNewOnPremNodeDTOAsJson))
-                .andExpect(status().isCreated());
-
+                .andExpect(status().isCreated())
+                .andReturn();
+        System.out.println(mvcResult.getResponse().getContentAsString());
     }
 
     @Test
