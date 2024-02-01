@@ -10,6 +10,7 @@ import dev.pulceo.prm.repository.AbstractNodeRepository;
 import dev.pulceo.prm.repository.NodeMetaDataRepository;
 import dev.pulceo.prm.repository.NodeRepository;
 import dev.pulceo.prm.repository.OnPremNodeRepository;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -90,6 +91,11 @@ public class NodeService {
                 .build();
 
         return this.abstractNodeRepository.save(onPremNode);
+    }
+
+    @Transactional
+    public OnPremNode readOnPremNode(Long id) {
+        return this.onPremNoderepository.findById(id).get();
     }
 
     public Optional<AbstractNode> readAbstractNodeByUUID(UUID uuid) {

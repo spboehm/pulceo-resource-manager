@@ -15,6 +15,22 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+@NamedEntityGraph(
+        name = "graph.OnPremNode.onPremProvider",
+        attributeNodes = {
+                @NamedAttributeNode(value = "onPremProvider", subgraph = "graph.OnPremNode.onPremProvider"),
+                @NamedAttributeNode("nodeMetaData"),
+                @NamedAttributeNode("node")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "graph.OnPremNode.onPremProvider",
+                        attributeNodes = {
+                                @NamedAttributeNode("providerMetaData")
+                        }
+                )
+        }
+)
 public class OnPremNode extends AbstractNode {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private OnPremProvider onPremProvider;

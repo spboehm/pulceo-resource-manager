@@ -1,65 +1,39 @@
 package dev.pulceo.prm.dto.node;
 
 import dev.pulceo.prm.model.node.Node;
-import dev.pulceo.prm.model.node.NodeRole;
-import dev.pulceo.prm.model.node.NodeType;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
+import dev.pulceo.prm.model.node.NodeMetaData;
+import dev.pulceo.prm.model.node.OnPremNode;
+import dev.pulceo.prm.model.provider.OnPremProvider;
+import dev.pulceo.prm.model.provider.ProviderMetaData;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
+
+import java.util.UUID;
 
 @Data
 @SuperBuilder
-public class NodeDTO {
+@EqualsAndHashCode(callSuper = true)
+public class NodeDTO extends AbstractNodeDTO {
 
-    @NotBlank(message="Name is required!")
-    private String name;
+    private UUID uuid;
+    private String providerName;
+    private String hostname;
+    private UUID pnaUUID;
+    private NodePropertiesDTO node;
 
-    @Builder.Default
-    @NotNull(message = "Node type is required!")
-    private NodeType type = NodeType.EDGE;
-
-    @Builder.Default
-    @Min(1)
-    @Max(16)
-    private int layer = 1;
-
-    @Builder.Default
-    @NotNull(message="Node role is required!")
-    private NodeRole role = NodeRole.WORKLOAD;
-
-    @Builder.Default
-    @NotNull
-    private String nodeLocationCountry = "";
-
-    @Builder.Default
-    @NotNull
-    private String nodeLocationCity = "";
-
-    @Builder.Default
-    @Min(-180)
-    @Max(180)
-    private double nodeLocationLongitude = 0.000000;
-
-    @Builder.Default
-    @Min(-90)
-    @Max(90)
-    private double nodeLocationLatitude = 0.000000;
-
-    public static NodeDTO fromNode(Node node) {
-        return NodeDTO.builder()
-            .name(node.getName())
-            .type(node.getType())
-            .layer(node.getLayer())
-            .role(node.getRole())
-            .nodeLocationCountry(node.getNodeLocationCountry())
-            .nodeLocationCity(node.getNodeLocationCity())
-            .nodeLocationLongitude(node.getNodeLocationLongitude())
-            .nodeLocationLatitude(node.getNodeLocationLatitude())
-            .build();
+    public static NodeDTO fromOnPremNode(OnPremNode OnPremNode) {
+            OnPremProvider onPremProvider = OnPremNode.getOnPremProvider();
+            ProviderMetaData providerMetaData = onPremProvider.getProviderMetaData();
+            NodeMetaData nodeMetaData = OnPremNode.getNodeMetaData();
+            Node node = OnPremNode.getNode();
+            return NodeDTO.builder()
+                    .uuid(OnPremNode.getUuid())
+                    .providerName(providerMetaData.getProviderName())
+                    .hostname(nodeMetaData.getHostname())
+                    .pnaUUID(nodeMetaData.getPnaUUID())
+                    .node(NodePropertiesDTO.fromNode(node))
+                    .build();
     }
 
 }
