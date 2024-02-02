@@ -4,6 +4,7 @@ import dev.pulceo.prm.dto.link.CreateNewNodeLinkDTO;
 import dev.pulceo.prm.dto.link.NodeLinkDTO;
 import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.internal.G6.model.G6Edge;
+import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.link.NodeLink;
 import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
@@ -89,6 +90,12 @@ public class LinkService {
 
     public Optional<NodeLink> readNodeLinkByUUID(UUID uuid) {
         return this.abstractLinkRepository.findByUuid(uuid);
+    }
+
+    public List<AbstractLink> readAllLinks() {
+        List<AbstractLink> list = new ArrayList<>();
+        this.abstractLinkRepository.findAll().forEach(list::add);
+        return list;
     }
 
     public List<G6Edge> readG6EdgeData() {

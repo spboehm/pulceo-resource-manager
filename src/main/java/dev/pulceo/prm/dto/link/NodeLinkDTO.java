@@ -1,17 +1,29 @@
 package dev.pulceo.prm.dto.link;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import dev.pulceo.prm.model.link.NodeLink;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
 @Data
-@AllArgsConstructor
+@SuperBuilder
+@Getter
+@Setter
 @NoArgsConstructor
-public class NodeLinkDTO {
-    private UUID linkUUID;
+@EqualsAndHashCode(callSuper = true)
+public class NodeLinkDTO extends AbstractLinkDTO {
+    private String linkUUID;
     private String name;
     private UUID srcNodeUUID;
     private UUID destNodeUUID;
+
+    public static NodeLinkDTO fromNodeLink(NodeLink nodeLink) {
+        return NodeLinkDTO.builder()
+                .linkUUID(String.valueOf(nodeLink.getUuid()))
+                .name(nodeLink.getName())
+                .srcNodeUUID(nodeLink.getSrcNode().getUuid())
+                .destNodeUUID(nodeLink.getDestNode().getUuid())
+                .build();
+    }
 }

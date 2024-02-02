@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface AbstractLinkRepository extends CrudRepository<AbstractLink, Long> {
 
     Optional<NodeLink> findByUuid(UUID uuid);
+
 }
