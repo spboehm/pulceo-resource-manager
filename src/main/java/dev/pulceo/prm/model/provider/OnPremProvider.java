@@ -1,16 +1,15 @@
 package dev.pulceo.prm.model.provider;
 
 import dev.pulceo.prm.model.BaseEntity;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
+import dev.pulceo.prm.model.node.OnPremNode;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -22,6 +21,8 @@ import java.util.Objects;
 public class OnPremProvider extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private ProviderMetaData providerMetaData;
+    @OneToMany(mappedBy = "onPremProvider")
+    private List<OnPremNode> onPremNodes;
 
     @Override
     public boolean equals(Object o) {

@@ -34,6 +34,7 @@ import java.util.Objects;
 )
 public class OnPremNode extends AbstractNode {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinColumn
     private OnPremProvider onPremProvider;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private NodeMetaData nodeMetaData;
