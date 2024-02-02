@@ -43,7 +43,7 @@ public class NodeController {
         } else {
             logger.info("Received request to create a new node of type: " + createNewAbstractNodeDTO.getNodeType());
         }
-        return ResponseEntity.status(201).build();
+        return ResponseEntity.status(400).build();
     }
 
     @GetMapping("/{uuid}")
