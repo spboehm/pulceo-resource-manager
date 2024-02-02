@@ -5,9 +5,11 @@ import dev.pulceo.prm.internal.G6.model.G6Edge;
 import dev.pulceo.prm.internal.G6.model.G6Node;
 import dev.pulceo.prm.service.LinkService;
 import dev.pulceo.prm.service.NodeService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -24,10 +26,9 @@ public class GraphController {
         this.linkService = linkService;
     }
 
-    @GetMapping("/graph/{uuid}")
+    @GetMapping("/graph")
     @CrossOrigin(origins = "*")
-    public G6Data readGraph(@Valid @PathVariable String uuid)  {
-
+    public G6Data readGraph()  {
         List<G6Node> g6nodes = this.nodeService.readG6NodeData();
         List<G6Edge> g6edges = this.linkService.readG6EdgeData();
 
@@ -35,9 +36,6 @@ public class GraphController {
                 .g6Nodes(g6nodes)
                 .g6Edges(g6edges)
                 .build();
-
-        System.out.println(g6Data.toString());
-
         return g6Data;
     }
     

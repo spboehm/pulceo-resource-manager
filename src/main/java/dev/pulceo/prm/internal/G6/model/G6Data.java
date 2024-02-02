@@ -1,7 +1,6 @@
 package dev.pulceo.prm.internal.G6.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,7 +9,6 @@ import java.util.List;
 
 @Data
 @Builder
-@JsonRootName("data")
 public class G6Data {
 
     @JsonProperty("nodes")
