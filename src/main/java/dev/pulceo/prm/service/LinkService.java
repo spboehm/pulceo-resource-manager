@@ -88,10 +88,17 @@ public class LinkService {
         return this.abstractLinkRepository.save(nodeLink);
     }
 
-    public Optional<NodeLink> readNodeLinkByUUID(UUID uuid) {
+    // TODO: types are unclear
+    public Optional<AbstractLink> readLinkByUUID(UUID uuid) {
         return this.abstractLinkRepository.findByUuid(uuid);
     }
 
+    // TODO: types are unclear
+    public Optional<NodeLink> readNodeLinkByUUID(UUID uuid) {
+        return this.abstractLinkRepository.findNodeLinkByUuid(uuid);
+    }
+
+    // TODO: types are unclear
     public List<AbstractLink> readAllLinks() {
         List<AbstractLink> list = new ArrayList<>();
         this.abstractLinkRepository.findAll().forEach(list::add);
