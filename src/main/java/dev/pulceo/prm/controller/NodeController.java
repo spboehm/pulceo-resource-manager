@@ -43,8 +43,8 @@ public class NodeController {
             return new ResponseEntity<>(NodeDTO.fromOnPremNode(onPremNode), HttpStatus.CREATED);
         } else {
             logger.info("Received request to create a new node of type: " + createNewAbstractNodeDTO.getNodeType());
+            throw new NodeServiceException("Node type not yet supported!");
         }
-        return ResponseEntity.status(400).build();
     }
 
     @GetMapping("/{uuid}")
@@ -65,6 +65,7 @@ public class NodeController {
     public ResponseEntity<CustomErrorResponse> handleCloudRegistrationException(NodeServiceException nodeServiceException) {
         CustomErrorResponse error = new CustomErrorResponse("BAD_REQUEST", nodeServiceException.getMessage());
         error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setErrorMsg(nodeServiceException.getMessage());
         error.setTimestamp(LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }

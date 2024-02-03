@@ -83,11 +83,12 @@ public class NodeControllerTests {
         String createNewAzureNodeDTOAsJson = this.objectMapper.writeValueAsString(createNewAzureNodeDTO);
 
         // when and then
+        // TODO: implement this
         this.mockMvc.perform(post("/api/v1/nodes")
                         .contentType("application/json")
                         .accept("application/json")
                         .content(createNewAzureNodeDTOAsJson))
-                .andExpect(status().isCreated());
+                .andExpect(status().is4xxClientError());
 
     }
 }

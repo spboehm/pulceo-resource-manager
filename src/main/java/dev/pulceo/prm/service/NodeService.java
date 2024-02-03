@@ -52,14 +52,13 @@ public class NodeService {
     }
 
     public OnPremNode createOnPremNode(String providerName, String hostName, String pnaInitToken) throws NodeServiceException {
-
         Optional<OnPremProvider> onPremProvider = this.providerService.readOnPremProviderByProviderName(providerName);
         if (onPremProvider.isEmpty()) {
-            throw new NodeServiceException("Provider does not exist");
+            throw new NodeServiceException("Provider does not exist!");
         }
 
         if (this.hostNameAlreadyExists(hostName)) {
-            throw new NodeServiceException("Hostname already exists");
+            throw new NodeServiceException("Hostname already exists-");
         }
 
         CloudRegistrationRequestDTO cloudRegistrationRequestDTO = CloudRegistrationRequestDTO.builder()
@@ -71,9 +70,13 @@ public class NodeService {
         WebClient webClient = WebClient.create("http://" + hostName + ":7676");
         CloudRegistrationResponseDTO cloudRegistrationResponseDTO = webClient.post()
                 .uri("/api/v1/cloud-registrations")
+                .header("Content-Type", "application/json")
                 .bodyValue(cloudRegistrationRequestDTO)
                 .retrieve()
                 .bodyToMono(CloudRegistrationResponseDTO.class)
+                .onErrorResume(e -> {
+                    throw new RuntimeException(new NodeServiceException("Failed to to issue a cloud registration"));
+                })
                 .block();
 
         CloudRegistration cloudRegistration = this.modelMapper.map(cloudRegistrationResponseDTO, CloudRegistration.class);
