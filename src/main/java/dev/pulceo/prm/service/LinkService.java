@@ -54,10 +54,13 @@ public class LinkService {
         }
 
         /* Transaction begins */
+
+        // TODO: add retrieval of remote UUID
+        // TODO: add retrieval of remote UUID
         CreateNewNodeLinkDTO createNewNodeLinkDTO = CreateNewNodeLinkDTO.builder()
                 .name(nodeLink.getName())
-                .srcNodeUUID(nodeLink.getSrcNode().getUuid())
-                .destNodeUUID(nodeLink.getDestNode().getUuid())
+                .srcNodeUUID(nodeLink.getSrcNode().getUuid()) // TODO: replace by the remote node uuid of the source node
+                .destNodeUUID(nodeLink.getDestNode().getUuid()) // TODO: replace by the remote node uuid of the destination node
                 .build();
 
         // srcNode to destNode

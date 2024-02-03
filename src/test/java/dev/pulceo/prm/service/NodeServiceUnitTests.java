@@ -48,6 +48,8 @@ public class NodeServiceUnitTests {
     private UUID prmUUID = UUID.fromString("ecda0beb-dba9-4836-a0f8-da6d0fd0cd0a");
     private String prmEndpoint = "http://localhost:7878";
 
+    private UUID pna1RemoteUUID = UUID.fromString("8f08e447-7ccd-4657-a873-a1d43a733b1a");
+
     // for some reason `dynamicPort()` is not working properly
     public static WireMockServer wireMockServer = new WireMockServer(WireMockSpring.options().bindAddress("127.0.0.2").port(7676));
 
@@ -88,7 +90,7 @@ public class NodeServiceUnitTests {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/pna-1-cloud-registration-response.json")));
-        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pnaUUID, hostName);
+        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pna1RemoteUUID, pnaUUID, hostName);
 
         // when
         this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);

@@ -33,6 +33,12 @@ public class LinkServiceIntegrationTest {
     @Autowired
     private NodeService nodeService;
 
+    @Value("${pna1.test.remote.uuid}")
+    private UUID pna1RemoteUUID;
+
+    @Value("${pna2.test.remote.uuid}")
+    private UUID pna2RemoteUUID;
+
     @Value("${pna1.test.init.token}")
     private String pna1InitToken;
 
@@ -65,8 +71,9 @@ public class LinkServiceIntegrationTest {
         // given
         // assume two nodes are already running with simulators
         // create two nodes
-        OnPremNode srcNode = NodeUtil.createTestOnPremNode(UUID.randomUUID(), "127.0.0.1");
-        OnPremNode destNode = NodeUtil.createTestOnPremNode(UUID.randomUUID(), "127.0.0.2");
+
+        OnPremNode srcNode = NodeUtil.createTestOnPremNode(pna1RemoteUUID, UUID.randomUUID(), "127.0.0.1");
+        OnPremNode destNode = NodeUtil.createTestOnPremNode(pna2RemoteUUID, UUID.randomUUID(), "127.0.0.2");
         OnPremNode createdSrcOnPremNode = this.nodeService.createOnPremNode(srcNode.getOnPremProvider().getProviderMetaData().getProviderName(),
                 srcNode.getNodeMetaData().getHostname(), pna1InitToken);
         OnPremNode createdDestOnPremNode = this.nodeService.createOnPremNode(destNode.getOnPremProvider().getProviderMetaData().getProviderName(),

@@ -91,7 +91,6 @@ public class NodeService {
                 .pnaUUID(cloudRegistration.getPnaUUID())
                 .hostname(hostName)
                 .build();
-
         OnPremNode onPremNode = OnPremNode.builder()
                 .internalNodeType(InternalNodeType.ONPREM)
                 .onPremProvider(onPremProvider.get())
@@ -99,8 +98,16 @@ public class NodeService {
                 .node(node)
                 .cloudRegistration(cloudRegistration)
                 .build();
-
         return this.abstractNodeRepository.save(onPremNode);
+    }
+
+    public UUID getRemoteUUID(UUID localUUID) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(localUUID);
+        if (abstractNode.isEmpty()) {
+            throw new NodeServiceException("Node with UUID " + localUUID + " does not exist!");
+        }
+        NodeMetaData nodeMetaData = abstractNode.get().getNodeMetaData();
+        return nodeMetaData.getRemoteNodeUUID();
     }
 
     @Transactional

@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class NodeUtil {
 
-    public static OnPremNode createTestOnPremNode(UUID pnaUUID, String hostName) {
+    public static OnPremNode createTestOnPremNode(UUID remoteUUID, UUID pnaUUID, String hostName) {
         OnPremProvider onPremProvider = OnPremProvider.builder().providerMetaData(
                 ProviderMetaData.builder()
                         .providerName("default")
@@ -20,6 +20,7 @@ public class NodeUtil {
                         .build()).build();
 
         NodeMetaData nodeMetaData = NodeMetaData.builder()
+                .remoteNodeUUID(remoteUUID)
                 .pnaUUID(pnaUUID)
                 .hostname(hostName)
                 .build();
@@ -29,20 +30,19 @@ public class NodeUtil {
                 .build();
 
         CloudRegistration cloudRegistration = CloudRegistration.builder()
+                .nodeUUID(remoteUUID)
                 .pnaUUID(pnaUUID)
                 .prmUUID(UUID.fromString("ecda0beb-dba9-4836-a0f8-da6d0fd0cd0a"))
                 .prmEndpoint("http://localhost:7878")
                 .pnaToken("dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl")
                 .build();
 
-        OnPremNode onPremNode = OnPremNode.builder()
+        return OnPremNode.builder()
                 .onPremProvider(onPremProvider)
                 .nodeMetaData(nodeMetaData)
                 .node(node)
                 .cloudRegistration(cloudRegistration)
                 .build();
-
-        return onPremNode;
     }
 
 }

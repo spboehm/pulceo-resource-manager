@@ -34,6 +34,9 @@ public class NodeServiceIntegrationTest {
     @Value("${pna1.test.uuid}")
     private UUID pna1UUID;
 
+    @Value("${pna1.test.remote.uuid}")
+    private UUID pna1RemoteUUID;
+
     @Value("${pna2.test.uuid}")
     private UUID pna2UUID;
 
@@ -74,13 +77,32 @@ public class NodeServiceIntegrationTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/pna-1-cloud-registration-response.json")));
-        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pna1UUID, hostName);
+        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pna1RemoteUUID, pna1UUID, hostName);
 
         // when
         OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);
 
         // then
         assertEquals(expectedOnPremNode, onPremNode);
+    }
+
+    @Test
+    public void testGetByRemoteUUID() throws NodeServiceException {
+        // given
+        String providerName = "default";
+        String hostName = "127.0.0.1";
+        wireMockServer.stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("registration/pna-1-cloud-registration-response.json")));
+        OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);
+
+        // when
+        UUID remoteUUID = this.nodeService.getRemoteUUID(onPremNode.getUuid());
+
+        // then
+        assertEquals(onPremNode.getNodeMetaData().getRemoteNodeUUID(), remoteUUID);
     }
 
 }
