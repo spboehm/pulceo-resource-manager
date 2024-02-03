@@ -18,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @ToString
 public class CloudRegistration extends BaseEntity {
-
+    private UUID nodeUUID;
     private UUID pnaUUID;
     private UUID prmUUID;
     private String prmEndpoint;
@@ -31,6 +31,7 @@ public class CloudRegistration extends BaseEntity {
 
         CloudRegistration that = (CloudRegistration) o;
 
+        if (!Objects.equals(nodeUUID, that.nodeUUID)) return false;
         if (!Objects.equals(pnaUUID, that.pnaUUID)) return false;
         if (!Objects.equals(prmUUID, that.prmUUID)) return false;
         if (!Objects.equals(prmEndpoint, that.prmEndpoint)) return false;
@@ -39,7 +40,8 @@ public class CloudRegistration extends BaseEntity {
 
     @Override
     public int hashCode() {
-        int result = pnaUUID != null ? pnaUUID.hashCode() : 0;
+        int result = nodeUUID != null ? nodeUUID.hashCode() : 0;
+        result = 31 * result + (pnaUUID != null ? pnaUUID.hashCode() : 0);
         result = 31 * result + (prmUUID != null ? prmUUID.hashCode() : 0);
         result = 31 * result + (prmEndpoint != null ? prmEndpoint.hashCode() : 0);
         result = 31 * result + (pnaToken != null ? pnaToken.hashCode() : 0);

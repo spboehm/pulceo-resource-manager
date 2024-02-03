@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CloudRegistrationResponseDTO {
 
+    private String nodeUUID;
     private String pnaUUID;
     private String prmUUID;
     private String prmEndpoint;

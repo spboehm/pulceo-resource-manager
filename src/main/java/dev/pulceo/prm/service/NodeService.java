@@ -13,6 +13,8 @@ import dev.pulceo.prm.repository.NodeRepository;
 import dev.pulceo.prm.repository.OnPremNodeRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,11 +28,11 @@ import java.util.UUID;
 @Service
 public class NodeService {
 
+    private final Logger logger = LoggerFactory.getLogger(NodeService.class);
     private final AbstractNodeRepository abstractNodeRepository;
     private final NodeMetaDataRepository nodeMetaDataRepository;
     private final OnPremNodeRepository onPremNoderepository;
     private final NodeRepository nodeRepository;
-
     private final ProviderService providerService;
     private final CloudRegistraionService cloudRegistraionService;
 
@@ -80,10 +82,12 @@ public class NodeService {
                 .block();
 
         CloudRegistration cloudRegistration = this.modelMapper.map(cloudRegistrationResponseDTO, CloudRegistration.class);
+        logger.info("Received cloud registration response: " + cloudRegistration);
 
         Node node = Node.builder().name(hostName).build();
 
         NodeMetaData nodeMetaData = NodeMetaData.builder()
+                .remoteNodeUUID(cloudRegistration.getNodeUUID())
                 .pnaUUID(cloudRegistration.getPnaUUID())
                 .hostname(hostName)
                 .build();

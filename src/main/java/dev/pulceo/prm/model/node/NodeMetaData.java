@@ -20,6 +20,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @ToString
 public class NodeMetaData extends BaseEntity {
+    @NotNull(message= "Remote node id is required!")
+    private UUID remoteNodeUUID;
     @NotNull(message= "PNA id is required!")
     private UUID pnaUUID;
     @NotBlank(message="Node hostname is required!")
@@ -32,13 +34,16 @@ public class NodeMetaData extends BaseEntity {
 
         NodeMetaData that = (NodeMetaData) o;
 
+        if (!Objects.equals(remoteNodeUUID, that.remoteNodeUUID))
+            return false;
         if (!Objects.equals(pnaUUID, that.pnaUUID)) return false;
         return Objects.equals(hostname, that.hostname);
     }
 
     @Override
     public int hashCode() {
-        int result = pnaUUID != null ? pnaUUID.hashCode() : 0;
+        int result = remoteNodeUUID != null ? remoteNodeUUID.hashCode() : 0;
+        result = 31 * result + (pnaUUID != null ? pnaUUID.hashCode() : 0);
         result = 31 * result + (hostname != null ? hostname.hashCode() : 0);
         return result;
     }
