@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.UUID;
+
 @Entity
 @SuperBuilder
 @Getter
@@ -19,14 +21,14 @@ import lombok.experimental.SuperBuilder;
 public class NodeLink extends AbstractLink {
 
     private String name;
+    // TODO: move to MetaDataClass, refers to the src node
+    private UUID remoteNodeLinkUUID;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private AbstractNode srcNode;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private AbstractNode destNode;
     // TODO: List of metric requests
     // TODO: List of metrics
-
-
 
     @Override
     public G6Edge getG6Edge() {

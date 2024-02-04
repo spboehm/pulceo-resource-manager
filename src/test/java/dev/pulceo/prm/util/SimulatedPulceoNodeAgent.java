@@ -54,6 +54,13 @@ public class SimulatedPulceoNodeAgent {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/pna-"+ this.id + "-cloud-registration-response.json")));
 
+        // create new node
+        this.wireMockServer.stubFor(post(urlEqualTo("/api/v1/nodes"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-create-new-logical-node.json")));
+
         // create new link
         this.wireMockServer.stubFor(post(urlEqualTo("/api/v1/links"))
                 .willReturn(aResponse()

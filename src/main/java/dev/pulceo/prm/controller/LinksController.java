@@ -18,12 +18,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/links")
 public class LinksController {
-
     private final Logger logger = LoggerFactory.getLogger(LinksController.class);
-
-
     private LinkService linkService;
-
     @Autowired
     public LinksController(LinkService linkService) {
         this.linkService = linkService;
@@ -41,7 +37,6 @@ public class LinksController {
             throw new Exception("Link type not yet supported!");
         }
     }
-
 
     // TODO: typing and move to service
     @GetMapping("")

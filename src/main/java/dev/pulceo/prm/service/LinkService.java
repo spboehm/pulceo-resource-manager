@@ -2,6 +2,8 @@ package dev.pulceo.prm.service;
 
 import dev.pulceo.prm.dto.link.CreateNewNodeLinkDTO;
 import dev.pulceo.prm.dto.link.NodeLinkDTO;
+import dev.pulceo.prm.dto.pna.node.CreateNewNodeDTO;
+import dev.pulceo.prm.dto.pna.node.NodeDTO;
 import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.internal.G6.model.G6Edge;
 import dev.pulceo.prm.model.link.AbstractLink;
@@ -32,6 +34,7 @@ public class LinkService {
         this.nodeLinkRepository = nodeLinkRepository;
     }
 
+    // TODO: ambigious
     public NodeLink createNodeLinkByUUID(String name, UUID srcNodeUUID, UUID destNodeUUID) throws Exception {
         // TODO: exception handling
         AbstractNode srcNode = this.nodeService.readAbstractNodeByUUID(srcNodeUUID).orElseThrow();
@@ -66,19 +69,38 @@ public class LinkService {
             throw new LinkServiceException("Destination node with id %s does not exist!".formatted(nodeLink.getDestNode().getUuid()));
         }
 
-        /* Transaction begins */
+        // the remote UUID in perspective of the srcNode (localnode)
+        UUID srcRemoteNodeUUID = abstractSrcNode.get().getNodeMetaData().getRemoteNodeUUID();
 
-        // TODO: add retrieval of remote UUID
-        // TODO: add retrieval of remote UUID
+        // TODO: replace pnaEndpoint with https
+        // create a new logical node inside the srcNode
+        CreateNewNodeDTO createDestNewNodeDTO = CreateNewNodeDTO.builder()
+                .name(abstractDestNode.get().getNodeMetaData().getHostname())
+                .pnaUUID(String.valueOf(abstractDestNode.get().getNodeMetaData().getPnaUUID()))
+                .pnaEndpoint("http://" + abstractDestNode.get().getNodeMetaData().getHostname() + ":7676")
+                .host(abstractDestNode.get().getNodeMetaData().getHostname())
+                .build();
+
+        WebClient wcNodeDTO = WebClient.create("http://" + abstractSrcNode.get().getNodeMetaData().getHostname() + ":7676");
+        NodeDTO destNodeDTO = wcNodeDTO.post()
+                .uri("/api/v1/nodes")
+                .bodyValue(createDestNewNodeDTO)
+                .retrieve()
+                .bodyToMono(NodeDTO.class)
+                .onErrorResume(error -> {
+                    throw new RuntimeException(new LinkServiceException("Error while creating logical node"));
+                })
+                .block();
+
+        // create new node link DTO for the srcNode, this information is effectively used in the srcNode to make the link
         CreateNewNodeLinkDTO createNewNodeLinkDTO = CreateNewNodeLinkDTO.builder()
                 .name(nodeLink.getName())
-                .srcNodeUUID(nodeLink.getSrcNode().getUuid()) // TODO: replace by the remote node uuid of the source node
-                .destNodeUUID(nodeLink.getDestNode().getUuid()) // TODO: replace by the remote node uuid of the destination node
+                .srcNodeUUID(srcRemoteNodeUUID) // remote srcNodeUUID, is going to be replaced by local node UUID in pna
+                .destNodeUUID(destNodeDTO.getNodeUUID()) // destNodeUUID is replaced by the previously return remote node UUID
                 .build();
 
         // srcNode to destNode
-        WebClient webClient = WebClient.create("http://" + abstractSrcNode.get().getNodeMetaData().getHostname() + ":7676");
-        NodeLinkDTO srcNodeLinkDTO = webClient.post()
+        NodeLinkDTO srcNodeLinkDTO = wcNodeDTO.post()
                 .uri("/api/v1/links")
                 .bodyValue(createNewNodeLinkDTO)
                 .retrieve()
@@ -88,18 +110,10 @@ public class LinkService {
                 })
                 .block();
         // TODO: assertions
-        // destNode to srcNode
-        webClient = WebClient.create("http://" + abstractDestNode.get().getNodeMetaData().getHostname() + ":7676");
-        NodeLinkDTO destNodeLinkDTO = webClient.post()
-                .uri("/api/v1/links")
-                .bodyValue(createNewNodeLinkDTO)
-                .retrieve()
-                .bodyToMono(NodeLinkDTO.class)
-                .onErrorResume(error -> {
-                    throw new RuntimeException(new LinkServiceException("Error while creating link from destNode to srcNode"));
-                })
-                .block();
+        // TODO: consider a bidrectional link
         /* Transaction ends */
+        // before persisting the NodeLink we need to set the remoteNodeLinkUUID to the UUID of the link pna returns
+        nodeLink.setRemoteNodeLinkUUID(UUID.fromString(srcNodeLinkDTO.getLinkUUID()));
         // TODO: assertions
         return this.abstractLinkRepository.save(nodeLink);
     }
