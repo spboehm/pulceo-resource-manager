@@ -69,7 +69,6 @@ public class NodeControllerTests {
                         .content(createNewOnPremNodeDTOAsJson))
                 .andExpect(status().isCreated())
                 .andReturn();
-        System.out.println(mvcResult.getResponse().getContentAsString());
     }
 
     @Test

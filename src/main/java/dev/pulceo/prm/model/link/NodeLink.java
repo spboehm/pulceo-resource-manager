@@ -26,6 +26,8 @@ public class NodeLink extends AbstractLink {
     // TODO: List of metric requests
     // TODO: List of metrics
 
+
+
     @Override
     public G6Edge getG6Edge() {
         return G6Edge.builder()

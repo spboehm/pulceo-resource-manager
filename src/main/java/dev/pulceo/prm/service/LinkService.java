@@ -32,6 +32,19 @@ public class LinkService {
         this.nodeLinkRepository = nodeLinkRepository;
     }
 
+    public NodeLink createNodeLinkByUUID(String name, UUID srcNodeUUID, UUID destNodeUUID) throws Exception {
+        // TODO: exception handling
+        AbstractNode srcNode = this.nodeService.readAbstractNodeByUUID(srcNodeUUID).orElseThrow();
+        AbstractNode destNode = this.nodeService.readAbstractNodeByUUID(destNodeUUID).orElseThrow();
+        NodeLink nodeLink = NodeLink.builder()
+                .name(name)
+                .srcNode(srcNode)
+                .destNode(destNode)
+                .build();
+        return this.createNodeLink(nodeLink);
+    }
+
+    // TODO: replace with name and srcNodeUUID and destNodeUUID or do by request object
     public NodeLink createNodeLink(NodeLink nodeLink) throws LinkServiceException {
         /* TODO: check if nodeLink already exists from srcNodeUUID to destNodeUUID */
 

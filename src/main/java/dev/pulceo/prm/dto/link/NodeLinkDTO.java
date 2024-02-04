@@ -20,6 +20,7 @@ public class NodeLinkDTO extends AbstractLinkDTO {
 
     public static NodeLinkDTO fromNodeLink(NodeLink nodeLink) {
         return NodeLinkDTO.builder()
+                .linkType(LinkTypeDTO.NODE_LINK)
                 .linkUUID(String.valueOf(nodeLink.getUuid()))
                 .name(nodeLink.getName())
                 .srcNodeUUID(nodeLink.getSrcNode().getUuid())

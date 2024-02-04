@@ -1,16 +1,14 @@
 package dev.pulceo.prm.controller;
 
-import dev.pulceo.prm.dto.link.AbstractLinkDTO;
-import dev.pulceo.prm.dto.link.NodeLinkDTO;
+import dev.pulceo.prm.dto.link.*;
 import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.link.NodeLink;
 import dev.pulceo.prm.service.LinkService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +19,9 @@ import java.util.UUID;
 @RequestMapping("/api/v1/links")
 public class LinksController {
 
+    private final Logger logger = LoggerFactory.getLogger(LinksController.class);
+
+
     private LinkService linkService;
 
     @Autowired
@@ -28,7 +29,21 @@ public class LinksController {
         this.linkService = linkService;
     }
 
-    // TODO: typing
+    @PostMapping
+    public ResponseEntity<AbstractLinkDTO> createLink(@RequestBody CreateNewAbstractLinkDTO createNewAbstractLinkDTO) throws Exception {
+        if (createNewAbstractLinkDTO.getLinkType() == LinkTypeDTO.NODE_LINK) {
+            this.logger.info("Received request to create a new NodeLink: " + createNewAbstractLinkDTO);
+            CreateNewNodeLinkDTO createNewNodeLinkDTO = CreateNewNodeLinkDTO.fromAbstractLinkDTO(createNewAbstractLinkDTO);
+            NodeLink nodeLink = this.linkService.createNodeLinkByUUID(createNewNodeLinkDTO.getName(), createNewNodeLinkDTO.getSrcNodeUUID(), createNewNodeLinkDTO.getDestNodeUUID());
+            return ResponseEntity.status(201).body(NodeLinkDTO.fromNodeLink(nodeLink));
+        } else {
+            logger.info("Received request to create a new link of type: " + createNewAbstractLinkDTO.getLinkType());
+            throw new Exception("Link type not yet supported!");
+        }
+    }
+
+
+    // TODO: typing and move to service
     @GetMapping("")
     public ResponseEntity<List<AbstractLinkDTO>> readLinkByUUID() {
         List<AbstractLink> links = linkService.readAllLinks();
