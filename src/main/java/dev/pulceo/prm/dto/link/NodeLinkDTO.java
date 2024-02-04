@@ -14,6 +14,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 public class NodeLinkDTO extends AbstractLinkDTO {
     private String linkUUID;
+    private UUID remoteNodeLinkUUID;
     private String name;
     private UUID srcNodeUUID;
     private UUID destNodeUUID;
@@ -22,6 +23,7 @@ public class NodeLinkDTO extends AbstractLinkDTO {
         return NodeLinkDTO.builder()
                 .linkType(LinkTypeDTO.NODE_LINK)
                 .linkUUID(String.valueOf(nodeLink.getUuid()))
+                .remoteNodeLinkUUID(nodeLink.getRemoteNodeLinkUUID())
                 .name(nodeLink.getName())
                 .srcNodeUUID(nodeLink.getSrcNode().getUuid())
                 .destNodeUUID(nodeLink.getDestNode().getUuid())
