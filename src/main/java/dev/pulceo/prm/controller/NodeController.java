@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -59,6 +61,21 @@ public class NodeController {
             return new ResponseEntity<>(NodeDTO.fromOnPremNode(onPremNode), HttpStatus.OK);
         }
         return ResponseEntity.status(400).build();
+    }
+
+    @GetMapping("")
+    // effectively, only NodeDTO is returned, but the method signature is kept for future use
+    public ResponseEntity<List<AbstractNodeDTO>> readAllNodes() {
+        List<AbstractNode> abstractNodeList = this.nodeService.readAllNodes();
+        List<AbstractNodeDTO> abstractNodeDTOList = new ArrayList<>();
+        for (AbstractNode abstractNode : abstractNodeList) {
+            InternalNodeType internalNodeType = abstractNode.getInternalNodeType();
+            if (internalNodeType == InternalNodeType.ONPREM) {
+                OnPremNode onPremNode = this.nodeService.readOnPremNode(abstractNode.getId());
+                abstractNodeDTOList.add(NodeDTO.fromOnPremNode(onPremNode));
+            }
+        }
+        return ResponseEntity.status(200).body(abstractNodeDTOList);
     }
 
     @ExceptionHandler(value = NodeServiceException.class)

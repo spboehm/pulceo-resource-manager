@@ -101,6 +101,12 @@ public class NodeService {
         return this.abstractNodeRepository.save(onPremNode);
     }
 
+    public List<AbstractNode> readAllNodes() {
+        List<AbstractNode> listOfNodes = new ArrayList<>();
+        this.abstractNodeRepository.findAll().forEach(listOfNodes::add);
+        return listOfNodes;
+    }
+
     public UUID getRemoteUUID(UUID localUUID) throws NodeServiceException {
         Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(localUUID);
         if (abstractNode.isEmpty()) {
