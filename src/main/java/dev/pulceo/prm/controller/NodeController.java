@@ -23,6 +23,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/nodes")
+@CrossOrigin(origins = "*")
 public class NodeController {
 
     private final Logger logger = LoggerFactory.getLogger(NodeController.class);
