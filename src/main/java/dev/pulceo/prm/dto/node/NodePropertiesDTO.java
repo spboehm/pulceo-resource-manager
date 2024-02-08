@@ -1,6 +1,5 @@
 package dev.pulceo.prm.dto.node;
 
-import dev.pulceo.prm.dto.pna.node.CPU.CPUResourceDTO;
 import dev.pulceo.prm.model.node.Node;
 import dev.pulceo.prm.model.node.NodeRole;
 import dev.pulceo.prm.model.node.NodeType;
@@ -50,7 +49,6 @@ public class NodePropertiesDTO {
     @Max(90)
     private double nodeLocationLatitude = 0.000000;
 
-    private CPUResourceDTO cpuResource;
 
     public static NodePropertiesDTO fromNode(Node node) {
         return NodePropertiesDTO.builder()
@@ -62,7 +60,6 @@ public class NodePropertiesDTO {
             .nodeLocationCity(node.getNodeLocationCity())
             .nodeLocationLongitude(node.getNodeLocationLongitude())
             .nodeLocationLatitude(node.getNodeLocationLatitude())
-            .cpuResource(CPUResourceDTO.fromCPUResource(node.getUuid(), node.getCpuResource()))
             .build();
     }
 

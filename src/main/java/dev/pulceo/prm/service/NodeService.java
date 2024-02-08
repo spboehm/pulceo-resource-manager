@@ -116,6 +116,7 @@ public class NodeService {
         return this.abstractNodeRepository.save(onPremNode);
     }
 
+    @Transactional
     public List<AbstractNode> readAllNodes() {
         List<AbstractNode> listOfNodes = new ArrayList<>();
         this.abstractNodeRepository.findAll().forEach(listOfNodes::add);
