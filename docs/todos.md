@@ -9,3 +9,4 @@
 - [ ] Implement transaction-like processing of node creation and link creation
 - [ ] !!! Review CORS-HEADERS
 - [ ] Make sure that differentiation between NodeLink and AbstractLink is clear, remove this because it won't be expanded
+- [ ] Add tests for resources / cpus
