@@ -90,6 +90,7 @@ public class NodeServiceIntegrationTest {
         // when
         OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);
 
+
         // then
         assertEquals(expectedOnPremNode, onPremNode);
     }

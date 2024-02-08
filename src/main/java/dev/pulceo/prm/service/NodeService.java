@@ -8,10 +8,7 @@ import dev.pulceo.prm.internal.G6.model.G6Node;
 import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.registration.CloudRegistration;
-import dev.pulceo.prm.repository.AbstractNodeRepository;
-import dev.pulceo.prm.repository.NodeMetaDataRepository;
-import dev.pulceo.prm.repository.NodeRepository;
-import dev.pulceo.prm.repository.OnPremNodeRepository;
+import dev.pulceo.prm.repository.*;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -36,6 +33,7 @@ public class NodeService {
     private final NodeRepository nodeRepository;
     private final ProviderService providerService;
     private final CloudRegistraionService cloudRegistraionService;
+    private final CPUResourcesRepository cpuResourcesRepository;
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -45,13 +43,14 @@ public class NodeService {
     private String prmEndpoint;
 
     @Autowired
-    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService) {
+    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository) {
         this.abstractNodeRepository = abstractNodeRepository;
         this.onPremNoderepository = onPremNoderepository;
         this.nodeMetaDataRepository = nodeMetaDataRepository;
         this.nodeRepository = nodeRepository;
         this.providerService = providerService;
         this.cloudRegistraionService = cloudRegistraionService;
+        this.cpuResourcesRepository = cpuResourcesRepository;
     }
 
     public OnPremNode createOnPremNode(String providerName, String hostName, String pnaInitToken) throws NodeServiceException {
@@ -135,6 +134,21 @@ public class NodeService {
     @Transactional
     public OnPremNode readOnPremNode(Long id) {
         return this.onPremNoderepository.findById(id).get();
+    }
+
+    public CPUResource readCPUResourceByUUID(UUID nodeUUID) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(nodeUUID);
+        if (abstractNode.isEmpty()) {
+            throw new NodeServiceException("Node with UUID " + nodeUUID + " does not exist!");
+        }
+        InternalNodeType internalNodeType = abstractNode.get().getInternalNodeType();
+        if (internalNodeType == InternalNodeType.ONPREM) {
+            OnPremNode onPremNode = (OnPremNode) abstractNode.get();
+            Long id = onPremNode.getNode().getCpuResource().getId();
+            return this.cpuResourcesRepository.findById(id).orElseThrow();
+        } else {
+            throw new NodeServiceException("Node type not yet supported!");
+        }
     }
 
     @Transactional

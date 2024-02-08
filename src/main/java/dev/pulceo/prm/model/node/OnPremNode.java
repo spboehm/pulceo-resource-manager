@@ -16,12 +16,13 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+// TODO: remove cpuResource
 @NamedEntityGraph(
         name = "graph.OnPremNode.onPremProvider",
         attributeNodes = {
                 @NamedAttributeNode(value = "onPremProvider", subgraph = "graph.OnPremNode.onPremProvider"),
                 @NamedAttributeNode("nodeMetaData"),
-                @NamedAttributeNode("node")
+                @NamedAttributeNode(value = "node", subgraph = "graph.OnPremNode.node"),
         },
         subgraphs = {
                 @NamedSubgraph(
@@ -29,7 +30,13 @@ import java.util.Objects;
                         attributeNodes = {
                                 @NamedAttributeNode("providerMetaData")
                         }
-                )
+                ),
+                @NamedSubgraph(
+                        name = "graph.OnPremNode.node",
+                        attributeNodes = {
+                                @NamedAttributeNode("cpuResource")
+                        }
+                ),
         }
 )
 public class OnPremNode extends AbstractNode {

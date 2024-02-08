@@ -1,8 +1,10 @@
 package dev.pulceo.prm.controller;
 
 import dev.pulceo.prm.dto.node.*;
+import dev.pulceo.prm.dto.pna.node.CPU.CPUResourceDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.node.AbstractNode;
+import dev.pulceo.prm.model.node.CPUResource;
 import dev.pulceo.prm.model.node.InternalNodeType;
 import dev.pulceo.prm.model.node.OnPremNode;
 import dev.pulceo.prm.service.NodeService;
@@ -62,6 +64,16 @@ public class NodeController {
             return new ResponseEntity<>(NodeDTO.fromOnPremNode(onPremNode), HttpStatus.OK);
         }
         return ResponseEntity.status(400).build();
+    }
+
+    @GetMapping("/{uuid}/cpu")
+    public ResponseEntity<CPUResourceDTO> readCPUResources(@PathVariable UUID uuid) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+        CPUResource cpuResource = this.nodeService.readCPUResourceByUUID(uuid);
+        return new ResponseEntity<>(CPUResourceDTO.fromCPUResource(abstractNode.get().getUuid(), cpuResource), HttpStatus.OK);
     }
 
     @GetMapping("")

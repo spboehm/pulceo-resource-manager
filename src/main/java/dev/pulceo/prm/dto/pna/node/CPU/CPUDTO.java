@@ -1,5 +1,6 @@
 package dev.pulceo.prm.dto.pna.node.CPU;
 
+import dev.pulceo.prm.model.node.CPU;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,4 +24,19 @@ public class CPUDTO {
         private int shares;
         private float slots;
 
+        public static CPUDTO fromCPU(CPU cpu) {
+            return CPUDTO.builder()
+                    .modelName(cpu.getModelName())
+                    .cores(cpu.getCores())
+                    .threads(cpu.getThreads())
+                    .bogoMIPS(cpu.getBogoMIPS())
+                    .MIPS(cpu.getMIPS())
+                    .GFlop(cpu.getGFlop())
+                    .minimalFrequency(cpu.getMinimalFrequency())
+                    .averageFrequency(cpu.getAverageFrequency())
+                    .maximalFrequency(cpu.getMaximalFrequency())
+                    .shares(cpu.getShares())
+                    .slots(cpu.getSlots())
+                    .build();
+        }
 }
