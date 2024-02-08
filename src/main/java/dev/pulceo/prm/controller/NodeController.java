@@ -73,7 +73,7 @@ public class NodeController {
             return ResponseEntity.status(404).build();
         }
         CPUResource cpuResource = this.nodeService.readCPUResourceByUUID(uuid);
-        return new ResponseEntity<>(CPUResourceDTO.fromCPUResource(abstractNode.get().getUuid(), cpuResource), HttpStatus.OK);
+        return new ResponseEntity<>(CPUResourceDTO.fromCPUResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , cpuResource), HttpStatus.OK);
     }
 
     @GetMapping("")

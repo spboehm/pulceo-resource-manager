@@ -14,12 +14,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class CPUResourceDTO {
+    private UUID uuid;
     private UUID nodeUUID;
+    private String nodename;
     private CPUDTO cpuCapacity;
     private CPUDTO cpuAllocatable;
 
-    public static CPUResourceDTO fromCPUResource(UUID nodeUUID, CPUResource cpuResource) {
+    public static CPUResourceDTO fromCPUResource(UUID nodeUUID, String nodeName, CPUResource cpuResource) {
         return CPUResourceDTO.builder()
+                .uuid(cpuResource.getUuid())
+                .nodename(nodeName)
                 .nodeUUID(nodeUUID)
                 .cpuCapacity(CPUDTO.fromCPU(cpuResource.getCpuCapacity()))
                 .cpuAllocatable(CPUDTO.fromCPU(cpuResource.getCpuAllocatable()))
