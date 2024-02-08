@@ -1,0 +1,28 @@
+{
+  "cpuCapacity": {
+    "modelName": "12th Gen Intel(R) Core(TM) i7-1260P",
+    "cores": 12,
+    "threads": 24,
+    "bogoMIPS": 4993.0,
+    "minimalFrequency": 400.0,
+    "averageFrequency": 2550.0,
+    "maximalFrequency": 4700.0,
+    "shares": 24000,
+    "slots": 0.0,
+    "mips": 4993.0,
+    "gflop": 0.0
+  },
+  "cpuAllocatable": {
+    "modelName": "12th Gen Intel(R) Core(TM) i7-1260P",
+    "cores": 12,
+    "threads": 24,
+    "bogoMIPS": 4993.0,
+    "minimalFrequency": 400.0,
+    "averageFrequency": 2550.0,
+    "maximalFrequency": 4700.0,
+    "shares": 24000,
+    "slots": 0.0,
+    "mips": 4993.0,
+    "gflop": 0.0
+  }
+}

@@ -90,6 +90,12 @@ public class NodeServiceUnitTests {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/pna-1-cloud-registration-response.json")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/cpu"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-read-cpu-resource-response.json")));
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pna1RemoteUUID, pnaUUID, hostName);
 
         // when

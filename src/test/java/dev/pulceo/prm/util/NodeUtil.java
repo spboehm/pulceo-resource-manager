@@ -1,8 +1,6 @@
 package dev.pulceo.prm.util;
 
-import dev.pulceo.prm.model.node.Node;
-import dev.pulceo.prm.model.node.NodeMetaData;
-import dev.pulceo.prm.model.node.OnPremNode;
+import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.provider.ProviderMetaData;
 import dev.pulceo.prm.model.provider.ProviderType;
@@ -25,8 +23,42 @@ public class NodeUtil {
                 .hostname(hostName)
                 .build();
 
+        CPU cpuAllocatable = CPU.builder()
+                .modelName("12th Gen Intel(R) Core(TM) i7-1260P")
+                .cores(12)
+                .threads(24)
+                .bogoMIPS(4993.00f)
+                .MIPS(4993.00f)
+                .GFlop(0.0f)
+                .minimalFrequency(400.0000f)
+                .maximalFrequency(4700.0000f)
+                .averageFrequency(2550.0000f)
+                .slots(0.0f)
+                .shares(24000)
+                .build();
+
+        CPU cpuCapacity = CPU.builder()
+                .modelName("12th Gen Intel(R) Core(TM) i7-1260P")
+                .cores(12)
+                .threads(24)
+                .bogoMIPS(4993.00f)
+                .MIPS(4993.00f)
+                .GFlop(0.0f)
+                .minimalFrequency(400.0000f)
+                .maximalFrequency(4700.0000f)
+                .averageFrequency(2550.0000f)
+                .slots(0.0f)
+                .shares(24000)
+                .build();
+
+        CPUResource cpuResource = CPUResource.builder()
+                .cpuAllocatable(cpuAllocatable)
+                .cpuCapacity(cpuCapacity)
+                .build();
+
         Node node = Node.builder()
                 .name(hostName)
+                .cpuResource(cpuResource)
                 .build();
 
         CloudRegistration cloudRegistration = CloudRegistration.builder()

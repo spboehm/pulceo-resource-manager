@@ -77,6 +77,14 @@ public class NodeServiceIntegrationTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/pna-1-cloud-registration-response.json")));
+
+        // read local cpu resources
+        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/cpu"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-read-cpu-resource-response.json")));
+
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pna1RemoteUUID, pna1UUID, hostName);
 
         // when
@@ -96,6 +104,14 @@ public class NodeServiceIntegrationTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("registration/pna-1-cloud-registration-response.json")));
+
+        // read local cpu resources
+        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/cpu"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-read-cpu-resource-response.json")));
+
         OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);
 
         // when

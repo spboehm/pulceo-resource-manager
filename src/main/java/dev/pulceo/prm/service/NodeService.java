@@ -1,5 +1,6 @@
 package dev.pulceo.prm.service;
 
+import dev.pulceo.prm.dto.pna.node.CPU.CPUResourceDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
@@ -84,7 +85,21 @@ public class NodeService {
         CloudRegistration cloudRegistration = this.modelMapper.map(cloudRegistrationResponseDTO, CloudRegistration.class);
         logger.info("Received cloud registration response: " + cloudRegistration);
 
-        Node node = Node.builder().name(hostName).build();
+        // obtain remote resources
+        CPUResourceDTO cpuResourceDTO = webClient.get()
+                .uri("/api/v1/nodes/localNode/cpu")
+                .retrieve()
+                .bodyToMono(CPUResourceDTO.class)
+                .onErrorResume(e -> {
+                    throw new RuntimeException(new NodeServiceException("Failed to read CPU resources"));
+                })
+                .block();
+
+        CPUResource cpuResource = this.modelMapper.map(cpuResourceDTO, CPUResource.class);
+        Node node = Node.builder()
+                .name(hostName)
+                .cpuResource(cpuResource)
+                .build();
 
         NodeMetaData nodeMetaData = NodeMetaData.builder()
                 .remoteNodeUUID(cloudRegistration.getNodeUUID())
@@ -98,6 +113,7 @@ public class NodeService {
                 .node(node)
                 .cloudRegistration(cloudRegistration)
                 .build();
+
         return this.abstractNodeRepository.save(onPremNode);
     }
 

@@ -1,7 +1,10 @@
 package dev.pulceo.prm.model.node;
 
 import dev.pulceo.prm.model.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -16,7 +19,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class Node extends BaseEntity {
 
     @NotBlank(message="Name is required!")
@@ -53,6 +55,10 @@ public class Node extends BaseEntity {
     @Max(90)
     private double nodeLocationLatitude = 0.000000;
 
+    @Builder.Default
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private CPUResource cpuResource = CPUResource.builder().build();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -68,7 +74,9 @@ public class Node extends BaseEntity {
         if (role != node.role) return false;
         if (!Objects.equals(nodeLocationCountry, node.nodeLocationCountry))
             return false;
-        return Objects.equals(nodeLocationCity, node.nodeLocationCity);
+        if (!Objects.equals(nodeLocationCity, node.nodeLocationCity))
+            return false;
+        return Objects.equals(cpuResource, node.cpuResource);
     }
 
     @Override
@@ -85,6 +93,7 @@ public class Node extends BaseEntity {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(nodeLocationLatitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (cpuResource != null ? cpuResource.hashCode() : 0);
         return result;
     }
 }
