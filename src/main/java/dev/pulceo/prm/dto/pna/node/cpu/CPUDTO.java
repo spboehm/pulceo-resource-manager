@@ -1,4 +1,4 @@
-package dev.pulceo.prm.dto.pna.node.CPU;
+package dev.pulceo.prm.dto.pna.node.cpu;
 
 import dev.pulceo.prm.model.node.CPU;
 import lombok.AllArgsConstructor;

@@ -2,7 +2,7 @@ package dev.pulceo.prm.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.pulceo.prm.dto.node.*;
-import dev.pulceo.prm.dto.pna.node.CPU.CPUResourceDTO;
+import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
 import dev.pulceo.prm.repository.CloudRegistrationRepository;

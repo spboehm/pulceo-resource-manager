@@ -1,8 +1,10 @@
 package dev.pulceo.prm.controller;
 
-import dev.pulceo.prm.dto.pna.node.CPU.CPUResourceDTO;
+import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
+import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.model.node.CPUResource;
+import dev.pulceo.prm.model.node.MemoryResource;
 import dev.pulceo.prm.service.NodeService;
 import dev.pulceo.prm.service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,5 +46,21 @@ public class ResourceController {
             }
         }
         return ResponseEntity.ok(cpuResourcesDTO);
+    }
+
+    @GetMapping("/memory")
+    public ResponseEntity<List<MemoryResourceDTO>> readAllMemory() {
+        List<AbstractNode> nodes = this.nodeService.readAllNodes();
+        List<MemoryResourceDTO> memoryResourceDTO = new ArrayList<>();
+        for (AbstractNode node : nodes) {
+            Long memoryResourcesID = node.getNode().getMemoryResource().getId();
+            Optional<MemoryResource> memoryResource = this.resourceService.readMemoryResourcesById(memoryResourcesID);
+            if (memoryResource.isPresent()) {
+                memoryResourceDTO.add(MemoryResourceDTO.fromMemoryResource(node.getUuid(), node.getNode().getName(), memoryResource.get()));
+            } else {
+                return ResponseEntity.status(400).build();
+            }
+        }
+        return ResponseEntity.ok(memoryResourceDTO);
     }
 }

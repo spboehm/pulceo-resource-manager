@@ -73,6 +73,12 @@ public class SimulatedPulceoNodeAgent {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-cpu-resource-response.json")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/memory"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-read-memory-resources-response.json")));
     }
 
     private void start() {

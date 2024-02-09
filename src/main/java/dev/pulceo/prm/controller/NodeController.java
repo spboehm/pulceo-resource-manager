@@ -1,12 +1,10 @@
 package dev.pulceo.prm.controller;
 
 import dev.pulceo.prm.dto.node.*;
-import dev.pulceo.prm.dto.pna.node.CPU.CPUResourceDTO;
+import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
+import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
-import dev.pulceo.prm.model.node.AbstractNode;
-import dev.pulceo.prm.model.node.CPUResource;
-import dev.pulceo.prm.model.node.InternalNodeType;
-import dev.pulceo.prm.model.node.OnPremNode;
+import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.service.NodeService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -74,6 +72,16 @@ public class NodeController {
         }
         CPUResource cpuResource = this.nodeService.readCPUResourceByUUID(uuid);
         return new ResponseEntity<>(CPUResourceDTO.fromCPUResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , cpuResource), HttpStatus.OK);
+    }
+
+    @GetMapping("/{uuid}/memory")
+    public ResponseEntity<MemoryResourceDTO> readMemoryResources(@PathVariable UUID uuid) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+        MemoryResource memoryResource = this.nodeService.readMemoryResourceByUUID(uuid);
+        return new ResponseEntity<>(MemoryResourceDTO.fromMemoryResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , memoryResource), HttpStatus.OK);
     }
 
     @GetMapping("")

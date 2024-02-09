@@ -10,3 +10,5 @@
 - [ ] !!! Review CORS-HEADERS
 - [ ] Make sure that differentiation between NodeLink and AbstractLink is clear, remove this because it won't be expanded
 - [ ] Add tests for resources / cpus
+- [ ] Move to datamodel, this classes are currently not used for interacting with pna src/main/java/dev/pulceo/prm/dto/pna/node/cpu
+- [ ] Move to datamodel, this classes are currently not used for interacting with pna src/main/java/dev/pulceo/prm/dto/pna/node/memory

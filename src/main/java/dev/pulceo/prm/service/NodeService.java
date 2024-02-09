@@ -1,6 +1,7 @@
 package dev.pulceo.prm.service;
 
-import dev.pulceo.prm.dto.pna.node.CPU.CPUResourceDTO;
+import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
+import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
@@ -34,6 +35,7 @@ public class NodeService {
     private final ProviderService providerService;
     private final CloudRegistraionService cloudRegistraionService;
     private final CPUResourcesRepository cpuResourcesRepository;
+    private final MemoryResourcesRepository memoryResourcesRepository;
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -43,7 +45,7 @@ public class NodeService {
     private String prmEndpoint;
 
     @Autowired
-    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository) {
+    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository) {
         this.abstractNodeRepository = abstractNodeRepository;
         this.onPremNoderepository = onPremNoderepository;
         this.nodeMetaDataRepository = nodeMetaDataRepository;
@@ -51,6 +53,7 @@ public class NodeService {
         this.providerService = providerService;
         this.cloudRegistraionService = cloudRegistraionService;
         this.cpuResourcesRepository = cpuResourcesRepository;
+        this.memoryResourcesRepository = memoryResourcesRepository;
     }
 
     public OnPremNode createOnPremNode(String providerName, String hostName, String pnaInitToken) throws NodeServiceException {
@@ -85,19 +88,13 @@ public class NodeService {
         logger.info("Received cloud registration response: " + cloudRegistration);
 
         // obtain remote resources
-        CPUResourceDTO cpuResourceDTO = webClient.get()
-                .uri("/api/v1/nodes/localNode/cpu")
-                .retrieve()
-                .bodyToMono(CPUResourceDTO.class)
-                .onErrorResume(e -> {
-                    throw new RuntimeException(new NodeServiceException("Failed to read CPU resources"));
-                })
-                .block();
+        CPUResource cpuResource = getCpuResource(webClient);
+        MemoryResource memoryResource = getMemoryResource(webClient);
 
-        CPUResource cpuResource = this.modelMapper.map(cpuResourceDTO, CPUResource.class);
         Node node = Node.builder()
                 .name(hostName)
                 .cpuResource(cpuResource)
+                .memoryResource(memoryResource)
                 .build();
 
         NodeMetaData nodeMetaData = NodeMetaData.builder()
@@ -105,6 +102,7 @@ public class NodeService {
                 .pnaUUID(cloudRegistration.getPnaUUID())
                 .hostname(hostName)
                 .build();
+
         OnPremNode onPremNode = OnPremNode.builder()
                 .internalNodeType(InternalNodeType.ONPREM)
                 .onPremProvider(onPremProvider.get())
@@ -114,6 +112,30 @@ public class NodeService {
                 .build();
 
         return this.abstractNodeRepository.save(onPremNode);
+    }
+
+    private CPUResource getCpuResource(WebClient webClient) {
+        CPUResourceDTO cpuResourceDTO = webClient.get()
+                .uri("/api/v1/nodes/localNode/cpu")
+                .retrieve()
+                .bodyToMono(CPUResourceDTO.class)
+                .onErrorResume(e -> {
+                    throw new RuntimeException(new NodeServiceException("Failed to read CPU resources"));
+                })
+                .block();
+        return this.modelMapper.map(cpuResourceDTO, CPUResource.class);
+    }
+
+    private MemoryResource getMemoryResource(WebClient webClient) {
+        MemoryResourceDTO memoryResourceDTO = webClient.get()
+                .uri("/api/v1/nodes/localNode/memory")
+                .retrieve()
+                .bodyToMono(MemoryResourceDTO.class)
+                .onErrorResume(e -> {
+                    throw new RuntimeException(new NodeServiceException("Failed to read Memory resources"));
+                })
+                .block();
+        return this.modelMapper.map(memoryResourceDTO, MemoryResource.class);
     }
 
     @Transactional
@@ -152,6 +174,21 @@ public class NodeService {
         }
     }
 
+    public MemoryResource readMemoryResourceByUUID(UUID nodeUUID) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(nodeUUID);
+        if (abstractNode.isEmpty()) {
+            throw new NodeServiceException("Node with UUID " + nodeUUID + " does not exist!");
+        }
+        InternalNodeType internalNodeType = abstractNode.get().getInternalNodeType();
+        if (internalNodeType == InternalNodeType.ONPREM) {
+            OnPremNode onPremNode = (OnPremNode) abstractNode.get();
+            Long id = onPremNode.getNode().getCpuResource().getId();
+            return this.memoryResourcesRepository.findById(id).orElseThrow();
+        } else {
+            throw new NodeServiceException("Node type not yet supported!");
+        }
+    }
+
     @Transactional
     public List<G6Node> readG6NodeData() {
         List<G6Node> list = new ArrayList<>();
@@ -169,5 +206,6 @@ public class NodeService {
     private boolean hostNameAlreadyExists(String hostName) throws NodeServiceException {
         return this.nodeMetaDataRepository.findByHostname(hostName).isPresent();
     }
+
 
 }

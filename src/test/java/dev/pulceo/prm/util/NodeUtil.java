@@ -56,9 +56,21 @@ public class NodeUtil {
                 .cpuCapacity(cpuCapacity)
                 .build();
 
+        MemoryResource memoryResource = MemoryResource.builder()
+                .memoryAllocatable(Memory.builder()
+                        .size(62.71409f)
+                        .slots(0)
+                        .build())
+                .memoryCapacity(Memory.builder()
+                        .size(62.71409f)
+                        .slots(0)
+                        .build())
+                .build();
+
         Node node = Node.builder()
                 .name(hostName)
                 .cpuResource(cpuResource)
+                .memoryResource(memoryResource)
                 .build();
 
         CloudRegistration cloudRegistration = CloudRegistration.builder()

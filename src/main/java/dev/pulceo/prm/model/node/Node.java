@@ -59,6 +59,10 @@ public class Node extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private CPUResource cpuResource = CPUResource.builder().build();
 
+    @Builder.Default
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private MemoryResource memoryResource= MemoryResource.builder().build();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -76,7 +80,8 @@ public class Node extends BaseEntity {
             return false;
         if (!Objects.equals(nodeLocationCity, node.nodeLocationCity))
             return false;
-        return Objects.equals(cpuResource, node.cpuResource);
+        if (!Objects.equals(cpuResource, node.cpuResource)) return false;
+        return Objects.equals(memoryResource, node.memoryResource);
     }
 
     @Override
@@ -94,6 +99,7 @@ public class Node extends BaseEntity {
         temp = Double.doubleToLongBits(nodeLocationLatitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (cpuResource != null ? cpuResource.hashCode() : 0);
+        result = 31 * result + (memoryResource != null ? memoryResource.hashCode() : 0);
         return result;
     }
 }

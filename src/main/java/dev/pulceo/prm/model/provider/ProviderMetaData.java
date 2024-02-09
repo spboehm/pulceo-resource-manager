@@ -15,7 +15,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class ProviderMetaData extends BaseEntity {
 
     private String providerName;

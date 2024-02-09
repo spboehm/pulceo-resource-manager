@@ -15,7 +15,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class CPU extends BaseEntity {
     // TODO: add further vendor specific information, model number etc.
     private String modelName;

@@ -15,31 +15,32 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CPUResource extends BaseEntity {
+public class MemoryResource extends BaseEntity {
 
     @Builder.Default
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private CPU cpuCapacity = CPU.builder().build();
+    private Memory memoryCapacity = Memory.builder().build();
 
     @Builder.Default
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private CPU cpuAllocatable = CPU.builder().build();
+    private Memory memoryAllocatable = Memory.builder().build();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CPUResource that = (CPUResource) o;
+        MemoryResource that = (MemoryResource) o;
 
-        if (!Objects.equals(cpuCapacity, that.cpuCapacity)) return false;
-        return Objects.equals(cpuAllocatable, that.cpuAllocatable);
+        if (!Objects.equals(memoryCapacity, that.memoryCapacity))
+            return false;
+        return Objects.equals(memoryAllocatable, that.memoryAllocatable);
     }
 
     @Override
     public int hashCode() {
-        int result = cpuCapacity != null ? cpuCapacity.hashCode() : 0;
-        result = 31 * result + (cpuAllocatable != null ? cpuAllocatable.hashCode() : 0);
+        int result = memoryCapacity != null ? memoryCapacity.hashCode() : 0;
+        result = 31 * result + (memoryAllocatable != null ? memoryAllocatable.hashCode() : 0);
         return result;
     }
 }
