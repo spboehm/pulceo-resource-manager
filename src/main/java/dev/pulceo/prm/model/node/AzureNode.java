@@ -32,4 +32,9 @@ public class AzureNode extends AbstractNode {
                 .name(this.getNode().getName())
                 .build();
     }
+
+    @Override
+    public String getToken() {
+        return null;
+    }
 }

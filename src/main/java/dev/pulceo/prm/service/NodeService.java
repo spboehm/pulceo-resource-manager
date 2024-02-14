@@ -19,10 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class NodeService {
@@ -76,6 +73,7 @@ public class NodeService {
         CloudRegistrationResponseDTO cloudRegistrationResponseDTO = webClient.post()
                 .uri("/api/v1/cloud-registrations")
                 .header("Content-Type", "application/json")
+                .header("Authorization", "Basic " + pnaInitToken)
                 .bodyValue(cloudRegistrationRequestDTO)
                 .retrieve()
                 .bodyToMono(CloudRegistrationResponseDTO.class)

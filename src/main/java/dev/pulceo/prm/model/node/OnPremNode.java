@@ -80,4 +80,9 @@ public class OnPremNode extends AbstractNode {
                 .name(this.getNode().getName())
                 .build();
     }
+
+    @Override
+    public String getToken() {
+        return this.cloudRegistration.getPnaToken();
+    }
 }

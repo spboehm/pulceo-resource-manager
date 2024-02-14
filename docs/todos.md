@@ -12,3 +12,4 @@
 - [ ] Add tests for resources / cpus
 - [ ] Move to datamodel, this classes are currently not used for interacting with pna src/main/java/dev/pulceo/prm/dto/pna/node/cpu
 - [ ] Move to datamodel, this classes are currently not used for interacting with pna src/main/java/dev/pulceo/prm/dto/pna/node/memory
+- [ ] !!! Set pnaToken in CloudRegistration back to pnaInitToken, otherwise security issues might occur 
