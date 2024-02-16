@@ -84,6 +84,15 @@ public class NodeController {
         return new ResponseEntity<>(MemoryResourceDTO.fromMemoryResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , memoryResource), HttpStatus.OK);
     }
 
+    @GetMapping("/{uuid}/pna-token")
+    public ResponseEntity<String> readPnaNodeToken(@PathVariable UUID uuid) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+        return new ResponseEntity<>( abstractNode.get().getToken(), HttpStatus.OK);
+    }
+
     @GetMapping("")
     // effectively, only NodeDTO is returned, but the method signature is kept for future use
     public ResponseEntity<List<AbstractNodeDTO>> readAllNodes() {
