@@ -53,6 +53,20 @@ public class ProviderService {
         return Optional.empty();
     }
 
+    public Optional<AzureProvider> readAzureProviderByProviderMetaData(ProviderMetaData providerMetaData) {
+        return this.azureProviderRepository.findByProviderMetaData(providerMetaData);
+    }
+
+    public Optional<AzureProvider> readAzureProviderByProviderMetaDataName(String providerName) {
+        Optional<ProviderMetaData> providerMetaData = this.findProviderMetaDataByName(providerName);
+
+        if (providerMetaData.isPresent()) {
+            return this.readAzureProviderByProviderMetaData(providerMetaData.get());
+        }
+
+        return Optional.empty();
+    }
+
     @PostConstruct
     public void initDefaultProvider() {
         // Check if a default provider already exists

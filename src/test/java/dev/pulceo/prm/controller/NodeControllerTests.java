@@ -1,14 +1,23 @@
 package dev.pulceo.prm.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.pulceo.prm.dto.node.*;
+import dev.pulceo.prm.dto.node.CreateNewAbstractNodeDTO;
+import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
+import dev.pulceo.prm.dto.node.CreateNewOnPremNodeDTO;
+import dev.pulceo.prm.dto.node.NodeDTOType;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
+import dev.pulceo.prm.model.provider.AzureCredentials;
+import dev.pulceo.prm.model.provider.AzureProvider;
+import dev.pulceo.prm.model.provider.ProviderMetaData;
+import dev.pulceo.prm.model.provider.ProviderType;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
 import dev.pulceo.prm.repository.CloudRegistrationRepository;
+import dev.pulceo.prm.service.ProviderService;
 import dev.pulceo.prm.util.SimulatedPulceoNodeAgent;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,9 +44,21 @@ public class NodeControllerTests {
     private CloudRegistrationRepository cloudRegistrationRepository;
 
     @Autowired
+    private ProviderService providerService;
+
+    @Autowired
     private MockMvc mockMvc;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Value("${AZURE_SUBSCRIPTION_ID}")
+    private String subscriptionId;
+    @Value("${AZURE_CLIENT_ID}")
+    private String clientId;
+    @Value("${AZURE_CLIENT_SECRET}")
+    private String clientSecret;
+    @Value("${AZURE_TENANT_ID}")
+    private String tenantId;
 
     @BeforeEach
     void before() {
@@ -112,13 +133,27 @@ public class NodeControllerTests {
     }
 
     @Test
+    @Disabled
     public void testCreateAzureNode() throws Exception {
         // given
+        // TODO: create AzureProvider by controller
+        AzureProvider azureProvider = AzureProvider.builder()
+                .providerMetaData(ProviderMetaData.builder().providerName("azure-provider").providerType(ProviderType.AZURE).build())
+                .credentials(AzureCredentials.builder().tenantId(this.tenantId).clientId(this.clientId).clientSecret(this.clientSecret).subscriptionId(this.subscriptionId).build())
+                .build();
+        AzureProvider actualAzureProvider = this.providerService.createAzureProvider(azureProvider);
+
+        // when
         CreateNewAbstractNodeDTO createNewAzureNodeDTO = CreateNewAzureNodeDTO.builder()
                 .nodeType(NodeDTOType.AZURE)
-                .providerName("azure-test")
-                .vmSkuType(VMSkuType.Standard_B1S)
+                .providerName("azure-provider")
+                .name("azure-test-vm")
+                .type("cloud")
+                .sku("Standard_B1s")
+                .nodeLocationCity("Frankfurt")
+                .nodeLocationCountry("Germany")
                 .build();
+
         String createNewAzureNodeDTOAsJson = this.objectMapper.writeValueAsString(createNewAzureNodeDTO);
 
         // when and then

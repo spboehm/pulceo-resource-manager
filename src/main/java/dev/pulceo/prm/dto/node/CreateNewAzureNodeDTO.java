@@ -12,8 +12,24 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @Schema(name = "AzureNode", description = "Create a new node on Azure.")
 public class CreateNewAzureNodeDTO extends CreateNewAbstractNodeDTO {
-
+    // nodeType in super class
     private String providerName;
-    private VMSkuType vmSkuType;
+    private String name;
+    private String type;
+    private String sku;
+    private String nodeLocationCountry;
+    private String nodeLocationCity;
 
+    public static CreateNewAzureNodeDTO fromAbstractNodeDTO(CreateNewAbstractNodeDTO createNewAbstractNodeDTO) {
+        CreateNewAzureNodeDTO createNewAzureNodeDTO = (CreateNewAzureNodeDTO) createNewAbstractNodeDTO;
+        return CreateNewAzureNodeDTO.builder()
+                .nodeType(createNewAbstractNodeDTO.getNodeType())
+                .providerName(createNewAzureNodeDTO.getProviderName())
+                .name(createNewAzureNodeDTO.getName())
+                .type(createNewAzureNodeDTO.getType())
+                .sku(createNewAzureNodeDTO.getSku())
+                .nodeLocationCountry(createNewAzureNodeDTO.getNodeLocationCountry())
+                .nodeLocationCity(createNewAzureNodeDTO.getNodeLocationCity())
+                .build();
+    }
 }

@@ -5,6 +5,7 @@ import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.node.*;
+import dev.pulceo.prm.service.AzureDeploymentService;
 import dev.pulceo.prm.service.NodeService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -31,10 +32,13 @@ public class NodeController {
     private final NodeService nodeService;
     private final ModelMapper modelMapper;
 
+    private final AzureDeploymentService azureDeploymentService;
+
     @Autowired
-    public NodeController(NodeService nodeService, ModelMapper modelMapper) {
+    public NodeController(NodeService nodeService, ModelMapper modelMapper, AzureDeploymentService azureDeploymentService) {
         this.nodeService = nodeService;
         this.modelMapper = modelMapper;
+        this.azureDeploymentService = azureDeploymentService;
     }
 
     @PostMapping("")
@@ -44,6 +48,14 @@ public class NodeController {
             CreateNewOnPremNodeDTO createNewOnPremNodeDTO = CreateNewOnPremNodeDTO.fromAbstractNodeDTO(createNewAbstractNodeDTO);
             OnPremNode onPremNode = this.nodeService.createOnPremNode(createNewOnPremNodeDTO.getProviderName(), createNewOnPremNodeDTO.getHostname(), createNewOnPremNodeDTO.getPnaInitToken());
             return new ResponseEntity<>(NodeDTO.fromOnPremNode(onPremNode), HttpStatus.CREATED);
+        } else if (createNewAbstractNodeDTO.getNodeType() == NodeDTOType.AZURE) {
+            this.logger.info("Received request to create a new CloudNode: " + createNewAbstractNodeDTO);
+            CreateNewAzureNodeDTO createNewAzureNodeDTO = CreateNewAzureNodeDTO.fromAbstractNodeDTO(createNewAbstractNodeDTO);
+            AzureNode azureNode = this.azureDeploymentService.createAzureNode(createNewAzureNodeDTO);
+
+
+            throw new NodeServiceException("Node type not yet supported!");
+
         } else {
             logger.info("Received request to create a new node of type: " + createNewAbstractNodeDTO.getNodeType());
             throw new NodeServiceException("Node type not yet supported!");
