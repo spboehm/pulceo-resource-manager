@@ -19,7 +19,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class NodeService {
@@ -40,6 +43,8 @@ public class NodeService {
     private UUID prmUUID;
     @Value("${prm.endpoint}")
     private String prmEndpoint;
+    @Value("${webclient.scheme}")
+    private String webClientScheme;
 
     @Autowired
     public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository) {
@@ -69,7 +74,7 @@ public class NodeService {
                 .pnaInitToken(pnaInitToken)
                 .build();
 
-        WebClient webClient = WebClient.create("http://" + hostName + ":7676");
+        WebClient webClient = WebClient.create(this.webClientScheme + "://" + hostName + ":7676");
         CloudRegistrationResponseDTO cloudRegistrationResponseDTO = webClient.post()
                 .uri("/api/v1/cloud-registrations")
                 .header("Content-Type", "application/json")
@@ -86,8 +91,8 @@ public class NodeService {
         logger.info("Received cloud registration response: " + cloudRegistration);
 
         // obtain remote resources
-        CPUResource cpuResource = getCpuResource(webClient);
-        MemoryResource memoryResource = getMemoryResource(webClient);
+        CPUResource cpuResource = getCpuResource(webClient, pnaInitToken);
+        MemoryResource memoryResource = getMemoryResource(webClient, pnaInitToken);
 
         Node node = Node.builder()
                 .name(hostName)
@@ -112,9 +117,17 @@ public class NodeService {
         return this.abstractNodeRepository.save(onPremNode);
     }
 
-    private CPUResource getCpuResource(WebClient webClient) {
+    public AzureNode createAzureNode(String providerName, String hostName, String pnaInitToken) {
+
+
+        return null;
+    }
+
+    private CPUResource getCpuResource(WebClient webClient, String pnaInitToken) {
         CPUResourceDTO cpuResourceDTO = webClient.get()
                 .uri("/api/v1/nodes/localNode/cpu")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Basic " + pnaInitToken)
                 .retrieve()
                 .bodyToMono(CPUResourceDTO.class)
                 .onErrorResume(e -> {
@@ -124,9 +137,11 @@ public class NodeService {
         return this.modelMapper.map(cpuResourceDTO, CPUResource.class);
     }
 
-    private MemoryResource getMemoryResource(WebClient webClient) {
+    private MemoryResource getMemoryResource(WebClient webClient, String pnaInitToken) {
         MemoryResourceDTO memoryResourceDTO = webClient.get()
                 .uri("/api/v1/nodes/localNode/memory")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Basic " + pnaInitToken)
                 .retrieve()
                 .bodyToMono(MemoryResourceDTO.class)
                 .onErrorResume(e -> {

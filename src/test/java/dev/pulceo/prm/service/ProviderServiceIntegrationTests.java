@@ -8,6 +8,7 @@ import dev.pulceo.prm.repository.OnPremProviderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,6 +27,15 @@ public class ProviderServiceIntegrationTests {
     @Autowired
     AbstractLinkRepository abstractLinkRepository;
 
+    @Value("${AZURE_SUBSCRIPTION_ID}")
+    private String subscriptionId;
+    @Value("${AZURE_CLIENT_ID}")
+    private String clientId;
+    @Value("${AZURE_CLIENT_SECRET}")
+    private String clientSecret;
+    @Value("${AZURE_TENANT_ID}")
+    private String tenantId;
+
     @BeforeEach
     public void prepare() {
         this.abstractLinkRepository.deleteAll();
@@ -39,7 +49,7 @@ public class ProviderServiceIntegrationTests {
         // given
         AzureProvider azureProvider = AzureProvider.builder()
                 .providerMetaData(ProviderMetaData.builder().providerName("azure-provider").providerType(ProviderType.AZURE).build())
-                .credentials(AzureCredentials.builder().tenantId("s").clientId("s").clientSecret("s").subscriptionId("s").build())
+                .credentials(AzureCredentials.builder().tenantId(this.tenantId).clientId(this.clientId).clientSecret(this.clientSecret).subscriptionId(this.subscriptionId).build())
                 .build();
         // when
         AzureProvider actualAzureProvider = this.providerService.createAzureProvider(azureProvider);

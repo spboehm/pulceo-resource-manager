@@ -12,6 +12,7 @@ import dev.pulceo.prm.model.provider.ProviderMetaData;
 import dev.pulceo.prm.model.provider.ProviderType;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
+import dev.pulceo.prm.repository.AzureProviderRepository;
 import dev.pulceo.prm.repository.CloudRegistrationRepository;
 import dev.pulceo.prm.service.ProviderService;
 import dev.pulceo.prm.util.SimulatedPulceoNodeAgent;
@@ -44,6 +45,9 @@ public class NodeControllerTests {
     private CloudRegistrationRepository cloudRegistrationRepository;
 
     @Autowired
+    private AzureProviderRepository azureProviderRepository;
+
+    @Autowired
     private ProviderService providerService;
 
     @Autowired
@@ -64,6 +68,7 @@ public class NodeControllerTests {
     void before() {
         this.abstractLinkRepository.deleteAll();
         this.abstractNodeRepository.deleteAll();
+
         this.cloudRegistrationRepository.deleteAll();
     }
 
@@ -75,6 +80,7 @@ public class NodeControllerTests {
     @AfterEach
     void after() {
         // SimulatedPulceoNodeAgent.resetAgents();
+        this.azureProviderRepository.deleteAll();
     }
 
     @AfterAll
@@ -147,11 +153,11 @@ public class NodeControllerTests {
         CreateNewAbstractNodeDTO createNewAzureNodeDTO = CreateNewAzureNodeDTO.builder()
                 .nodeType(NodeDTOType.AZURE)
                 .providerName("azure-provider")
-                .name("azure-test-vm")
+                .name("cloud-0")
                 .type("cloud")
-                .sku("Standard_B1s")
-                .nodeLocationCity("Frankfurt")
-                .nodeLocationCountry("Germany")
+                .sku("Standard_B2s")
+                .nodeLocationCountry("eastus")
+                .nodeLocationCity("Virginia")
                 .build();
 
         String createNewAzureNodeDTOAsJson = this.objectMapper.writeValueAsString(createNewAzureNodeDTO);
@@ -164,4 +170,5 @@ public class NodeControllerTests {
                 .andExpect(status().is4xxClientError());
 
     }
+
 }
