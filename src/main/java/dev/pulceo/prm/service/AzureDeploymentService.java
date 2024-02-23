@@ -51,7 +51,7 @@ public class AzureDeploymentService {
 
         // Deploy to Azure
         final String userName = AZURE_VM_USERNAME;
-        final String sshKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCWQ6A+YM1ZDaqOxBBvCJAYfixvuv0zDFBetu+mnYqlTwftVuGRq/cdgiHcEVkBTMKUSkWrUF97bPckHD0sbgc+3eDTtEN/iQsg8q47k4RLxr9ccb6VQpObrl0NJY3WGa/CuXhnNHwNHyUGpbXx6gp0vSGx35ej0RdUbsLZKWxCWUO6W2rwqglXGoqQ5PgJv1P3NckH47w9HF1aWQJncx91lGteMZ+zX6H9xcC9GErTnwDhwTBeidW6rRJoeGEO5ZmBmUl9+k+UsaVo5l/WePHRnkJ9BvYE9qoPUjuwNXJ1WMHVkpe97+NMICGFr7NZXSLqNVR3c3PgOQbR61WVgZJh";
+        final String sshKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIoQyWzINPVvv37RLxb/QKO94XCOUo2bIC91XwAXCfoAgy165XNjPSgOLe74MCC/A0rIRt1hBfK18ynDhPSnqYSGXTo74ReEoS8WQ7gGR0e/h27ozuELpOWO8TVotBIuIhmS1Bepnk14TXjpCM/yq4DD8eg9kEz/eq5yjdwTUSMnLg+RERQzLxkWp41LKJ2itKjHh6vy+HDJDOzsSojdd6GeWfOwQkQMtL2Y0S1YEvrbT+rRHmsjZf4j+bxZnw/XpGJkPHZGs9AFwiLX00Q2b0ECuDSBtWaVNbJ0bU8rkimUGo6RHEE7EEtgNpqX0PFt0/Zwn2PFi2UHf5nSD2JESh";
         String resourceName = createRandomName("pulceo-");
 
         try {
