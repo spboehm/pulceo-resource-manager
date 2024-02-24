@@ -22,4 +22,4 @@ kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercon
 kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-node-agent/main/traefik/1-crd.yaml
 kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-node-agent/main/traefik/2-traefik-services.yaml
 kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-node-agent/main/traefik/3-deployments.yaml
-kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-node-agent/main/traefik/4-routers.yaml
+curl -s https://raw.githubusercontent.com/spboehm/pulceo-node-agent/main/traefik/4-routers.yaml | sed 's/localhost.localdomain/'"$DOMAIN"'/g' | kubectl --kubeconfig=/home/$USER/.kube/config apply -f -
