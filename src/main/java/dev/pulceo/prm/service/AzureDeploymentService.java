@@ -16,11 +16,14 @@ import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
 import dev.pulceo.prm.model.node.AzureNode;
 import dev.pulceo.prm.model.provider.AzureCredentials;
 import dev.pulceo.prm.model.provider.AzureProvider;
+import dev.pulceo.prm.util.DeploymentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -34,14 +37,31 @@ public class AzureDeploymentService {
     @Value("${AZURE_VM_USERNAME}")
     private String AZURE_VM_USERNAME;
 
+    @Value("${PNA_USERNAME}")
+    private String PNA_USERNAME;
+
+    @Value("${PNA_PASSWORD}")
+    private String PNA_PASSWORD;
+
+    @Value("${PNA_INIT_TOKEN}")
+    private String PNA_INIT_TOKEN;
+
+    @Value("${PNA_MQTT_BROKER_URL}")
+    private String PNA_MQTT_BROKER_URL;
+
+    @Value("${PNA_MQTT_CLIENT_USERNAME}")
+    private String PNA_MQTT_CLIENT_USERNAME;
+
+    @Value("${PNA_MQTT_CLIENT_PASSWORD}")
+    private String PNA_MQTT_CLIENT_PASSWORD;
+
     @Autowired
     public AzureDeploymentService(ProviderService providerService) {
         this.providerService = providerService;
     }
 
+    // TODO: split
     public AzureNode createAzureNode(CreateNewAzureNodeDTO createNewAzureNodeDTO) {
-
-        // TODO: check if provider does exist
 
         // retrieve AzureProvider
         AzureProvider azureProvider = this.providerService.readAzureProviderByProviderMetaDataName(createNewAzureNodeDTO.getProviderName()).orElseThrow();
@@ -52,9 +72,10 @@ public class AzureDeploymentService {
         // Deploy to Azure
         final String userName = AZURE_VM_USERNAME;
         final String sshKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIoQyWzINPVvv37RLxb/QKO94XCOUo2bIC91XwAXCfoAgy165XNjPSgOLe74MCC/A0rIRt1hBfK18ynDhPSnqYSGXTo74ReEoS8WQ7gGR0e/h27ozuELpOWO8TVotBIuIhmS1Bepnk14TXjpCM/yq4DD8eg9kEz/eq5yjdwTUSMnLg+RERQzLxkWp41LKJ2itKjHh6vy+HDJDOzsSojdd6GeWfOwQkQMtL2Y0S1YEvrbT+rRHmsjZf4j+bxZnw/XpGJkPHZGs9AFwiLX00Q2b0ECuDSBtWaVNbJ0bU8rkimUGo6RHEE7EEtgNpqX0PFt0/Zwn2PFi2UHf5nSD2JESh";
-        String resourceName = createRandomName("pulceo-");
+        final String resourceName = createRandomName("pulceo-pna-");
 
         try {
+            String customerData = DeploymentUtil.templateBootStrapPnaScript(this.getCredentialsExportStatements());
 //            TokenCredential credential = new DefaultAzureCredentialBuilder()
 //                    .authorityHost(AzureAuthorityHosts.AZURE_PUBLIC_CLOUD)
 //                    .build();
@@ -80,7 +101,7 @@ public class AzureDeploymentService {
                     .withPopularLinuxImage(KnownLinuxVirtualMachineImage.UBUNTU_SERVER_20_04_LTS_GEN2)
                     .withRootUsername(userName)
                     .withSsh(sshKey)
-                    .withCustomData("IyEvYmluL3NoCmN1cmwgLXNmTCBodHRwczovL2dldC5rM3MuaW8gfCBJTlNUQUxMX0szU19FWEVDPSItLWRpc2FibGU9dHJhZWZpayIgc2ggLQpta2RpciAtcCB+Ly5rdWJlCnN1ZG8gY2F0IC9ldGMvcmFuY2hlci9rM3MvazNzLnlhbWwgPiAvaG9tZS9wdWxjZW8vLmt1YmUvY29uZmlnCmNobW9kIDA2MDAgfi8ua3ViZS9jb25maWc=")
+                    .withCustomData(customerData)
                     .withOSDiskStorageAccountType(StorageAccountTypes.STANDARD_SSD_LRS)
                     .withSize(VirtualMachineSizeTypes.fromString(createNewAzureNodeDTO.getSku()))
                     .create();
@@ -92,8 +113,6 @@ public class AzureDeploymentService {
         }
 
         // then persis
-
-
 //        private AzureProvider azureProvider;
 //        private NodeMetaData nodeMetaData;
 //        private Node node;
@@ -109,6 +128,18 @@ public class AzureDeploymentService {
         String nodeLocationCity = this.getCityByRegion(createNewAzureNodeDTO.getNodeLocationCountry());
 
         return null;
+    }
+
+    private List<String> getCredentialsExportStatements() {
+        List<String> exportStatements = new ArrayList<>();
+        exportStatements.add("PNA_MQTT_BROKER_URL=" + this.PNA_MQTT_BROKER_URL);
+        exportStatements.add("PNA_MQTT_CLIENT_USERNAME=" + this.PNA_MQTT_CLIENT_USERNAME);
+        exportStatements.add("PNA_MQTT_CLIENT_PASSWORD=" + this.PNA_MQTT_CLIENT_PASSWORD);
+        exportStatements.add("PNA_USERNAME=" + this.PNA_USERNAME);
+        exportStatements.add("PNA_PASSWORD=" + this.PNA_PASSWORD);
+        exportStatements.add("PNA_INIT_TOKEN=" + this.PNA_INIT_TOKEN);
+        exportStatements.add("USER=" + this.AZURE_VM_USERNAME);
+        return exportStatements;
     }
 
     public void deleteAzureVirtualMachine(String resourceGroupName, String providerName, boolean dryRun) {
@@ -143,7 +174,7 @@ public class AzureDeploymentService {
     }
 
     // taken from https://github.com/anuchandy/azure-sdk-for-java/blob/bb730c376420f440777c2f4b609424037115cca2/azure-samples/src/main/java/com/microsoft/azure/management/samples/Utils.java
-    public static String createRandomName(String namePrefix) {
+    private static String createRandomName(String namePrefix) {
         String root = UUID.randomUUID().toString().replace("-", "");
         long millis = Calendar.getInstance().getTimeInMillis();
         long datePart = millis % 10000000L;

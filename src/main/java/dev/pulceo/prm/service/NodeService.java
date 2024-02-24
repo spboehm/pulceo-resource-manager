@@ -1,5 +1,6 @@
 package dev.pulceo.prm.service;
 
+import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
@@ -117,8 +118,25 @@ public class NodeService {
         return this.abstractNodeRepository.save(onPremNode);
     }
 
-    public AzureNode createAzureNode(String providerName, String hostName, String pnaInitToken) {
+    public AzureNode createAzureNode(CreateNewAzureNodeDTO createNewAzureNodeDTO) {
 
+//        private String providerName;
+//        private String name;
+//        private String type;
+//        private String sku;
+//        private String nodeLocationCountry;
+//        private String nodeLocationCity;
+
+        // TODO: String providerName, String hostName, String pnaInitToken
+        // TODO: check if provider exists
+
+        // TODO: check if hostname already exists
+
+        // TODO: invoke AzureDeploymentService for creation of VM
+
+        // TODO: poll with /health until available, or alternatively, wait until completion with events
+
+        // TODO: perform CloudRegistration, this should be almost the same steps as above
 
         return null;
     }

@@ -7,6 +7,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,8 @@ public class AzureNode extends AbstractNode {
     private Node node;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private CloudRegistration cloudRegistration;
+    @Builder.Default
+    private String resourceGroupName = "";
 
     @Override
     public G6Node getG6Node() {
