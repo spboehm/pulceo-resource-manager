@@ -51,11 +51,9 @@ public class NodeController {
         } else if (createNewAbstractNodeDTO.getNodeType() == NodeDTOType.AZURE) {
             this.logger.info("Received request to create a new CloudNode: " + createNewAbstractNodeDTO);
             CreateNewAzureNodeDTO createNewAzureNodeDTO = CreateNewAzureNodeDTO.fromAbstractNodeDTO(createNewAbstractNodeDTO);
-            AzureNode azureNode = this.azureDeploymentService.createAzureNode(createNewAzureNodeDTO);
-
-
+            AzureNode azureNode = this.nodeService.createAzureNode(createNewAzureNodeDTO);
+            System.out.println(azureNode);
             throw new NodeServiceException("Node type not yet supported!");
-
         } else {
             logger.info("Received request to create a new node of type: " + createNewAbstractNodeDTO.getNodeType());
             throw new NodeServiceException("Node type not yet supported!");

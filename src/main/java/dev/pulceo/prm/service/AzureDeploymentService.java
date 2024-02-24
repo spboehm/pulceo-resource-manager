@@ -12,8 +12,9 @@ import com.azure.resourcemanager.compute.models.KnownLinuxVirtualMachineImage;
 import com.azure.resourcemanager.compute.models.StorageAccountTypes;
 import com.azure.resourcemanager.compute.models.VirtualMachine;
 import com.azure.resourcemanager.compute.models.VirtualMachineSizeTypes;
-import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
-import dev.pulceo.prm.model.node.AzureNode;
+import com.azure.resourcemanager.network.models.PublicIpAddress;
+import dev.pulceo.prm.exception.AzureDeploymentServiceException;
+import dev.pulceo.prm.model.node.AzureDeloymentResult;
 import dev.pulceo.prm.model.provider.AzureCredentials;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.util.DeploymentUtil;
@@ -61,10 +62,10 @@ public class AzureDeploymentService {
     }
 
     // TODO: split
-    public AzureNode createAzureNode(CreateNewAzureNodeDTO createNewAzureNodeDTO) {
+    public AzureDeloymentResult deploy(String providerName, String nodeLocationCountry, String sku) throws AzureDeploymentServiceException {
 
         // retrieve AzureProvider
-        AzureProvider azureProvider = this.providerService.readAzureProviderByProviderMetaDataName(createNewAzureNodeDTO.getProviderName()).orElseThrow();
+        AzureProvider azureProvider = this.providerService.readAzureProviderByProviderMetaDataName(providerName).orElseThrow();
 
         // TODO: retrieve credentials
         AzureCredentials azureCredentials = azureProvider.getCredentials();
@@ -72,10 +73,9 @@ public class AzureDeploymentService {
         // Deploy to Azure
         final String userName = AZURE_VM_USERNAME;
         final String sshKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIoQyWzINPVvv37RLxb/QKO94XCOUo2bIC91XwAXCfoAgy165XNjPSgOLe74MCC/A0rIRt1hBfK18ynDhPSnqYSGXTo74ReEoS8WQ7gGR0e/h27ozuELpOWO8TVotBIuIhmS1Bepnk14TXjpCM/yq4DD8eg9kEz/eq5yjdwTUSMnLg+RERQzLxkWp41LKJ2itKjHh6vy+HDJDOzsSojdd6GeWfOwQkQMtL2Y0S1YEvrbT+rRHmsjZf4j+bxZnw/XpGJkPHZGs9AFwiLX00Q2b0ECuDSBtWaVNbJ0bU8rkimUGo6RHEE7EEtgNpqX0PFt0/Zwn2PFi2UHf5nSD2JESh";
-        final String resourceName = createRandomName("pulceo-pna-");
+        final String resourceName = createRandomName("pulceo-node-");
 
         try {
-            String customerData = DeploymentUtil.templateBootStrapPnaScript(this.getCredentialsExportStatements());
 //            TokenCredential credential = new DefaultAzureCredentialBuilder()
 //                    .authorityHost(AzureAuthorityHosts.AZURE_PUBLIC_CLOUD)
 //                    .build();
@@ -91,46 +91,45 @@ public class AzureDeploymentService {
                     .authenticate(clientSecretCredential, profile)
                     .withSubscription(azureCredentials.getSubscriptionId());
 
-            // Create an Ubuntu virtual machine in a new resource group.
+            // === Public IP
+            PublicIpAddress publicIPAddress = azureResourceManager.publicIpAddresses().define(resourceName)
+                    .withRegion(nodeLocationCountry)
+                    .withNewResourceGroup(resourceName)
+                    .withLeafDomainLabel(resourceName)
+                    .withStaticIP()
+                    .create();
+
+            // === Customer data for bootstrapping PNA
+            String customerData = DeploymentUtil.templateBootStrapPnaScript(this.getCredentialsExportStatements(publicIPAddress.fqdn()));
+
+            // === Virtual Machine
             VirtualMachine linuxVM = azureResourceManager.virtualMachines().define(resourceName)
-                    .withRegion(Region.fromName(createNewAzureNodeDTO.getNodeLocationCountry()))
+                    .withRegion(Region.fromName(nodeLocationCountry))
                     .withNewResourceGroup(resourceName)
                     .withNewPrimaryNetwork("10.0.0.0/24")
                     .withPrimaryPrivateIPAddressDynamic()
-                    .withNewPrimaryPublicIPAddress(resourceName)
+                    .withExistingPrimaryPublicIPAddress(publicIPAddress)
                     .withPopularLinuxImage(KnownLinuxVirtualMachineImage.UBUNTU_SERVER_20_04_LTS_GEN2)
                     .withRootUsername(userName)
                     .withSsh(sshKey)
                     .withCustomData(customerData)
                     .withOSDiskStorageAccountType(StorageAccountTypes.STANDARD_SSD_LRS)
-                    .withSize(VirtualMachineSizeTypes.fromString(createNewAzureNodeDTO.getSku()))
+                    .withSize(VirtualMachineSizeTypes.fromString(sku))
                     .create();
 
+            return AzureDeloymentResult.builder()
+                    .resourceGroupName(resourceName)
+                    .fqdn(publicIPAddress.fqdn())
+                    .build();
+
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-            this.deleteAzureVirtualMachine(resourceName, createNewAzureNodeDTO.getProviderName(), false);
+            this.deleteAzureVirtualMachine(resourceName, providerName, false);
+            throw new AzureDeploymentServiceException("Could not deploy azure virtual machine...rolling back...", e);
         }
 
-        // then persis
-//        private AzureProvider azureProvider;
-//        private NodeMetaData nodeMetaData;
-//        private Node node;
-//        private CloudRegistration cloudRegistration;
-
-//        private String name;
-//        private String type;
-//        private String sku;
-
-//        private String nodeLocationCountry;
-        String nodeLocationCountry = this.getCountryByRegion(createNewAzureNodeDTO.getNodeLocationCountry());
-//        private String nodeLocationCity;
-        String nodeLocationCity = this.getCityByRegion(createNewAzureNodeDTO.getNodeLocationCountry());
-
-        return null;
     }
 
-    private List<String> getCredentialsExportStatements() {
+    private List<String> getCredentialsExportStatements(String domain) {
         List<String> exportStatements = new ArrayList<>();
         exportStatements.add("PNA_MQTT_BROKER_URL=" + this.PNA_MQTT_BROKER_URL);
         exportStatements.add("PNA_MQTT_CLIENT_USERNAME=" + this.PNA_MQTT_CLIENT_USERNAME);
@@ -139,6 +138,7 @@ public class AzureDeploymentService {
         exportStatements.add("PNA_PASSWORD=" + this.PNA_PASSWORD);
         exportStatements.add("PNA_INIT_TOKEN=" + this.PNA_INIT_TOKEN);
         exportStatements.add("USER=" + this.AZURE_VM_USERNAME);
+        exportStatements.add("DOMAIN=" + domain);
         return exportStatements;
     }
 
@@ -181,21 +181,7 @@ public class AzureDeploymentService {
         return namePrefix + root.toLowerCase().substring(0, 3) + datePart;
     }
 
-    private String getCityByRegion(String region) {
-        if (region.equals("eastus")) {
-            return "Virginia";
-        } else {
-            return "";
-        }
-    }
 
-    private String getCountryByRegion(String region) {
-        if (region.equals("eastus")) {
-            return "USA";
-        } else {
-            return "";
-        }
-    }
 
     private static ClientSecretCredential getClientSecretCredential(AzureCredentials azureCredentials) {
         ClientSecretCredential clientSecretCredential = new ClientSecretCredentialBuilder()

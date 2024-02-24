@@ -16,6 +16,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class CloudRegistration extends BaseEntity {
     private UUID nodeUUID;
     private UUID pnaUUID;

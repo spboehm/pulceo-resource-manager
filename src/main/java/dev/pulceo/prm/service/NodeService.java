@@ -5,9 +5,11 @@ import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
+import dev.pulceo.prm.exception.AzureDeploymentServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.internal.G6.model.G6Node;
 import dev.pulceo.prm.model.node.*;
+import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.registration.CloudRegistration;
 import dev.pulceo.prm.repository.*;
@@ -19,7 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +41,9 @@ public class NodeService {
     private final CloudRegistraionService cloudRegistraionService;
     private final CPUResourcesRepository cpuResourcesRepository;
     private final MemoryResourcesRepository memoryResourcesRepository;
-
     private final ModelMapper modelMapper = new ModelMapper();
+    private final AzureDeploymentService azureDeploymentService;
+
 
     @Value("${prm.uuid}")
     private UUID prmUUID;
@@ -46,9 +51,11 @@ public class NodeService {
     private String prmEndpoint;
     @Value("${webclient.scheme}")
     private String webClientScheme;
+    @Value("${PNA_INIT_TOKEN}")
+    private String pnaInitToken;
 
     @Autowired
-    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository) {
+    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, AzureDeploymentService azureDeploymentService) {
         this.abstractNodeRepository = abstractNodeRepository;
         this.onPremNoderepository = onPremNoderepository;
         this.nodeMetaDataRepository = nodeMetaDataRepository;
@@ -57,6 +64,7 @@ public class NodeService {
         this.cloudRegistraionService = cloudRegistraionService;
         this.cpuResourcesRepository = cpuResourcesRepository;
         this.memoryResourcesRepository = memoryResourcesRepository;
+        this.azureDeploymentService = azureDeploymentService;
     }
 
     public OnPremNode createOnPremNode(String providerName, String hostName, String pnaInitToken) throws NodeServiceException {
@@ -118,27 +126,101 @@ public class NodeService {
         return this.abstractNodeRepository.save(onPremNode);
     }
 
-    public AzureNode createAzureNode(CreateNewAzureNodeDTO createNewAzureNodeDTO) {
+    public AzureNode createAzureNode(CreateNewAzureNodeDTO createNewAzureNodeDTO) throws NodeServiceException {
+        Optional<AzureProvider> azureProvider = this.providerService.readAzureProviderByProviderMetaDataName(createNewAzureNodeDTO.getProviderName());
+        if (azureProvider.isEmpty()) {
+            throw new NodeServiceException("Provider does not exist!");
+        }
 
-//        private String providerName;
-//        private String name;
-//        private String type;
-//        private String sku;
-//        private String nodeLocationCountry;
-//        private String nodeLocationCity;
+        // TODO: further validations
+
+
 
         // TODO: String providerName, String hostName, String pnaInitToken
-        // TODO: check if provider exists
-
-        // TODO: check if hostname already exists
 
         // TODO: invoke AzureDeploymentService for creation of VM
+        try {
+            AzureDeloymentResult azureDeloymentResult = this.azureDeploymentService.deploy(createNewAzureNodeDTO.getProviderName(), createNewAzureNodeDTO.getNodeLocationCountry(), createNewAzureNodeDTO.getSku());
+            logger.info("Received azure deployment response: " + azureDeloymentResult);
+            // TODO: poll with /health until available, or alternatively, wait until completion with events
+            // TODO: replace with https or make configuration
+            WebClient webClientToAzureNode = WebClient.create(this.webClientScheme + "://" + azureDeloymentResult.getFqdn() + ":7676");
+            webClientToAzureNode.get()
+                    .uri("/health")
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .retryWhen(Retry.backoff(5, Duration.ofSeconds(5)))
+                    .block();
 
-        // TODO: poll with /health until available, or alternatively, wait until completion with events
+            // TODO: perform CloudRegistration, this should be almost the same steps as above
+            CloudRegistrationRequestDTO cloudRegistrationRequestDTO = CloudRegistrationRequestDTO.builder()
+                    .prmUUID(this.prmUUID)
+                    .prmEndpoint(this.prmEndpoint)
+                    .pnaInitToken(this.pnaInitToken)
+                    .build();
 
-        // TODO: perform CloudRegistration, this should be almost the same steps as above
+            CloudRegistrationResponseDTO cloudRegistrationResponseDTO = webClientToAzureNode.post()
+                    .uri("/api/v1/cloud-registrations")
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Basic " + this.pnaInitToken)
+                    .bodyValue(cloudRegistrationRequestDTO)
+                    .retrieve()
+                    .bodyToMono(CloudRegistrationResponseDTO.class)
+                    .onErrorResume(e -> {
+                        throw new RuntimeException(new NodeServiceException("Failed to to issue a cloud registration"));
+                    })
+                    .block();
 
-        return null;
+            CloudRegistration cloudRegistration = this.modelMapper.map(cloudRegistrationResponseDTO, CloudRegistration.class);
+            logger.info("Received cloud registration response: " + cloudRegistration);
+
+            // obtain remote resources
+            CPUResource cpuResource = getCpuResource(webClientToAzureNode, pnaInitToken);
+            MemoryResource memoryResource = getMemoryResource(webClientToAzureNode, pnaInitToken);
+
+            Node node = Node.builder()
+                    .name(createNewAzureNodeDTO.getName())
+                    .type(NodeType.valueOf(createNewAzureNodeDTO.getType().toUpperCase())) // TODO: replace
+                    .nodeLocationCountry(this.getCountryByRegion(createNewAzureNodeDTO.getNodeLocationCountry()))
+                    .nodeLocationCity(this.getCityByRegion(createNewAzureNodeDTO.getNodeLocationCity()))
+                    .cpuResource(cpuResource)
+                    .memoryResource(memoryResource)
+                    .build();
+
+            NodeMetaData nodeMetaData = NodeMetaData.builder()
+                    .remoteNodeUUID(cloudRegistration.getNodeUUID())
+                    .pnaUUID(cloudRegistration.getPnaUUID())
+                    .hostname(azureDeloymentResult.getFqdn())
+                    .build();
+
+            AzureNode azureNode = AzureNode.builder()
+                    .internalNodeType(InternalNodeType.AZURE)
+                    .azureProvider(azureProvider.get())
+                    .nodeMetaData(nodeMetaData)
+                    .node(node)
+                    .cloudRegistration(cloudRegistration)
+                    .build();
+
+            return this.abstractNodeRepository.save(azureNode);
+        } catch (AzureDeploymentServiceException e) {
+            throw new NodeServiceException("Could not create azure node!", e);
+        }
+    }
+
+    private String getCityByRegion(String region) {
+        if (region.equals("eastus")) {
+            return "Virginia";
+        } else {
+            return "";
+        }
+    }
+
+    private String getCountryByRegion(String region) {
+        if (region.equals("eastus")) {
+            return "USA";
+        } else {
+            return "";
+        }
     }
 
     private CPUResource getCpuResource(WebClient webClient, String pnaInitToken) {
