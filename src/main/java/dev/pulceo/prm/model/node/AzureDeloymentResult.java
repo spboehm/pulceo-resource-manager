@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -12,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class AzureDeloymentResult extends BaseEntity {
     private String resourceGroupName;
     private String sku;

@@ -26,7 +26,7 @@ public class NodeMetaData extends BaseEntity {
     private UUID pnaUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
     @NotNull(message="Node hostname is required!")
     @Builder.Default
-    private String hostname = "";
+    private String hostname = "PENDING";
 
     @Override
     public boolean equals(Object o) {

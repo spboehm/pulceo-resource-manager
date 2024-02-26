@@ -34,7 +34,7 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@SpringBootTest(properties = { "webclient.scheme=http"})
 public class NodeServiceIntegrationTest {
 
     @MockBean
@@ -77,7 +77,7 @@ public class NodeServiceIntegrationTest {
 
     @AfterEach
     void after() {
-        wireMockServer.resetAll();
+//        wireMockServer.resetAll();
     }
 
     @AfterAll
