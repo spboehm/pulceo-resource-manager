@@ -221,11 +221,10 @@ public class NodeServiceIntegrationTest {
         // when
         AzureNode preliminaryAzureNode = this.nodeService.createPreliminaryAzureNode(createNewAzureNodeDTO);
         CompletableFuture<AzureNode> azureNodeFuture = this.nodeService.createAzureNodeAsync(preliminaryAzureNode.getUuid(), createNewAzureNodeDTO);
-        System.out.println(azureNodeFuture.get());
+
         // then
-
-
-
+        // TODO: further assertions
+        assertEquals(azureNodeFuture.get().getNode().getName(), "cloud-0");
     }
 
     @Test

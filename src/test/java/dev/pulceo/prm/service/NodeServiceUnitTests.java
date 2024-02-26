@@ -7,6 +7,7 @@ import dev.pulceo.prm.dto.node.NodeDTOType;
 import dev.pulceo.prm.exception.AzureDeploymentServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.node.AzureDeloymentResult;
+import dev.pulceo.prm.model.node.AzureNode;
 import dev.pulceo.prm.model.node.OnPremNode;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.model.provider.OnPremProvider;
@@ -18,6 +19,7 @@ import dev.pulceo.prm.repository.NodeRepository;
 import dev.pulceo.prm.util.NodeUtil;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.internal.verification.Times;
@@ -27,6 +29,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
@@ -129,7 +133,8 @@ public class NodeServiceUnitTests {
 
     @Test
     @Disabled
-    public void testCreateAzureNode() throws NodeServiceException, AzureDeploymentServiceException {
+    // TODO: fix
+    public void testCreateAzureNode() throws NodeServiceException, AzureDeploymentServiceException, ExecutionException, InterruptedException {
         // given
         String azureProvider = "azure-provider";
         when(this.providerService.readAzureProviderByProviderMetaDataName(azureProvider))
@@ -188,11 +193,12 @@ public class NodeServiceUnitTests {
                         .withBodyFile("node/pna-read-memory-resources-response.json")));
 
         // when
-//        this.nodeService.createAzureNodeAsync(createNewAzureNodeDTO);
-
+        AzureNode preliminaryAzureNode = this.nodeService.createPreliminaryAzureNode(createNewAzureNodeDTO);
+        CompletableFuture<AzureNode> azureNodeFuture = this.nodeService.createAzureNodeAsync(preliminaryAzureNode.getUuid(), createNewAzureNodeDTO);
+        azureNodeFuture.get();
         // then
         // TODO: further validations
-//        verify(this.abstractNodeRepository, new Times(1)).save(ArgumentMatchers.any(AzureNode.class));
+        verify(this.abstractNodeRepository, new Times(1)).save(ArgumentMatchers.any(AzureNode.class));
     }
 
 }

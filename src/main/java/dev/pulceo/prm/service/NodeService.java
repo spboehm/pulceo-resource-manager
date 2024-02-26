@@ -152,7 +152,6 @@ public class NodeService {
     }
 
     @Async
-    @Transactional
     public CompletableFuture<AzureNode> createAzureNodeAsync(UUID nodeUuid, CreateNewAzureNodeDTO createNewAzureNodeDTO) throws NodeServiceException {
         // TODO: find by name
         logger.info("Received async request for creating azure node with uuid %s " + " with " + createNewAzureNodeDTO);
@@ -178,7 +177,6 @@ public class NodeService {
                     .retryWhen(Retry.backoff(5, Duration.ofSeconds(5)))
                     .block();
 
-            // TODO: perform CloudRegistration, this should be almost the same steps as above
             CloudRegistrationRequestDTO cloudRegistrationRequestDTO = CloudRegistrationRequestDTO.builder()
                     .prmUUID(this.prmUUID)
                     .prmEndpoint(this.prmEndpoint)
@@ -222,6 +220,7 @@ public class NodeService {
             azureNodeToBeUpdated.setNodeMetaData(nodeMetaData);
             azureNodeToBeUpdated.setCloudRegistration(cloudRegistration);
             azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
+            this.azureNodeRepository.save(azureNodeToBeUpdated);
             return CompletableFuture.completedFuture(azureNodeToBeUpdated);
         } catch (AzureDeploymentServiceException e) {
             throw new NodeServiceException("Could not create azure node!", e);
