@@ -3,10 +3,7 @@ package dev.pulceo.prm.model.node;
 import dev.pulceo.prm.internal.G6.model.G6Node;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.model.registration.CloudRegistration;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +16,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class AzureNode extends AbstractNode {
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinColumn
     private AzureProvider azureProvider;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private NodeMetaData nodeMetaData;

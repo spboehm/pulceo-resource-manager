@@ -1,24 +1,39 @@
 package dev.pulceo.prm.service;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.http.Fault;
+import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
+import dev.pulceo.prm.dto.node.NodeDTOType;
+import dev.pulceo.prm.exception.AzureDeploymentServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
+import dev.pulceo.prm.model.node.AzureDeloymentResult;
+import dev.pulceo.prm.model.node.AzureNode;
 import dev.pulceo.prm.model.node.OnPremNode;
-import dev.pulceo.prm.repository.AbstractLinkRepository;
-import dev.pulceo.prm.repository.AbstractNodeRepository;
+import dev.pulceo.prm.model.provider.AzureCredentials;
+import dev.pulceo.prm.model.provider.AzureProvider;
+import dev.pulceo.prm.model.provider.ProviderMetaData;
+import dev.pulceo.prm.model.provider.ProviderType;
+import dev.pulceo.prm.repository.*;
 import dev.pulceo.prm.util.NodeUtil;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.WireMockSpring;
 
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class NodeServiceIntegrationTest {
+
+    @MockBean
+    private AzureDeploymentService azureDeploymentService;
 
     @Autowired
     private NodeService nodeService;
@@ -30,6 +45,10 @@ public class NodeServiceIntegrationTest {
     private AbstractNodeRepository abstractNodeRepository;
     @Autowired
     private AbstractLinkRepository abstractLinkRepository;
+    @Autowired
+    private AzureProviderRepository azureProviderRepository;
+    @Autowired
+    private OnPremProviderRepository onPremProviderRepository;
 
     @Value("${pna1.test.uuid}")
     private UUID pna1UUID;
@@ -65,6 +84,8 @@ public class NodeServiceIntegrationTest {
     public void prepare() {
         this.abstractLinkRepository.deleteAll();
         this.abstractNodeRepository.deleteAll();
+//        this.onPremProviderRepository.deleteAll();/**/
+        this.azureProviderRepository.deleteAll();
     }
 
     @Test
@@ -100,6 +121,72 @@ public class NodeServiceIntegrationTest {
 
         // then
         assertEquals(expectedOnPremNode, onPremNode);
+    }
+
+    @Test
+    public void testCreateAzureNode() throws NodeServiceException, AzureDeploymentServiceException {
+        // given
+        String providerName = "azure-provider";
+        AzureProvider azureProvider = AzureProvider.builder()
+                .providerMetaData(ProviderMetaData.builder()
+                        .providerName(providerName)
+                        .providerType(ProviderType.AZURE).build())
+                .credentials(AzureCredentials.builder().build())
+                .build();
+        AzureProvider createdAzureProvider = this.providerService.createAzureProvider(azureProvider);
+
+        // TODO: mock azureDeploymentservice
+        when(this.azureDeploymentService.deploy(providerName, "eastus", "Standard_B2s"))
+                .thenReturn(AzureDeloymentResult.builder()
+                        .resourceGroupName("pulceo-node-b6d5536507")
+                        .sku("Standard_B2s")
+                        .fqdn("127.0.0.1")
+                        .build());
+
+        CreateNewAzureNodeDTO createNewAzureNodeDTO = CreateNewAzureNodeDTO.builder()
+                .nodeType(NodeDTOType.AZURE)
+                .providerName(createdAzureProvider.getProviderMetaData().getProviderName())
+                .name("cloud-0")
+                .type("cloud")
+                .sku("Standard_B2s")
+                .nodeLocationCountry("eastus")
+                .nodeLocationCity("Virginia")
+                .build();
+
+        wireMockServer.stubFor(get(urlEqualTo("/health"))
+                .inScenario("Retry Scenario")
+                .whenScenarioStateIs(STARTED)
+                .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER))
+                .willSetStateTo("Cause Success"));
+
+        wireMockServer.stubFor(get(urlEqualTo("/health"))
+                .inScenario("Retry Scenario")
+                .whenScenarioStateIs("Cause Success")
+                .willReturn(aResponse().withStatus(200).withFixedDelay(2000)));
+
+        wireMockServer.stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("registration/pna-1-cloud-registration-response.json")));
+
+        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/cpu"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-read-cpu-resource-response.json")));
+
+        // read local memory resources
+        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/memory"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-read-memory-resources-response.json")));
+
+        // when
+        AzureNode azureNode = this.nodeService.createAzureNode(createNewAzureNodeDTO);
+
+        // then
     }
 
     @Test

@@ -141,7 +141,7 @@ public class NodeService {
         // TODO: invoke AzureDeploymentService for creation of VM
         try {
             AzureDeloymentResult azureDeloymentResult = this.azureDeploymentService.deploy(createNewAzureNodeDTO.getProviderName(), createNewAzureNodeDTO.getNodeLocationCountry(), createNewAzureNodeDTO.getSku());
-            logger.info("Received azure deployment response: " + azureDeloymentResult);
+            logger.info("Received azure deployment response: " + azureDeloymentResult.toString());
             // TODO: poll with /health until available, or alternatively, wait until completion with events
             // TODO: replace with https or make configuration
             WebClient webClientToAzureNode = WebClient.create(this.webClientScheme + "://" + azureDeloymentResult.getFqdn() + ":7676");
@@ -199,6 +199,7 @@ public class NodeService {
                     .nodeMetaData(nodeMetaData)
                     .node(node)
                     .cloudRegistration(cloudRegistration)
+                    .azureDeloymentResult(azureDeloymentResult)
                     .build();
 
             return this.abstractNodeRepository.save(azureNode);
