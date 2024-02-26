@@ -147,8 +147,10 @@ public class NodeService {
                 .internalNodeType(InternalNodeType.AZURE)
                 .azureProvider(azureProvider.get())
                 .node(node)
+                .nodeMetaData(NodeMetaData.builder().build())
                 .build();
-        return this.abstractNodeRepository.save(azureNode);
+
+        return this.azureNodeRepository.save(azureNode);
     }
 
     @Async
@@ -209,15 +211,19 @@ public class NodeService {
             azureNodeToBeUpdated.getNode().setCpuResource(cpuResource);
             azureNodeToBeUpdated.getNode().setMemoryResource(memoryResource);
 
+            azureNodeToBeUpdated.getNodeMetaData().setRemoteNodeUUID(cloudRegistration.getNodeUUID());
+            azureNodeToBeUpdated.getNodeMetaData().setPnaUUID(cloudRegistration.getPnaUUID());
+            azureNodeToBeUpdated.getNodeMetaData().setHostname(azureDeloymentResult.getFqdn());
+
             // generate nodeMetaData
-            NodeMetaData nodeMetaData = NodeMetaData.builder()
-                    .remoteNodeUUID(cloudRegistration.getNodeUUID())
-                    .pnaUUID(cloudRegistration.getPnaUUID())
-                    .hostname(azureDeloymentResult.getFqdn())
-                    .build();
+//            NodeMetaData nodeMetaData = NodeMetaData.builder()
+//                    .remoteNodeUUID(cloudRegistration.getNodeUUID())
+//                    .pnaUUID(cloudRegistration.getPnaUUID())
+//                    .hostname(azureDeloymentResult.getFqdn())
+//                    .build();
 
             // set NodeMetaData, CloudRegistration, AzureDeloymentResult
-            azureNodeToBeUpdated.setNodeMetaData(nodeMetaData);
+//            azureNodeToBeUpdated.setNodeMetaData(nodeMetaData);
             azureNodeToBeUpdated.setCloudRegistration(cloudRegistration);
             azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
             this.azureNodeRepository.save(azureNodeToBeUpdated);
@@ -292,6 +298,11 @@ public class NodeService {
         return this.onPremNoderepository.findById(id).get();
     }
 
+    @Transactional
+    public AzureNode readAzureNode(Long id) {
+        return this.azureNodeRepository.findById(id).get();
+    }
+
     public CPUResource readCPUResourceByUUID(UUID nodeUUID) throws NodeServiceException {
         Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(nodeUUID);
         if (abstractNode.isEmpty()) {
@@ -340,7 +351,7 @@ public class NodeService {
         return this.nodeMetaDataRepository.findByHostname(hostName).isPresent();
     }
 
-    private Optional<AzureNode> readAzureNodeByUUID(UUID uuid) {
+    public Optional<AzureNode> readAzureNodeByUUID(UUID uuid) {
         return this.azureNodeRepository.readAzureNodeByUuid(uuid);
     }
 

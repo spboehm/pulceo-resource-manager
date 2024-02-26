@@ -27,7 +27,8 @@ public class ProviderController {
         this.modelMapper = modelMapper;
     }
 
-    @PostMapping("/azure-providers")
+    @PostMapping("")
+    // TODO: add polymorphism
     public ResponseEntity<ProviderDTO> createAzureProvider(@Valid @RequestBody CreateNewAzureProviderDTO createNewAzureProviderDTO) {
         AzureProvider createdAzureProvider = this.providerService.createAzureProvider(AzureProvider.fromCreateNewAzureProviderDTO(createNewAzureProviderDTO));
         ProviderDTO providerDTO = ProviderDTO.fromAzureProvider(createdAzureProvider);

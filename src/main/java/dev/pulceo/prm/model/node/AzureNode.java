@@ -14,6 +14,28 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @NoArgsConstructor
+@NamedEntityGraph(
+        name = "graph.AzureNode.azureProvider",
+        attributeNodes = {
+                @NamedAttributeNode(value = "azureProvider", subgraph = "graph.AzureNode.azureProvider"),
+                @NamedAttributeNode("nodeMetaData"),
+                @NamedAttributeNode(value = "node", subgraph = "graph.AzureNode.node"),
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "graph.AzureNode.azureProvider",
+                        attributeNodes = {
+                                @NamedAttributeNode("providerMetaData")
+                        }
+                ),
+                @NamedSubgraph(
+                        name = "graph.AzureNode.node",
+                        attributeNodes = {
+                                @NamedAttributeNode("cpuResource")
+                        }
+                ),
+        }
+)
 public class AzureNode extends AbstractNode {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)

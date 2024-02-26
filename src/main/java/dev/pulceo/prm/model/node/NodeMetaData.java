@@ -2,8 +2,8 @@ package dev.pulceo.prm.model.node;
 
 import dev.pulceo.prm.model.BaseEntity;
 import jakarta.persistence.Entity;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,11 +19,14 @@ import java.util.UUID;
 @NoArgsConstructor
 public class NodeMetaData extends BaseEntity {
     @NotNull(message= "Remote node id is required!")
-    private UUID remoteNodeUUID;
+    @Builder.Default
+    private UUID remoteNodeUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
     @NotNull(message= "PNA id is required!")
-    private UUID pnaUUID;
-    @NotBlank(message="Node hostname is required!")
-    private String hostname;
+    @Builder.Default
+    private UUID pnaUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    @NotNull(message="Node hostname is required!")
+    @Builder.Default
+    private String hostname = "";
 
     @Override
     public boolean equals(Object o) {

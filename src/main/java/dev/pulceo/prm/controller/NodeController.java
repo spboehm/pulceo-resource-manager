@@ -52,11 +52,12 @@ public class NodeController {
             this.logger.info("Received request to create a new CloudNode: " + createNewAbstractNodeDTO);
             CreateNewAzureNodeDTO createNewAzureNodeDTO = CreateNewAzureNodeDTO.fromAbstractNodeDTO(createNewAbstractNodeDTO);
 
+            AzureNode preliminaryAzureNode = this.nodeService.createPreliminaryAzureNode(createNewAzureNodeDTO);
+            System.out.println(preliminaryAzureNode.getNode().getUuid());
 
-
+            return null;
 
             //AzureNode azureNode = this.nodeService.createAzureNode(createNewAzureNodeDTO);
-            throw new NodeServiceException("Node type not yet supported!");
         } else {
             logger.info("Received request to create a new node of type: " + createNewAbstractNodeDTO.getNodeType());
             throw new NodeServiceException("Node type not yet supported!");
@@ -116,6 +117,9 @@ public class NodeController {
             if (internalNodeType == InternalNodeType.ONPREM) {
                 OnPremNode onPremNode = this.nodeService.readOnPremNode(abstractNode.getId());
                 abstractNodeDTOList.add(NodeDTO.fromOnPremNode(onPremNode));
+            } else if (internalNodeType == InternalNodeType.AZURE) {
+                AzureNode azureNode = this.nodeService.readAzureNode(abstractNode.getId());
+                abstractNodeDTOList.add(NodeDTO.fromAzureNode(azureNode));
             }
         }
         return ResponseEntity.status(200).body(abstractNodeDTOList);

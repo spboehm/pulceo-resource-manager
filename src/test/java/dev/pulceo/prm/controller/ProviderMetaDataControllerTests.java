@@ -28,7 +28,7 @@ public class ProviderMetaDataControllerTests {
         String createNewAzureProviderDTOAsJson = objectMapper.writeValueAsString(createNewAzureProviderDTO);
 
         // when and then
-        this.mockMvc.perform(post("/api/v1/providers/azure-providers")
+        this.mockMvc.perform(post("/api/v1/providers")
                         .contentType("application/json")
                         .accept("application/json")
                         .content(createNewAzureProviderDTOAsJson))
