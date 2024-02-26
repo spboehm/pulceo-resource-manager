@@ -27,6 +27,7 @@ public class AzureNode extends AbstractNode {
     private CloudRegistration cloudRegistration;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private AzureDeloymentResult azureDeloymentResult;
+    // TODO: status
 
     @Override
     public G6Node getG6Node() {

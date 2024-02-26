@@ -221,78 +221,11 @@ public class NodeServiceIntegrationTest {
         // when
         AzureNode preliminaryAzureNode = this.nodeService.createPreliminaryAzureNode(createNewAzureNodeDTO);
         CompletableFuture<AzureNode> azureNodeFuture = this.nodeService.createAzureNodeAsync(preliminaryAzureNode.getUuid(), createNewAzureNodeDTO);
-
+        System.out.println(azureNodeFuture.get());
         // then
 
 
 
-    }
-
-    @Test
-    @Disabled
-    public void testCreateAzureNode() throws NodeServiceException, AzureDeploymentServiceException {
-        // given
-        String providerName = "azure-provider";
-        AzureProvider azureProvider = AzureProvider.builder()
-                .providerMetaData(ProviderMetaData.builder()
-                        .providerName(providerName)
-                        .providerType(ProviderType.AZURE).build())
-                .credentials(AzureCredentials.builder().build())
-                .build();
-        AzureProvider createdAzureProvider = this.providerService.createAzureProvider(azureProvider);
-
-        // TODO: mock azureDeploymentservice
-        when(this.azureDeploymentService.deploy(providerName, "eastus", "Standard_B2s"))
-                .thenReturn(AzureDeloymentResult.builder()
-                        .resourceGroupName("pulceo-node-b6d5536507")
-                        .sku("Standard_B2s")
-                        .fqdn("127.0.0.1")
-                        .build());
-
-        CreateNewAzureNodeDTO createNewAzureNodeDTO = CreateNewAzureNodeDTO.builder()
-                .nodeType(NodeDTOType.AZURE)
-                .providerName(createdAzureProvider.getProviderMetaData().getProviderName())
-                .name("cloud-0")
-                .type("cloud")
-                .sku("Standard_B2s")
-                .nodeLocationCountry("eastus")
-                .nodeLocationCity("Virginia")
-                .build();
-
-        wireMockServer.stubFor(get(urlEqualTo("/health"))
-                .inScenario("Retry Scenario")
-                .whenScenarioStateIs(STARTED)
-                .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER))
-                .willSetStateTo("Cause Success"));
-
-        wireMockServer.stubFor(get(urlEqualTo("/health"))
-                .inScenario("Retry Scenario")
-                .whenScenarioStateIs("Cause Success")
-                .willReturn(aResponse().withStatus(200).withFixedDelay(2000)));
-
-        wireMockServer.stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBodyFile("registration/pna-1-cloud-registration-response.json")));
-
-        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/cpu"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBodyFile("node/pna-read-cpu-resource-response.json")));
-
-        // read local memory resources
-        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/memory"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBodyFile("node/pna-read-memory-resources-response.json")));
-
-        // when
-//        AzureNode azureNode = this.nodeService.createAzureNodeAsync(createNewAzureNodeDTO);
-
-        // then
     }
 
     @Test

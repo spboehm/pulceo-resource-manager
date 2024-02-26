@@ -147,31 +147,25 @@ public class NodeService {
                 .internalNodeType(InternalNodeType.AZURE)
                 .azureProvider(azureProvider.get())
                 .node(node)
-                .cloudRegistration(CloudRegistration.builder().build())
-                .azureDeloymentResult(AzureDeloymentResult.builder().build())
                 .build();
         return this.abstractNodeRepository.save(azureNode);
     }
 
     @Async
+    @Transactional
     public CompletableFuture<AzureNode> createAzureNodeAsync(UUID nodeUuid, CreateNewAzureNodeDTO createNewAzureNodeDTO) throws NodeServiceException {
         // TODO: find by name
+        logger.info("Received async request for creating azure node with uuid %s " + " with " + createNewAzureNodeDTO);
         Optional<AzureNode> azureNode = this.readAzureNodeByUUID(nodeUuid);
         if (azureNode.isEmpty()) {
             throw new NodeServiceException("Node with uuid %s does not exist. Please create at first lazily");
         }
-//        logger.info("Received request for creating new Azure node: " + createNewAzureNodeDTO.toString());
-//        Optional<AzureProvider> azureProvider = this.providerService.readAzureProviderByProviderMetaDataName(createNewAzureNodeDTO.getProviderName());
-//        if (azureProvider.isEmpty()) {
-//            throw new NodeServiceException("Provider does not exist!");
-//        }
-
         // TODO: further validations
 
         // TODO: String providerName, String hostName, String pnaInitToken
 
-        // TODO: invoke AzureDeploymentService for creation of VM
         try {
+            // invoke AzureDeploymentService for creation of VM
             AzureDeloymentResult azureDeloymentResult = this.azureDeploymentService.deploy(createNewAzureNodeDTO.getProviderName(), createNewAzureNodeDTO.getNodeLocationCountry(), createNewAzureNodeDTO.getSku());
             logger.info("Received azure deployment response: " + azureDeloymentResult.toString());
             // TODO: poll with /health until available, or alternatively, wait until completion with events
@@ -210,8 +204,7 @@ public class NodeService {
             CPUResource cpuResource = getCpuResource(webClientToAzureNode, pnaInitToken);
             MemoryResource memoryResource = getMemoryResource(webClientToAzureNode, pnaInitToken);
 
-            // TODO: then find by name and then deploy
-
+            // update azure node
             AzureNode azureNodeToBeUpdated = azureNode.get();
 
             // complete dynamically obtained data from node
@@ -229,7 +222,6 @@ public class NodeService {
             azureNodeToBeUpdated.setNodeMetaData(nodeMetaData);
             azureNodeToBeUpdated.setCloudRegistration(cloudRegistration);
             azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
-
             return CompletableFuture.completedFuture(azureNodeToBeUpdated);
         } catch (AzureDeploymentServiceException e) {
             throw new NodeServiceException("Could not create azure node!", e);
