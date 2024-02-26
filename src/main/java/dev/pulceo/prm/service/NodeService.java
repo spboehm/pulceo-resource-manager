@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class NodeService {
@@ -43,6 +45,7 @@ public class NodeService {
     private final MemoryResourcesRepository memoryResourcesRepository;
     private final ModelMapper modelMapper = new ModelMapper();
     private final AzureDeploymentService azureDeploymentService;
+    private final AzureNodeRepository azureNodeRepository;
 
 
     @Value("${prm.uuid}")
@@ -55,7 +58,7 @@ public class NodeService {
     private String pnaInitToken;
 
     @Autowired
-    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, AzureDeploymentService azureDeploymentService) {
+    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, AzureDeploymentService azureDeploymentService, AzureNodeRepository azureNodeRepository) {
         this.abstractNodeRepository = abstractNodeRepository;
         this.onPremNoderepository = onPremNoderepository;
         this.nodeMetaDataRepository = nodeMetaDataRepository;
@@ -65,6 +68,7 @@ public class NodeService {
         this.cpuResourcesRepository = cpuResourcesRepository;
         this.memoryResourcesRepository = memoryResourcesRepository;
         this.azureDeploymentService = azureDeploymentService;
+        this.azureNodeRepository = azureNodeRepository;
     }
 
     public OnPremNode createOnPremNode(String providerName, String hostName, String pnaInitToken) throws NodeServiceException {
@@ -126,15 +130,43 @@ public class NodeService {
         return this.abstractNodeRepository.save(onPremNode);
     }
 
-    public AzureNode createAzureNode(CreateNewAzureNodeDTO createNewAzureNodeDTO) throws NodeServiceException {
+    public AzureNode createPreliminaryAzureNode(CreateNewAzureNodeDTO createNewAzureNodeDTO) throws NodeServiceException {
         Optional<AzureProvider> azureProvider = this.providerService.readAzureProviderByProviderMetaDataName(createNewAzureNodeDTO.getProviderName());
         if (azureProvider.isEmpty()) {
             throw new NodeServiceException("Provider does not exist!");
         }
 
+        Node node = Node.builder()
+                .name(createNewAzureNodeDTO.getName())
+                .type(NodeType.valueOf(createNewAzureNodeDTO.getType().toUpperCase())) // TODO: replace
+                .nodeLocationCountry(this.getCountryByRegion(createNewAzureNodeDTO.getNodeLocationCountry()))
+                .nodeLocationCity(this.getCityByRegion(createNewAzureNodeDTO.getNodeLocationCity()))
+                .build();
+
+        AzureNode azureNode = AzureNode.builder()
+                .internalNodeType(InternalNodeType.AZURE)
+                .azureProvider(azureProvider.get())
+                .node(node)
+                .cloudRegistration(CloudRegistration.builder().build())
+                .azureDeloymentResult(AzureDeloymentResult.builder().build())
+                .build();
+        return this.abstractNodeRepository.save(azureNode);
+    }
+
+    @Async
+    public CompletableFuture<AzureNode> createAzureNodeAsync(UUID nodeUuid, CreateNewAzureNodeDTO createNewAzureNodeDTO) throws NodeServiceException {
+        // TODO: find by name
+        Optional<AzureNode> azureNode = this.readAzureNodeByUUID(nodeUuid);
+        if (azureNode.isEmpty()) {
+            throw new NodeServiceException("Node with uuid %s does not exist. Please create at first lazily");
+        }
+//        logger.info("Received request for creating new Azure node: " + createNewAzureNodeDTO.toString());
+//        Optional<AzureProvider> azureProvider = this.providerService.readAzureProviderByProviderMetaDataName(createNewAzureNodeDTO.getProviderName());
+//        if (azureProvider.isEmpty()) {
+//            throw new NodeServiceException("Provider does not exist!");
+//        }
+
         // TODO: further validations
-
-
 
         // TODO: String providerName, String hostName, String pnaInitToken
 
@@ -178,31 +210,27 @@ public class NodeService {
             CPUResource cpuResource = getCpuResource(webClientToAzureNode, pnaInitToken);
             MemoryResource memoryResource = getMemoryResource(webClientToAzureNode, pnaInitToken);
 
-            Node node = Node.builder()
-                    .name(createNewAzureNodeDTO.getName())
-                    .type(NodeType.valueOf(createNewAzureNodeDTO.getType().toUpperCase())) // TODO: replace
-                    .nodeLocationCountry(this.getCountryByRegion(createNewAzureNodeDTO.getNodeLocationCountry()))
-                    .nodeLocationCity(this.getCityByRegion(createNewAzureNodeDTO.getNodeLocationCity()))
-                    .cpuResource(cpuResource)
-                    .memoryResource(memoryResource)
-                    .build();
+            // TODO: then find by name and then deploy
 
+            AzureNode azureNodeToBeUpdated = azureNode.get();
+
+            // complete dynamically obtained data from node
+            azureNodeToBeUpdated.getNode().setCpuResource(cpuResource);
+            azureNodeToBeUpdated.getNode().setMemoryResource(memoryResource);
+
+            // generate nodeMetaData
             NodeMetaData nodeMetaData = NodeMetaData.builder()
                     .remoteNodeUUID(cloudRegistration.getNodeUUID())
                     .pnaUUID(cloudRegistration.getPnaUUID())
                     .hostname(azureDeloymentResult.getFqdn())
                     .build();
 
-            AzureNode azureNode = AzureNode.builder()
-                    .internalNodeType(InternalNodeType.AZURE)
-                    .azureProvider(azureProvider.get())
-                    .nodeMetaData(nodeMetaData)
-                    .node(node)
-                    .cloudRegistration(cloudRegistration)
-                    .azureDeloymentResult(azureDeloymentResult)
-                    .build();
+            // set NodeMetaData, CloudRegistration, AzureDeloymentResult
+            azureNodeToBeUpdated.setNodeMetaData(nodeMetaData);
+            azureNodeToBeUpdated.setCloudRegistration(cloudRegistration);
+            azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
 
-            return this.abstractNodeRepository.save(azureNode);
+            return CompletableFuture.completedFuture(azureNodeToBeUpdated);
         } catch (AzureDeploymentServiceException e) {
             throw new NodeServiceException("Could not create azure node!", e);
         }
@@ -319,6 +347,10 @@ public class NodeService {
 
     private boolean hostNameAlreadyExists(String hostName) throws NodeServiceException {
         return this.nodeMetaDataRepository.findByHostname(hostName).isPresent();
+    }
+
+    private Optional<AzureNode> readAzureNodeByUUID(UUID uuid) {
+        return this.azureNodeRepository.readAzureNodeByUuid(uuid);
     }
 
 

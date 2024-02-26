@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Data
@@ -11,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Schema(name = "AzureNode", description = "Create a new node on Azure.")
+@ToString
 public class CreateNewAzureNodeDTO extends CreateNewAbstractNodeDTO {
     // nodeType in super class
     private String providerName;
