@@ -1,0 +1,20 @@
+name: Deploy to pulceo-dev
+
+on:
+  workflow_run:
+    workflows: ["Build pulceo-resource-manager"]
+    branches: [main]
+    types:
+      - completed
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    environment: dev
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - run: echo "Ready to deploy to pulceo-dev"
