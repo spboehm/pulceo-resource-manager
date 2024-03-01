@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pulceo-resource-manager
+
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 7878
+  selector:
+    app: pulceo-resource-manager
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pulceo-resource-manager
+  labels:
+    app: pulceo-resource-manager
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pulceo-resource-manager
+  template:
+    metadata:
+      labels:
+        app: pulceo-resource-manager
+    spec:
+      containers:
+        - name: pulceo-resource-manager
+          image: ghcr.io/spboehm/pulceo-resource-manager:implement-resource-manager
+          imagePullPolicy: Always
+          env:
+            - name: PRM_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: prm-configmap
+                  key: PRM_HOST
+            - name: PNA_MQTT_BROKER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: prm-credentials
+                  key: PNA_MQTT_BROKER_URL
+            - name: PNA_MQTT_CLIENT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: prm-credentials
+                  key: PNA_MQTT_CLIENT_USERNAME
+            - name: PNA_MQTT_CLIENT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prm-credentials
+                  key: PNA_MQTT_CLIENT_PASSWORD
+            - name: PNA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: prm-credentials
+                  key: PNA_USERNAME
+            - name: PNA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prm-credentials
+                  key: PNA_PASSWORD
+            - name: PNA_INIT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: prm-credentials
+                  key: PNA_INIT_TOKEN
+          ports:
+            - containerPort: 7878
+              name: web
