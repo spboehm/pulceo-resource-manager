@@ -1,5 +1,5 @@
 #!/bin/bash
-kubectl --kubeconfig=/home/$USER/.kube/config create configmap prm-configmap
+kubectl --kubeconfig=/home/$USER/.kube/config create configmap prm-configmap \
   --from-literal=PRM_HOST=localhost
 
 kubectl --kubeconfig=/home/$USER/.kube/config create secret generic prm-credentials \
