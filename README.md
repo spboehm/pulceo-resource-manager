@@ -46,3 +46,27 @@ kubectl --kubeconfig=/home/$USER/.kube/config create secret generic prm-credenti
 kubectl apply -f prm-deployment.yaml
 ```
 
+- Check if everything is running with: `kubectl get deployment`
+```
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+pulceo-resource-manager   1/1     1            1           5m56s
+```
+
+- Check the exposed services with: `kubectl get svc`
+```
+NAME                      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+kubernetes                ClusterIP   10.43.0.1      <none>        443/TCP    26m
+pulceo-resource-manager   ClusterIP   10.43.164.93   <none>        7878/TCP   6m37s
+```
+
+pulceo-node-agent is now running and ready to accept workloads under `http://EXTERNAL-IP`
+
+```bash
+curl -I http://localhost:80/prm/health
+```
+```
+HTTP/1.1 200 OK
+Content-Length: 2
+Content-Type: text/plain;charset=UTF-8
+Date: Sat, 02 Mar 2024 08:52:52 GMT
+```
