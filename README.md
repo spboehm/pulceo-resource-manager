@@ -16,13 +16,14 @@
 
 **TODO: Add a guide on how to create a local MQTT broker**
 
-## Run with k3d
+## Create your own MQTT broker (optional)
 
-- Install [k3d](https://k3d.io/v5.6.0/#learning) on your machine by following the official installation guide
-- Create a test cluster with k3d
+**TODO: Add a guide on how to create a local MQTT broker**
 ```bash
 k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer
 ```
+## Run with k3d
+
 **[TODO]: Add a step to generate the secrets**
 - Apply the following kubernetes manifest to the cluster
 ```bash
