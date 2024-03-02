@@ -70,10 +70,3 @@ Content-Length: 2
 Content-Type: text/plain;charset=UTF-8
 Date: Sat, 02 Mar 2024 08:52:52 GMT
 ```
-
-helm repo add authelia https://charts.authelia.com
-helm repo update
-externalTrafficPolicy: Local
-type: LoadBalancer
-kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.11/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
-kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.11/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
