@@ -14,6 +14,13 @@ spec:
                 name:  pulceo-resource-manager
                 port:
                   number: 7878
+          - path: /prm/health
+            pathType: Exact
+            backend:
+              service:
+                name: pulceo-resource-manager
+                port:
+                  number: 7878
 
 ---
 apiVersion: v1

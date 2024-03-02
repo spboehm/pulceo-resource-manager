@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/health")
+@RequestMapping()
 public class HealthController {
 
-        @RequestMapping("")
+        @RequestMapping(value = {"/health", "/prm/health"})
         public ResponseEntity<String> health() {
             return ResponseEntity.status(200).body("OK");
         }
