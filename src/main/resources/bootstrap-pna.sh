@@ -1,7 +1,7 @@
 #!/bin/bash
 # === DO NOT REMOVE THE FOLLOWING LINE ===
 # {{ EXPORT_PNA_CREDENTIALS }}
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik" sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik --node-name=pna-k8s-node" sh -
 mkdir -p /home/$USER/.kube
 sudo cat /etc/rancher/k3s/k3s.yaml > /home/$USER/.kube/config
 chown -R $USER:$USER /home/$USER/.kube/config
