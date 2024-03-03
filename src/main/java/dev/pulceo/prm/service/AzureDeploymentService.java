@@ -123,6 +123,7 @@ public class AzureDeploymentService {
                     .build();
 
         } catch (Exception e) {
+            e.printStackTrace();
             this.deleteAzureVirtualMachine(resourceName, providerName, false);
             throw new AzureDeploymentServiceException("Could not deploy azure virtual machine...rolling back...", e);
         }
