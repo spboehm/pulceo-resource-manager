@@ -138,6 +138,7 @@ public class AzureDeploymentService {
         exportStatements.add("PNA_USERNAME=" + this.PNA_USERNAME);
         exportStatements.add("PNA_PASSWORD=" + this.PNA_PASSWORD);
         exportStatements.add("PNA_INIT_TOKEN=" + this.PNA_INIT_TOKEN);
+        exportStatements.add("PNA_HOST_FQDN=" + domain);
         exportStatements.add("USER=" + this.AZURE_VM_USERNAME);
         exportStatements.add("DOMAIN=" + domain);
         return exportStatements;

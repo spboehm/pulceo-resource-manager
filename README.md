@@ -38,7 +38,8 @@ kubectl --kubeconfig=/home/$USER/.kube/config create secret generic prm-credenti
   --from-literal=PNA_MQTT_CLIENT_PASSWORD=${PNA_MQTT_CLIENT_PASSWORD} \
   --from-literal=PNA_USERNAME=${PNA_USERNAME} \
   --from-literal=PNA_PASSWORD=${PNA_PASSWORD} \
-  --from-literal=PNA_INIT_TOKEN=${PNA_INIT_TOKEN}
+  --from-literal=PNA_INIT_TOKEN=${PNA_INIT_TOKEN} \
+  --from-literal=PNA_HOST_FQDN=${PNA_HOST_FQDN}
 ```
 ```bash
 kubectl apply -f prm-deployment.yaml
