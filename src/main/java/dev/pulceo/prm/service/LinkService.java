@@ -88,7 +88,7 @@ public class LinkService {
         WebClient wcNodeDTO = WebClient.create(this.webClientScheme + "://" + abstractSrcNode.get().getNodeMetaData().getHostname() + ":7676");
         NodeDTO destNodeDTO = wcNodeDTO.post()
                 .uri("/api/v1/nodes")
-                .header("Authorization", abstractSrcNode.get().getToken())
+                .header("Authorization", "Basic " + abstractSrcNode.get().getToken())
                 .bodyValue(createDestNewNodeDTO)
                 .retrieve()
                 .bodyToMono(NodeDTO.class)
@@ -107,7 +107,7 @@ public class LinkService {
         // srcNode to destNode
         NodeLinkDTO srcNodeLinkDTO = wcNodeDTO.post()
                 .uri("/api/v1/links")
-                .header("Authorization", abstractSrcNode.get().getToken())
+                .header("Authorization", "Basic " + abstractSrcNode.get().getToken())
                 .bodyValue(createNewNodeLinkDTO)
                 .retrieve()
                 .bodyToMono(NodeLinkDTO.class)
