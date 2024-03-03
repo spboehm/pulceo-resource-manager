@@ -12,6 +12,7 @@ import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.NodeLinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -26,6 +27,9 @@ public class LinkService {
     private final AbstractLinkRepository abstractLinkRepository;
     private final NodeLinkRepository nodeLinkRepository;
     private final NodeService nodeService;
+
+    @Value("${webclient.scheme}")
+    private String webClientScheme;
 
     @Autowired
     public LinkService(AbstractLinkRepository abstractLinkRepository, NodeService nodeService, NodeLinkRepository nodeLinkRepository) {
@@ -77,11 +81,11 @@ public class LinkService {
         CreateNewNodeDTO createDestNewNodeDTO = CreateNewNodeDTO.builder()
                 .name(abstractDestNode.get().getNodeMetaData().getHostname())
                 .pnaUUID(String.valueOf(abstractDestNode.get().getNodeMetaData().getPnaUUID()))
-                .pnaEndpoint("http://" + abstractDestNode.get().getNodeMetaData().getHostname() + ":7676")
+                .pnaEndpoint(this.webClientScheme + "://" + abstractDestNode.get().getNodeMetaData().getHostname() + ":7676")
                 .host(abstractDestNode.get().getNodeMetaData().getHostname())
                 .build();
 
-        WebClient wcNodeDTO = WebClient.create("http://" + abstractSrcNode.get().getNodeMetaData().getHostname() + ":7676");
+        WebClient wcNodeDTO = WebClient.create(this.webClientScheme + "://" + abstractSrcNode.get().getNodeMetaData().getHostname() + ":7676");
         NodeDTO destNodeDTO = wcNodeDTO.post()
                 .uri("/api/v1/nodes")
                 .header("Authorization", abstractSrcNode.get().getToken())
@@ -89,7 +93,7 @@ public class LinkService {
                 .retrieve()
                 .bodyToMono(NodeDTO.class)
                 .onErrorResume(error -> {
-                    throw new RuntimeException(new LinkServiceException("Error while creating logical node"));
+                    throw new RuntimeException(new LinkServiceException("Error while creating logical node on dest Node"));
                 })
                 .block();
 

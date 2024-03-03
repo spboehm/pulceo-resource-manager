@@ -171,9 +171,9 @@ public class NodeService {
             logger.info("Received azure deployment response: " + azureDeloymentResult.toString());
             // TODO: poll with /health until available, or alternatively, wait until completion with events
             // TODO: replace with https or make configuration
-            logger.info("Waiting for 15 seconds for node to be available");
+            logger.info("Waiting for 15 seconds for Let's Encrypt to issue a certificate...");
             Thread.sleep(15000);
-            logger.info("Waiting for TLS API...");
+            logger.info("Waiting for node to be available...");
             WebClient webClientToAzureNode = WebClient.create(this.webClientScheme + "://" + azureDeloymentResult.getFqdn() + ":7676");
             webClientToAzureNode.get()
                     .uri("/health")
