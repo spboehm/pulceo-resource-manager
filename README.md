@@ -16,9 +16,6 @@
 
 **TODO: Add a guide on how to create a local MQTT broker**
 
-## Create your own MQTT broker (optional)
-
-**TODO: Add a guide on how to create a local MQTT broker**
 ```bash
 k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer
 ```
@@ -28,7 +25,7 @@ k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer
 - Apply the following kubernetes manifest to the cluster
 ```bash
 kubectl --kubeconfig=/home/$USER/.kube/config create configmap prm-configmap \
-  --from-literal=PRM_HOST=localhost
+  --from-literal=PRM_HOST=pulceo-resource-manager
 ```
 ```bash
 kubectl --kubeconfig=/home/$USER/.kube/config create secret generic prm-credentials \
