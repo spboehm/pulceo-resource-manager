@@ -18,7 +18,7 @@ public class DeploymentUtilTests {
         exportStatements.add("export 3=3");
 
         // when
-        DeploymentUtil.templateBootStrapPnaScript(exportStatements);
+        String result = DeploymentUtil.templateBootStrapPnaScript(exportStatements);
 
         // then
 
