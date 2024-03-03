@@ -77,7 +77,7 @@ spec:
     spec:
       containers:
         - name: pulceo-resource-manager
-          image: ghcr.io/spboehm/pulceo-resource-manager:implement-resource-manager
+          image: ghcr.io/spboehm/pulceo-resource-manager:main
           imagePullPolicy: Always
           env:
             - name: PRM_HOST
