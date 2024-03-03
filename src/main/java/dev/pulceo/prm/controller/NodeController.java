@@ -70,6 +70,9 @@ public class NodeController {
         if (internalNodeType == InternalNodeType.ONPREM) {
             OnPremNode onPremNode = this.nodeService.readOnPremNode(abstractNode.get().getId());
             return new ResponseEntity<>(NodeDTO.fromOnPremNode(onPremNode), HttpStatus.OK);
+        } else if (internalNodeType == InternalNodeType.AZURE) {
+            AzureNode azureNode = this.nodeService.readAzureNode(abstractNode.get().getId());
+            return new ResponseEntity<>(NodeDTO.fromAzureNode(azureNode), HttpStatus.OK);
         }
         return ResponseEntity.status(400).build();
     }
