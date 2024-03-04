@@ -3,6 +3,7 @@ package dev.pulceo.prm.dto.provider;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.provider.ProviderType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Schema(name = "ProviderResponse")
 public class ProviderDTO {
 
     private UUID uuid;
