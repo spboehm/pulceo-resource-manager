@@ -71,7 +71,7 @@ public class NodeService {
         this.azureNodeRepository = azureNodeRepository;
     }
 
-    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String country, String state, String city) throws NodeServiceException {
+    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String type, String country, String state, String city) throws NodeServiceException {
         Optional<OnPremProvider> onPremProvider = this.providerService.readOnPremProviderByProviderName(providerName);
         if (onPremProvider.isEmpty()) {
             throw new NodeServiceException("Provider does not exist!");
@@ -113,6 +113,7 @@ public class NodeService {
 
         Node node = Node.builder()
                 .name(name)
+                .type(NodeType.valueOf(type.toUpperCase())) // TODO: replace
                 .nodeLocationCountry(country)
                 .nodeLocationState(state)
                 .nodeLocationCity(city)

@@ -125,7 +125,7 @@ public class NodeServiceUnitTests {
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pnaUUID, hostName, "Germany", "Bavaria", "Munich");
 
         // when
-        this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "Germany", "Bavaria", "Munich");
+        this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Munich");
 
         // then
         // TODO: more verifications

@@ -21,6 +21,8 @@ public class CreateNewOnPremNodeDTO extends CreateNewAbstractNodeDTO {
     private String hostname;
     private String pnaInitToken;
     @Builder.Default
+    private String type = "edge";
+    @Builder.Default
     private String country = "";
     @Builder.Default
     private String state = "";
@@ -35,6 +37,7 @@ public class CreateNewOnPremNodeDTO extends CreateNewAbstractNodeDTO {
                 .providerName(createNewOnPremNodeDTO.getProviderName())
                 .hostname(createNewOnPremNodeDTO.getHostname())
                 .pnaInitToken(createNewOnPremNodeDTO.getPnaInitToken())
+                .type(createNewOnPremNodeDTO.getType())
                 .country(createNewOnPremNodeDTO.getCountry())
                 .state(createNewOnPremNodeDTO.getState())
                 .city(createNewOnPremNodeDTO.getCity())

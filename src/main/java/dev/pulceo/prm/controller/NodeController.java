@@ -46,7 +46,7 @@ public class NodeController {
         if (createNewAbstractNodeDTO.getNodeType() == NodeDTOType.ONPREM) {
             this.logger.info("Received request to create a new OnPremNode: " + createNewAbstractNodeDTO);
             CreateNewOnPremNodeDTO createNewOnPremNodeDTO = CreateNewOnPremNodeDTO.fromAbstractNodeDTO(createNewAbstractNodeDTO);
-            OnPremNode onPremNode = this.nodeService.createOnPremNode(createNewOnPremNodeDTO.getName(), createNewOnPremNodeDTO.getProviderName(), createNewOnPremNodeDTO.getHostname(), createNewOnPremNodeDTO.getPnaInitToken(), createNewOnPremNodeDTO.getCountry(), createNewOnPremNodeDTO.getState(), createNewOnPremNodeDTO.getCity());
+            OnPremNode onPremNode = this.nodeService.createOnPremNode(createNewOnPremNodeDTO.getName(), createNewOnPremNodeDTO.getProviderName(), createNewOnPremNodeDTO.getHostname(), createNewOnPremNodeDTO.getPnaInitToken(), createNewOnPremNodeDTO.getType(), createNewOnPremNodeDTO.getCountry(), createNewOnPremNodeDTO.getState(), createNewOnPremNodeDTO.getCity());
             return new ResponseEntity<>(NodeDTO.fromOnPremNode(onPremNode), HttpStatus.CREATED);
         } else if (createNewAbstractNodeDTO.getNodeType() == NodeDTOType.AZURE) {
             this.logger.info("Received request to create a new CloudNode: " + createNewAbstractNodeDTO);

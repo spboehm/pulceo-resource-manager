@@ -16,7 +16,8 @@ public class CreateNewAzureNodeDTO extends CreateNewAbstractNodeDTO {
     private String providerName;
     @Builder.Default
     private String name = DeploymentUtil.createRandomName("node-");
-    private String type;
+    @Builder.Default
+    private String type = "edge";
     private String sku;
     @Builder.Default
     private String region = "eastus";

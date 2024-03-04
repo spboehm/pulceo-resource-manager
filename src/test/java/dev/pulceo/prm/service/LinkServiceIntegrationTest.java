@@ -75,9 +75,9 @@ public class LinkServiceIntegrationTest {
         OnPremNode srcNode = NodeUtil.createTestOnPremNode("edge0", pna1RemoteUUID, UUID.randomUUID(), "127.0.0.1", "Germany", "Bavaria", "Munich");
         OnPremNode destNode = NodeUtil.createTestOnPremNode("edge1", pna2RemoteUUID, UUID.randomUUID(), "127.0.0.2", "Germany", "Bavaria", "Munich");
         OnPremNode createdSrcOnPremNode = this.nodeService.createOnPremNode("edge0", srcNode.getOnPremProvider().getProviderMetaData().getProviderName(),
-                srcNode.getNodeMetaData().getHostname(), pna1InitToken, "Germany", "Bavaria", "Munich");
+                srcNode.getNodeMetaData().getHostname(), pna1InitToken, "edge", "Germany", "Bavaria", "Munich");
         OnPremNode createdDestOnPremNode = this.nodeService.createOnPremNode("edge1", destNode.getOnPremProvider().getProviderMetaData().getProviderName(),
-                destNode.getNodeMetaData().getHostname(), pna2InitToken, "Germany", "Bavaria", "Munich");
+                destNode.getNodeMetaData().getHostname(), pna2InitToken, "edge", "Germany", "Bavaria", "Munich");
         NodeLink nodeLink = NodeLink.builder().name("testLink").srcNode(createdSrcOnPremNode).destNode(createdDestOnPremNode).build();
 
         // when
