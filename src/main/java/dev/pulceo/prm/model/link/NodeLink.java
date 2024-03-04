@@ -6,6 +6,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,7 +21,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class NodeLink extends AbstractLink {
 
-    private String name;
     // TODO: move to MetaDataClass, refers to the src node
     private UUID remoteNodeLinkUUID;
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)

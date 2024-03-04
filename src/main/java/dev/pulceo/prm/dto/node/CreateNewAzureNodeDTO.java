@@ -1,10 +1,8 @@
 package dev.pulceo.prm.dto.node;
 
+import dev.pulceo.prm.util.DeploymentUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Data
@@ -16,7 +14,8 @@ import lombok.experimental.SuperBuilder;
 public class CreateNewAzureNodeDTO extends CreateNewAbstractNodeDTO {
     // nodeType in super class
     private String providerName;
-    private String name;
+    @Builder.Default
+    private String name = DeploymentUtil.createRandomName("node-");
     private String type;
     private String sku;
     private String nodeLocationCountry;

@@ -1,9 +1,8 @@
 package dev.pulceo.prm.dto.link;
 
+import dev.pulceo.prm.util.DeploymentUtil;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.UUID;
 
 @Data
 @SuperBuilder
@@ -12,17 +11,18 @@ import java.util.UUID;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class CreateNewNodeLinkDTO extends CreateNewAbstractLinkDTO {
-    private String name;
-    private UUID srcNodeUUID;
-    private UUID destNodeUUID;
+    @Builder.Default
+    private String name = DeploymentUtil.createRandomName("link-");
+    private String srcNodeId;
+    private String destNodeId;
 
     public static CreateNewNodeLinkDTO fromAbstractLinkDTO(CreateNewAbstractLinkDTO createNewAbstractLinkDTO) {
         CreateNewNodeLinkDTO createNewNodeLinkDTO = (CreateNewNodeLinkDTO) createNewAbstractLinkDTO;
         return CreateNewNodeLinkDTO.builder()
                 .linkType(createNewNodeLinkDTO.getLinkType())
                 .name(createNewNodeLinkDTO.getName())
-                .srcNodeUUID(createNewNodeLinkDTO.getSrcNodeUUID())
-                .destNodeUUID(createNewNodeLinkDTO.getDestNodeUUID())
+                .srcNodeId(createNewNodeLinkDTO.getSrcNodeId())
+                .destNodeId(createNewNodeLinkDTO.getDestNodeId())
                 .build();
     }
 }

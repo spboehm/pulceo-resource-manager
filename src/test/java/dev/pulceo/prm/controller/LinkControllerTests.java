@@ -103,8 +103,8 @@ public class LinkControllerTests {
         CreateNewAbstractLinkDTO createNewAbstractLinkDTO = CreateNewNodeLinkDTO.builder()
                 .linkType(LinkTypeDTO.NODE_LINK)
                 .name("test-link")
-                .srcNodeUUID(srcNodeUUID)
-                .destNodeUUID(destNodeUUID)
+                .srcNodeId(String.valueOf(srcNodeUUID))
+                .destNodeId(String.valueOf(destNodeUUID))
                 .build();
         String createNewNodeLinkDTOAsJson = this.objectMapper.writeValueAsString(createNewAbstractLinkDTO);
 

@@ -3,6 +3,7 @@ package dev.pulceo.prm.service;
 import dev.pulceo.prm.dto.link.CreateNewNodeLinkDTO;
 import dev.pulceo.prm.dto.link.NodeLinkDTO;
 import dev.pulceo.prm.dto.pna.node.CreateNewNodeDTO;
+import dev.pulceo.prm.dto.pna.node.CreateNewNodeLinkOnPNADTO;
 import dev.pulceo.prm.dto.pna.node.NodeDTO;
 import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.internal.G6.model.G6Edge;
@@ -39,14 +40,23 @@ public class LinkService {
     }
 
     // TODO: ambigious
-    public NodeLink createNodeLinkByUUID(String name, UUID srcNodeUUID, UUID destNodeUUID) throws Exception {
+    public NodeLink createNodeLinkByUUID(String name, String srcNodeId, String destNodeId) throws Exception {
+
+        Optional<AbstractNode> srcNode = this.resolveAbstractNode(srcNodeId);
+        if (srcNode.isEmpty()) {
+            throw new LinkServiceException("Source node with id %s does not exist!".formatted(srcNodeId));
+        }
+
+        Optional<AbstractNode> destNode = this.resolveAbstractNode(destNodeId);
+        if (destNode.isEmpty()) {
+            throw new LinkServiceException("Destination node with id %s does not exist!".formatted(destNodeId));
+        }
+
         // TODO: exception handling
-        AbstractNode srcNode = this.nodeService.readAbstractNodeByUUID(srcNodeUUID).orElseThrow();
-        AbstractNode destNode = this.nodeService.readAbstractNodeByUUID(destNodeUUID).orElseThrow();
         NodeLink nodeLink = NodeLink.builder()
                 .name(name)
-                .srcNode(srcNode)
-                .destNode(destNode)
+                .srcNode(srcNode.get())
+                .destNode(destNode.get())
                 .build();
         return this.createNodeLink(nodeLink);
     }
@@ -98,7 +108,7 @@ public class LinkService {
                 .block();
 
         // create new node link DTO for the srcNode, this information is effectively used in the srcNode to make the link
-        CreateNewNodeLinkDTO createNewNodeLinkDTO = CreateNewNodeLinkDTO.builder()
+        CreateNewNodeLinkOnPNADTO createNewNodeLinkDTO = CreateNewNodeLinkOnPNADTO.builder()
                 .name(nodeLink.getName())
                 .srcNodeUUID(srcRemoteNodeUUID) // remote srcNodeUUID, is going to be replaced by local node UUID in pna
                 .destNodeUUID(destNodeDTO.getNodeUUID()) // destNodeUUID is replaced by the previously return remote node UUID
@@ -148,5 +158,23 @@ public class LinkService {
             list.add(nodeLink.getG6Edge());
         });
         return list;
+    }
+
+    // TODO: move to nodeSvc
+    private Optional<AbstractNode> resolveAbstractNode(String id) {
+        Optional<AbstractNode> abstractNode;
+        // TODO: add resolve to name here, heck if UUID
+        if (checkIfUUID(id)) {
+            abstractNode = this.nodeService.readAbstractNodeByUUID(UUID.fromString(id));
+        } else {
+            abstractNode = this.nodeService.readAbstractNodeByName(id);
+        }
+        return abstractNode;
+    }
+
+    // TODO: move to nodeSvc
+    private static boolean checkIfUUID(String uuid)  {
+        String uuidRegex = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+        return uuid.matches(uuidRegex);
     }
 }

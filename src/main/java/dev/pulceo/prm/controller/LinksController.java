@@ -30,7 +30,7 @@ public class LinksController {
         if (createNewAbstractLinkDTO.getLinkType() == LinkTypeDTO.NODE_LINK) {
             this.logger.info("Received request to create a new NodeLink: " + createNewAbstractLinkDTO);
             CreateNewNodeLinkDTO createNewNodeLinkDTO = CreateNewNodeLinkDTO.fromAbstractLinkDTO(createNewAbstractLinkDTO);
-            NodeLink nodeLink = this.linkService.createNodeLinkByUUID(createNewNodeLinkDTO.getName(), createNewNodeLinkDTO.getSrcNodeUUID(), createNewNodeLinkDTO.getDestNodeUUID());
+            NodeLink nodeLink = this.linkService.createNodeLinkByUUID(createNewNodeLinkDTO.getName(), createNewNodeLinkDTO.getSrcNodeId(), createNewNodeLinkDTO.getDestNodeId());
             return ResponseEntity.status(201).body(NodeLinkDTO.fromNodeLink(nodeLink));
         } else {
             logger.info("Received request to create a new link of type: " + createNewAbstractLinkDTO.getLinkType());
