@@ -119,6 +119,7 @@ public class AzureDeploymentService {
 
             return AzureDeloymentResult.builder()
                     .resourceGroupName(resourceName)
+                    .sku(sku)
                     .fqdn(publicIPAddress.fqdn())
                     .build();
 
