@@ -93,6 +93,7 @@ public class NodeControllerTests {
         // given
         CreateNewAbstractNodeDTO createNewOnPremNodeDTO = CreateNewOnPremNodeDTO.builder()
                 .nodeType(NodeDTOType.ONPREM)
+                .name("edge0")
                 .providerName("default")
                 .hostname("127.0.0.1")
                 .pnaInitToken("pna-init-token")

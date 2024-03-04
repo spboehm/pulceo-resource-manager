@@ -98,6 +98,7 @@ public class NodeServiceIntegrationTest {
         // given
         String providerName = "default";
         String hostName = "127.0.0.1";
+        String name = "edge0";
         wireMockServer.stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -118,10 +119,10 @@ public class NodeServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-memory-resources-response.json")));
 
-        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pna1RemoteUUID, pna1UUID, hostName);
+        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pna1UUID, hostName);
 
         // when
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);
+        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken);
 
 
         // then
@@ -232,6 +233,7 @@ public class NodeServiceIntegrationTest {
         // given
         String providerName = "default";
         String hostName = "127.0.0.1";
+        String name = "edge0";
         wireMockServer.stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -252,7 +254,7 @@ public class NodeServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-memory-resources-response.json")));
 
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);
+        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken);
 
         // when
         UUID remoteUUID = this.nodeService.getRemoteUUID(onPremNode.getUuid());

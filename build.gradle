@@ -53,6 +53,17 @@ dependencies {
 //	testImplementation 'org.wiremock:wiremock:3.3.1'
 }
 
+tasks.register("bootRun-prm-dev") {
+	group = "application"
+	description = "Runs prm with the dev profile"
+	doFirst {
+		tasks.bootRun.configure {
+			systemProperty("spring.profiles.active", "dev")
+		}
+	}
+	finalizedBy("bootRun")
+}
+
 test {
 	useJUnitPlatform()
 }

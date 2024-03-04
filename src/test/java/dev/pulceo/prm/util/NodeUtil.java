@@ -6,11 +6,12 @@ import dev.pulceo.prm.model.provider.ProviderMetaData;
 import dev.pulceo.prm.model.provider.ProviderType;
 import dev.pulceo.prm.model.registration.CloudRegistration;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 public class NodeUtil {
 
-    public static OnPremNode createTestOnPremNode(UUID remoteUUID, UUID pnaUUID, String hostName) {
+    public static OnPremNode createTestOnPremNode(String name, UUID remoteUUID, UUID pnaUUID, String hostName) {
         OnPremProvider onPremProvider = OnPremProvider.builder().providerMetaData(
                 ProviderMetaData.builder()
                         .providerName("default")
@@ -68,7 +69,7 @@ public class NodeUtil {
                 .build();
 
         Node node = Node.builder()
-                .name(hostName)
+                .name(name)
                 .cpuResource(cpuResource)
                 .memoryResource(memoryResource)
                 .build();
@@ -82,11 +83,19 @@ public class NodeUtil {
                 .build();
 
         return OnPremNode.builder()
+                .name(name)
                 .onPremProvider(onPremProvider)
                 .nodeMetaData(nodeMetaData)
                 .node(node)
                 .cloudRegistration(cloudRegistration)
                 .build();
+    }
+
+    private static String createRandomName(String namePrefix) {
+        String root = UUID.randomUUID().toString().replace("-", "");
+        long millis = Calendar.getInstance().getTimeInMillis();
+        long datePart = millis % 10000000L;
+        return namePrefix + root.toLowerCase().substring(0, 3) + datePart;
     }
 
 }

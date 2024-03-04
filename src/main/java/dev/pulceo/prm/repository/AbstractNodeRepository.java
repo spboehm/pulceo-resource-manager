@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface AbstractNodeRepository extends CrudRepository<AbstractNode, Long> {
     Optional<AbstractNode> findByUuid(UUID uuid);
+
+    Optional<AbstractNode> findByName(String name);
 }

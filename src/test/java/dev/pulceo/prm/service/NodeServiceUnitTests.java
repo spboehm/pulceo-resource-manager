@@ -96,6 +96,7 @@ public class NodeServiceUnitTests {
         // given
         String providerName = "default";
         String hostName = "127.0.0.2";
+        String name = "edge0";
         when(this.providerService.readOnPremProviderByProviderName(providerName))
                 .thenReturn(Optional.of(
                         OnPremProvider.builder()
@@ -121,10 +122,10 @@ public class NodeServiceUnitTests {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-memory-resources-response.json")));
 
-        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(pna1RemoteUUID, pnaUUID, hostName);
+        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pnaUUID, hostName);
 
         // when
-        this.nodeService.createOnPremNode(providerName, hostName, pnaInitToken);
+        this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken);
 
         // then
         // TODO: more verifications

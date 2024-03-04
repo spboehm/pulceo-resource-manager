@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class DeploymentUtil {
@@ -20,6 +22,13 @@ public class DeploymentUtil {
         } catch (IOException e) {
             throw new IOException("Error reading bootstrap-pna.sh", e);
         }
+    }
+
+    public static String createRandomName(String namePrefix) {
+        String root = UUID.randomUUID().toString().replace("-", "");
+        long millis = Calendar.getInstance().getTimeInMillis();
+        long datePart = millis % 10000000L;
+        return namePrefix + root.toLowerCase().substring(0, 3) + datePart;
     }
 
 }

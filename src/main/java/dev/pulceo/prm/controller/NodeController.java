@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @RestController
 @RequestMapping("/api/v1/nodes")
 @CrossOrigin(origins = "*")
@@ -46,7 +48,7 @@ public class NodeController {
         if (createNewAbstractNodeDTO.getNodeType() == NodeDTOType.ONPREM) {
             this.logger.info("Received request to create a new OnPremNode: " + createNewAbstractNodeDTO);
             CreateNewOnPremNodeDTO createNewOnPremNodeDTO = CreateNewOnPremNodeDTO.fromAbstractNodeDTO(createNewAbstractNodeDTO);
-            OnPremNode onPremNode = this.nodeService.createOnPremNode(createNewOnPremNodeDTO.getProviderName(), createNewOnPremNodeDTO.getHostname(), createNewOnPremNodeDTO.getPnaInitToken());
+            OnPremNode onPremNode = this.nodeService.createOnPremNode(createNewOnPremNodeDTO.getName(), createNewOnPremNodeDTO.getProviderName(), createNewOnPremNodeDTO.getHostname(), createNewOnPremNodeDTO.getPnaInitToken());
             return new ResponseEntity<>(NodeDTO.fromOnPremNode(onPremNode), HttpStatus.CREATED);
         } else if (createNewAbstractNodeDTO.getNodeType() == NodeDTOType.AZURE) {
             this.logger.info("Received request to create a new CloudNode: " + createNewAbstractNodeDTO);
@@ -60,9 +62,10 @@ public class NodeController {
         }
     }
 
-    @GetMapping("/{uuid}")
-    public ResponseEntity<AbstractNodeDTO> readNode(@PathVariable UUID uuid) {
-        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
+    @GetMapping("/{id}")
+    public ResponseEntity<AbstractNodeDTO> readNode(@PathVariable String id) {
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+//        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(400).build();
         }
@@ -77,33 +80,49 @@ public class NodeController {
         return ResponseEntity.status(400).build();
     }
 
-    @GetMapping("/{uuid}/cpu")
-    public ResponseEntity<CPUResourceDTO> readCPUResources(@PathVariable UUID uuid) throws NodeServiceException {
-        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
+    private Optional<AbstractNode> resolveAbstractNode(String id) {
+        Optional<AbstractNode> abstractNode;
+        // TODO: add resolve to name here, heck if UUID
+        if (checkIfUUID(id)) {
+            abstractNode = this.nodeService.readAbstractNodeByUUID(UUID.fromString(id));
+        } else {
+            abstractNode = this.nodeService.readAbstractNodeByName(id);
+        }
+        return abstractNode;
+    }
+
+    @GetMapping("/{id}/cpu")
+    public ResponseEntity<CPUResourceDTO> readCPUResources(@PathVariable String id) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+//        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
-        CPUResource cpuResource = this.nodeService.readCPUResourceByUUID(uuid);
+        CPUResource cpuResource = this.nodeService.readCPUResourceByUUID(abstractNode.get().getUuid());
         return new ResponseEntity<>(CPUResourceDTO.fromCPUResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , cpuResource), HttpStatus.OK);
     }
 
-    @GetMapping("/{uuid}/memory")
-    public ResponseEntity<MemoryResourceDTO> readMemoryResources(@PathVariable UUID uuid) throws NodeServiceException {
-        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
+    @GetMapping("/{id}/memory")
+    public ResponseEntity<MemoryResourceDTO> readMemoryResources(@PathVariable String id) throws NodeServiceException {
+        // TODO: add resolve to name here, heck if UUID
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+//        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
-        MemoryResource memoryResource = this.nodeService.readMemoryResourceByUUID(uuid);
+        MemoryResource memoryResource = this.nodeService.readMemoryResourceByUUID(abstractNode.get().getUuid());
         return new ResponseEntity<>(MemoryResourceDTO.fromMemoryResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , memoryResource), HttpStatus.OK);
     }
 
-    @GetMapping("/{uuid}/pna-token")
-    public ResponseEntity<String> readPnaNodeToken(@PathVariable UUID uuid) throws NodeServiceException {
-        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
+    @GetMapping("/{id}/pna-token")
+    public ResponseEntity<String> readPnaNodeToken(@PathVariable String id) throws NodeServiceException {
+        // TODO: add resolve to name here, heck if UUID
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+//        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
-        return new ResponseEntity<>( abstractNode.get().getToken(), HttpStatus.OK);
+        return new ResponseEntity<>(abstractNode.get().getToken(), HttpStatus.OK);
     }
 
     @GetMapping("")
@@ -122,6 +141,11 @@ public class NodeController {
             }
         }
         return ResponseEntity.status(200).body(abstractNodeDTOList);
+    }
+
+    private static boolean checkIfUUID(String uuid)  {
+        String uuidRegex = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+        return uuid.matches(uuidRegex);
     }
 
     @ExceptionHandler(value = NodeServiceException.class)

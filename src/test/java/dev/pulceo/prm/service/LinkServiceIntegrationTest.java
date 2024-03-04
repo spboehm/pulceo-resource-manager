@@ -72,11 +72,11 @@ public class LinkServiceIntegrationTest {
         // assume two nodes are already running with simulators
         // create two nodes
 
-        OnPremNode srcNode = NodeUtil.createTestOnPremNode(pna1RemoteUUID, UUID.randomUUID(), "127.0.0.1");
-        OnPremNode destNode = NodeUtil.createTestOnPremNode(pna2RemoteUUID, UUID.randomUUID(), "127.0.0.2");
-        OnPremNode createdSrcOnPremNode = this.nodeService.createOnPremNode(srcNode.getOnPremProvider().getProviderMetaData().getProviderName(),
+        OnPremNode srcNode = NodeUtil.createTestOnPremNode("edge0", pna1RemoteUUID, UUID.randomUUID(), "127.0.0.1");
+        OnPremNode destNode = NodeUtil.createTestOnPremNode("edge1", pna2RemoteUUID, UUID.randomUUID(), "127.0.0.2");
+        OnPremNode createdSrcOnPremNode = this.nodeService.createOnPremNode("edge0", srcNode.getOnPremProvider().getProviderMetaData().getProviderName(),
                 srcNode.getNodeMetaData().getHostname(), pna1InitToken);
-        OnPremNode createdDestOnPremNode = this.nodeService.createOnPremNode(destNode.getOnPremProvider().getProviderMetaData().getProviderName(),
+        OnPremNode createdDestOnPremNode = this.nodeService.createOnPremNode("edge1", destNode.getOnPremProvider().getProviderMetaData().getProviderName(),
                 destNode.getNodeMetaData().getHostname(), pna2InitToken);
         NodeLink nodeLink = NodeLink.builder().name("testLink").srcNode(createdSrcOnPremNode).destNode(createdDestOnPremNode).build();
 

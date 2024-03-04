@@ -71,7 +71,7 @@ public class NodeService {
         this.azureNodeRepository = azureNodeRepository;
     }
 
-    public OnPremNode createOnPremNode(String providerName, String hostName, String pnaInitToken) throws NodeServiceException {
+    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken) throws NodeServiceException {
         Optional<OnPremProvider> onPremProvider = this.providerService.readOnPremProviderByProviderName(providerName);
         if (onPremProvider.isEmpty()) {
             throw new NodeServiceException("Provider does not exist!");
@@ -79,6 +79,10 @@ public class NodeService {
 
         if (this.hostNameAlreadyExists(hostName)) {
             throw new NodeServiceException("Hostname already exists-");
+        }
+
+        if (this.nameAlreadyExists(name)) {
+            throw new NodeServiceException("Name already exists-");
         }
 
         CloudRegistrationRequestDTO cloudRegistrationRequestDTO = CloudRegistrationRequestDTO.builder()
@@ -108,7 +112,7 @@ public class NodeService {
         MemoryResource memoryResource = getMemoryResource(webClient, pnaInitToken);
 
         Node node = Node.builder()
-                .name(hostName)
+                .name(name)
                 .cpuResource(cpuResource)
                 .memoryResource(memoryResource)
                 .build();
@@ -120,6 +124,7 @@ public class NodeService {
                 .build();
 
         OnPremNode onPremNode = OnPremNode.builder()
+                .name(name)
                 .internalNodeType(InternalNodeType.ONPREM)
                 .onPremProvider(onPremProvider.get())
                 .nodeMetaData(nodeMetaData)
@@ -136,6 +141,12 @@ public class NodeService {
             throw new NodeServiceException("Provider does not exist!");
         }
 
+        if (this.nameAlreadyExists(createNewAzureNodeDTO.getName())) {
+            throw new NodeServiceException("Name already exists-");
+        }
+
+        // due to random hostname creation, duplicate hostnames will never happen
+
         Node node = Node.builder()
                 .name(createNewAzureNodeDTO.getName())
                 .type(NodeType.valueOf(createNewAzureNodeDTO.getType().toUpperCase())) // TODO: replace
@@ -144,6 +155,7 @@ public class NodeService {
                 .build();
 
         AzureNode azureNode = AzureNode.builder()
+                .name(createNewAzureNodeDTO.getName())
                 .internalNodeType(InternalNodeType.AZURE)
                 .azureProvider(azureProvider.get())
                 .node(node)
@@ -212,6 +224,7 @@ public class NodeService {
             AzureNode azureNodeToBeUpdated = azureNode.get();
 
             // complete dynamically obtained data from node
+            azureNodeToBeUpdated.getNode().setName(createNewAzureNodeDTO.getName());
             azureNodeToBeUpdated.getNode().setCpuResource(cpuResource);
             azureNodeToBeUpdated.getNode().setMemoryResource(memoryResource);
 
@@ -353,8 +366,16 @@ public class NodeService {
         return this.abstractNodeRepository.findByUuid(uuid);
     }
 
+    public Optional<AbstractNode> readAbstractNodeByName(String name) {
+        return this.abstractNodeRepository.findByName(name);
+    }
+
     private boolean hostNameAlreadyExists(String hostName) throws NodeServiceException {
         return this.nodeMetaDataRepository.findByHostname(hostName).isPresent();
+    }
+
+    private boolean nameAlreadyExists(String name) {
+        return this.abstractNodeRepository.findByName(name).isPresent();
     }
 
     public Optional<AzureNode> readAzureNodeByUUID(UUID uuid) {

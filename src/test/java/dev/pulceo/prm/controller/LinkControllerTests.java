@@ -67,6 +67,7 @@ public class LinkControllerTests {
         // first node
         CreateNewAbstractNodeDTO createNewOnPremNodeDTO = CreateNewOnPremNodeDTO.builder()
                 .nodeType(NodeDTOType.ONPREM)
+                .name("test-node")
                 .providerName("default")
                 .hostname("127.0.0.1")
                 .pnaInitToken("pna-init-token")
@@ -83,6 +84,7 @@ public class LinkControllerTests {
         // second node
         CreateNewAbstractNodeDTO createNewOnPremDestNodeDTO = CreateNewOnPremNodeDTO.builder()
                 .nodeType(NodeDTOType.ONPREM)
+                .name("test-node2")
                 .providerName("default")
                 .hostname("127.0.0.2")
                 .pnaInitToken("pna-init-token")
