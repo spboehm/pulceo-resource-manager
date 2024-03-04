@@ -14,4 +14,6 @@ public interface AbstractLinkRepository extends CrudRepository<AbstractLink, Lon
     Optional<NodeLink> findNodeLinkByUuid(UUID uuid);
 
     Optional<AbstractLink> findByUuid(UUID uuid);
+
+    Optional<AbstractLink> findByName(String id);
 }

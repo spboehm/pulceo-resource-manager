@@ -3,6 +3,7 @@ package dev.pulceo.prm.controller;
 import dev.pulceo.prm.dto.link.*;
 import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.link.NodeLink;
+import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.service.LinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,13 +53,29 @@ public class LinksController {
     }
 
     // TODO: typing
-    @GetMapping("/{uuid}")
-    public ResponseEntity<AbstractLinkDTO> readLinkByUUID(@PathVariable UUID uuid) {
-        Optional<AbstractLink> nodeLink = linkService.readLinkByUUID(uuid);
+    @GetMapping("/{id}")
+    public ResponseEntity<AbstractLinkDTO> readLinkByUUID(@PathVariable String id) {
+        Optional<AbstractLink> nodeLink = this.resolveAbstractLink(id);
         if (nodeLink.isEmpty()) {
             return ResponseEntity.status(400).build();
         }
         return ResponseEntity.status(200).body(NodeLinkDTO.fromNodeLink((NodeLink) nodeLink.get()));
+    }
+
+    private Optional<AbstractLink> resolveAbstractLink(String id) {
+        Optional<AbstractLink> abstractLink;
+        // TODO: add resolve to name here, heck if UUID
+        if (checkIfUUID(id)) {
+            abstractLink = this.linkService.readLinkByUUID(UUID.fromString(id));
+        } else {
+            abstractLink = this.linkService.readLinkByName(id);
+        }
+        return abstractLink;
+    }
+
+    private static boolean checkIfUUID(String uuid)  {
+        String uuidRegex = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+        return uuid.matches(uuidRegex);
     }
 
 }
