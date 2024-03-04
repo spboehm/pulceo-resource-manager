@@ -224,7 +224,6 @@ public class NodeService {
             AzureNode azureNodeToBeUpdated = azureNode.get();
 
             // complete dynamically obtained data from node
-            azureNodeToBeUpdated.getNode().setName(createNewAzureNodeDTO.getName());
             azureNodeToBeUpdated.getNode().setCpuResource(cpuResource);
             azureNodeToBeUpdated.getNode().setMemoryResource(memoryResource);
 
