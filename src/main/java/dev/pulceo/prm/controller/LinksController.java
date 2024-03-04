@@ -3,7 +3,6 @@ package dev.pulceo.prm.controller;
 import dev.pulceo.prm.dto.link.*;
 import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.link.NodeLink;
-import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.service.LinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,7 @@ public class LinksController {
         if (createNewAbstractLinkDTO.getLinkType() == LinkTypeDTO.NODE_LINK) {
             this.logger.info("Received request to create a new NodeLink: " + createNewAbstractLinkDTO);
             CreateNewNodeLinkDTO createNewNodeLinkDTO = CreateNewNodeLinkDTO.fromAbstractLinkDTO(createNewAbstractLinkDTO);
-            NodeLink nodeLink = this.linkService.createNodeLinkByUUID(createNewNodeLinkDTO.getName(), createNewNodeLinkDTO.getSrcNodeId(), createNewNodeLinkDTO.getDestNodeId());
+            NodeLink nodeLink = this.linkService.createNodeLinkById(createNewNodeLinkDTO.getName(), createNewNodeLinkDTO.getSrcNodeId(), createNewNodeLinkDTO.getDestNodeId());
             return ResponseEntity.status(201).body(NodeLinkDTO.fromNodeLink(nodeLink));
         } else {
             logger.info("Received request to create a new link of type: " + createNewAbstractLinkDTO.getLinkType());

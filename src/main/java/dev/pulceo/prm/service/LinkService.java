@@ -1,6 +1,5 @@
 package dev.pulceo.prm.service;
 
-import dev.pulceo.prm.dto.link.CreateNewNodeLinkDTO;
 import dev.pulceo.prm.dto.link.NodeLinkDTO;
 import dev.pulceo.prm.dto.pna.node.CreateNewNodeDTO;
 import dev.pulceo.prm.dto.pna.node.CreateNewNodeLinkOnPNADTO;
@@ -10,6 +9,7 @@ import dev.pulceo.prm.internal.G6.model.G6Edge;
 import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.link.NodeLink;
 import dev.pulceo.prm.model.node.AbstractNode;
+import dev.pulceo.prm.model.node.Node;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.NodeLinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class LinkService {
@@ -40,7 +37,12 @@ public class LinkService {
     }
 
     // TODO: ambigious
-    public NodeLink createNodeLinkByUUID(String name, String srcNodeId, String destNodeId) throws Exception {
+    public NodeLink createNodeLinkById(String name, String srcNodeId, String destNodeId) throws Exception {
+
+        Optional<AbstractLink> abstractNodeLink = this.readLinkByName(name);
+        if (abstractNodeLink.isPresent()) {
+            throw new LinkServiceException("Link with name %s already exists!".formatted(name));
+        }
 
         Optional<AbstractNode> srcNode = this.resolveAbstractNode(srcNodeId);
         if (srcNode.isEmpty()) {
@@ -50,6 +52,11 @@ public class LinkService {
         Optional<AbstractNode> destNode = this.resolveAbstractNode(destNodeId);
         if (destNode.isEmpty()) {
             throw new LinkServiceException("Destination node with id %s does not exist!".formatted(destNodeId));
+        }
+        
+        Optional<NodeLink> existingNodeLink = this.nodeLinkRepository.findBySrcNodeAndDestNode(srcNode.get(), destNode.get());
+        if (existingNodeLink.isPresent()) {
+            throw new LinkServiceException("Link from %s to %s already exists!".formatted(srcNodeId, destNodeId));
         }
 
         // TODO: exception handling
