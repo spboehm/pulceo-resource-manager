@@ -1,5 +1,6 @@
 package dev.pulceo.prm.service;
 
+import dev.pulceo.prm.exception.ProviderServiceException;
 import dev.pulceo.prm.model.provider.AzureCredentials;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.model.provider.ProviderMetaData;
@@ -40,7 +41,7 @@ public class AzureDeploymentServiceIntegrationTests {
 
     @Test
     @Disabled
-    public void testDeleteAzureVirtualMachine() {
+    public void testDeleteAzureVirtualMachine() throws ProviderServiceException {
         // given
         String providerName = "azure-provider";
         AzureProvider azureProvider = AzureProvider.builder()

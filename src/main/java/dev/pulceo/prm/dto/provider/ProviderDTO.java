@@ -1,6 +1,7 @@
 package dev.pulceo.prm.dto.provider;
 
 import dev.pulceo.prm.model.provider.AzureProvider;
+import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.provider.ProviderType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,14 @@ public class ProviderDTO {
                 .uuid(azureProvider.getUuid())
                 .providerName(azureProvider.getProviderMetaData().getProviderName())
                 .providerType(azureProvider.getProviderMetaData().getProviderType())
+                .build();
+    }
+
+    public static ProviderDTO fromOnPremProvider(OnPremProvider onPremProvider) {
+        return ProviderDTO.builder()
+                .uuid(onPremProvider.getUuid())
+                .providerName(onPremProvider.getProviderMetaData().getProviderName())
+                .providerType(onPremProvider.getProviderMetaData().getProviderType())
                 .build();
     }
 

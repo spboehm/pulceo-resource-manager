@@ -6,6 +6,7 @@ import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
 import dev.pulceo.prm.dto.node.NodeDTOType;
 import dev.pulceo.prm.exception.AzureDeploymentServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
+import dev.pulceo.prm.exception.ProviderServiceException;
 import dev.pulceo.prm.model.node.AzureDeloymentResult;
 import dev.pulceo.prm.model.node.AzureNode;
 import dev.pulceo.prm.model.node.OnPremNode;
@@ -130,7 +131,7 @@ public class NodeServiceIntegrationTest {
     }
 
     @Test
-    public void testCreatePreliminaryAzureNode() throws NodeServiceException {
+    public void testCreatePreliminaryAzureNode() throws NodeServiceException, ProviderServiceException {
         // given
         String providerName = "azure-provider";
         AzureProvider azureProvider = AzureProvider.builder()
@@ -160,7 +161,7 @@ public class NodeServiceIntegrationTest {
     }
 
     @Test
-    public void testCreateAzureNodeAsync() throws NodeServiceException, ExecutionException, InterruptedException, AzureDeploymentServiceException {
+    public void testCreateAzureNodeAsync() throws NodeServiceException, ExecutionException, InterruptedException, AzureDeploymentServiceException, ProviderServiceException {
         // given
         String providerName = "azure-provider";
         AzureProvider azureProvider = AzureProvider.builder()

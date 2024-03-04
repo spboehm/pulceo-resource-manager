@@ -1,5 +1,6 @@
 package dev.pulceo.prm.service;
 
+import dev.pulceo.prm.exception.ProviderServiceException;
 import dev.pulceo.prm.model.provider.*;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
@@ -45,7 +46,7 @@ public class ProviderServiceIntegrationTests {
     }
 
     @Test
-    public void testCreateAzureProvider () {
+    public void testCreateAzureProvider () throws ProviderServiceException {
         // given
         AzureProvider azureProvider = AzureProvider.builder()
                 .providerMetaData(ProviderMetaData.builder().providerName("azure-provider").providerType(ProviderType.AZURE).build())
@@ -60,7 +61,7 @@ public class ProviderServiceIntegrationTests {
     }
 
     @Test
-    public void testCreateOnPremProvider () {
+    public void testCreateOnPremProvider () throws ProviderServiceException {
         // given
         OnPremProvider onPremProvider = OnPremProvider.builder()
                 .providerMetaData(ProviderMetaData.builder().providerName("onprem-provider-test").providerType(ProviderType.ON_PREM).build())
