@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class NodeUtil {
 
-    public static OnPremNode createTestOnPremNode(String name, UUID remoteUUID, UUID pnaUUID, String hostName) {
+    public static OnPremNode createTestOnPremNode(String name, UUID remoteUUID, UUID pnaUUID, String hostName, String country, String state, String city) {
         OnPremProvider onPremProvider = OnPremProvider.builder().providerMetaData(
                 ProviderMetaData.builder()
                         .providerName("default")
@@ -70,6 +70,9 @@ public class NodeUtil {
 
         Node node = Node.builder()
                 .name(name)
+                .nodeLocationCountry(country)
+                .nodeLocationState(state)
+                .nodeLocationCity(city)
                 .cpuResource(cpuResource)
                 .memoryResource(memoryResource)
                 .build();

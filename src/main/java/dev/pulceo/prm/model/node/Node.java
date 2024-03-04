@@ -43,6 +43,10 @@ public class Node extends BaseEntity {
 
     @Builder.Default
     @NotNull
+    private String nodeLocationState = "";
+
+    @Builder.Default
+    @NotNull
     private String nodeLocationCity = "";
 
     @Builder.Default

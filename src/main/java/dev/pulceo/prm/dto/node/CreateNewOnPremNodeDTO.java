@@ -20,6 +20,12 @@ public class CreateNewOnPremNodeDTO extends CreateNewAbstractNodeDTO {
     private String providerName;
     private String hostname;
     private String pnaInitToken;
+    @Builder.Default
+    private String country = "";
+    @Builder.Default
+    private String state = "";
+    @Builder.Default
+    private String city = "";
 
     public static CreateNewOnPremNodeDTO fromAbstractNodeDTO(CreateNewAbstractNodeDTO createNewAbstractNodeDTO) {
         CreateNewOnPremNodeDTO createNewOnPremNodeDTO = (CreateNewOnPremNodeDTO) createNewAbstractNodeDTO;
@@ -29,6 +35,9 @@ public class CreateNewOnPremNodeDTO extends CreateNewAbstractNodeDTO {
                 .providerName(createNewOnPremNodeDTO.getProviderName())
                 .hostname(createNewOnPremNodeDTO.getHostname())
                 .pnaInitToken(createNewOnPremNodeDTO.getPnaInitToken())
+                .country(createNewOnPremNodeDTO.getCountry())
+                .state(createNewOnPremNodeDTO.getState())
+                .city(createNewOnPremNodeDTO.getCity())
                 .build();
 
     }

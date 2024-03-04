@@ -71,7 +71,7 @@ public class NodeService {
         this.azureNodeRepository = azureNodeRepository;
     }
 
-    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken) throws NodeServiceException {
+    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String country, String state, String city) throws NodeServiceException {
         Optional<OnPremProvider> onPremProvider = this.providerService.readOnPremProviderByProviderName(providerName);
         if (onPremProvider.isEmpty()) {
             throw new NodeServiceException("Provider does not exist!");
@@ -113,6 +113,9 @@ public class NodeService {
 
         Node node = Node.builder()
                 .name(name)
+                .nodeLocationCountry(country)
+                .nodeLocationState(state)
+                .nodeLocationCity(city)
                 .cpuResource(cpuResource)
                 .memoryResource(memoryResource)
                 .build();
@@ -150,8 +153,9 @@ public class NodeService {
         Node node = Node.builder()
                 .name(createNewAzureNodeDTO.getName())
                 .type(NodeType.valueOf(createNewAzureNodeDTO.getType().toUpperCase())) // TODO: replace
-                .nodeLocationCountry(this.getCountryByRegion(createNewAzureNodeDTO.getNodeLocationCountry()))
-                .nodeLocationCity(this.getCityByRegion(createNewAzureNodeDTO.getNodeLocationCity()))
+                .nodeLocationCountry(this.getCountryByRegion(createNewAzureNodeDTO.getRegion()))
+                .nodeLocationState(this.getStateByRegion(createNewAzureNodeDTO.getRegion()))
+                .nodeLocationCity(this.getCityByRegion(createNewAzureNodeDTO.getRegion()))
                 .build();
 
         AzureNode azureNode = AzureNode.builder()
@@ -179,7 +183,7 @@ public class NodeService {
 
         try {
             // invoke AzureDeploymentService for creation of VM
-            AzureDeloymentResult azureDeloymentResult = this.azureDeploymentService.deploy(createNewAzureNodeDTO.getProviderName(), createNewAzureNodeDTO.getNodeLocationCountry(), createNewAzureNodeDTO.getSku());
+            AzureDeloymentResult azureDeloymentResult = this.azureDeploymentService.deploy(createNewAzureNodeDTO.getProviderName(), createNewAzureNodeDTO.getRegion(), createNewAzureNodeDTO.getSku());
             logger.info("Received azure deployment response: " + azureDeloymentResult.toString());
             // TODO: poll with /health until available, or alternatively, wait until completion with events
             // TODO: replace with https or make configuration
@@ -251,9 +255,18 @@ public class NodeService {
         }
     }
 
-    private String getCityByRegion(String region) {
+    private String getStateByRegion(String region) {
         if (region.equals("eastus")) {
             return "Virginia";
+        } else {
+            return "";
+        }
+    }
+
+
+    private String getCityByRegion(String region) {
+        if (region.equals("eastus")) {
+            return "";
         } else {
             return "";
         }

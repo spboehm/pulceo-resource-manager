@@ -37,6 +37,10 @@ public class NodePropertiesDTO {
 
     @Builder.Default
     @NotNull
+    private String nodeLocationState = "";
+
+    @Builder.Default
+    @NotNull
     private String nodeLocationCity = "";
 
     @Builder.Default
@@ -57,6 +61,7 @@ public class NodePropertiesDTO {
             .layer(node.getLayer())
             .role(node.getRole())
             .nodeLocationCountry(node.getNodeLocationCountry())
+            .nodeLocationState(node.getNodeLocationState())
             .nodeLocationCity(node.getNodeLocationCity())
             .nodeLocationLongitude(node.getNodeLocationLongitude())
             .nodeLocationLatitude(node.getNodeLocationLatitude())

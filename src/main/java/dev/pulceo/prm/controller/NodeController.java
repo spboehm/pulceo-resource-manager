@@ -7,7 +7,6 @@ import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.service.AzureDeploymentService;
 import dev.pulceo.prm.service.NodeService;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -22,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @RequestMapping("/api/v1/nodes")
@@ -49,7 +46,7 @@ public class NodeController {
         if (createNewAbstractNodeDTO.getNodeType() == NodeDTOType.ONPREM) {
             this.logger.info("Received request to create a new OnPremNode: " + createNewAbstractNodeDTO);
             CreateNewOnPremNodeDTO createNewOnPremNodeDTO = CreateNewOnPremNodeDTO.fromAbstractNodeDTO(createNewAbstractNodeDTO);
-            OnPremNode onPremNode = this.nodeService.createOnPremNode(createNewOnPremNodeDTO.getName(), createNewOnPremNodeDTO.getProviderName(), createNewOnPremNodeDTO.getHostname(), createNewOnPremNodeDTO.getPnaInitToken());
+            OnPremNode onPremNode = this.nodeService.createOnPremNode(createNewOnPremNodeDTO.getName(), createNewOnPremNodeDTO.getProviderName(), createNewOnPremNodeDTO.getHostname(), createNewOnPremNodeDTO.getPnaInitToken(), createNewOnPremNodeDTO.getCountry(), createNewOnPremNodeDTO.getState(), createNewOnPremNodeDTO.getCity());
             return new ResponseEntity<>(NodeDTO.fromOnPremNode(onPremNode), HttpStatus.CREATED);
         } else if (createNewAbstractNodeDTO.getNodeType() == NodeDTOType.AZURE) {
             this.logger.info("Received request to create a new CloudNode: " + createNewAbstractNodeDTO);

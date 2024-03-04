@@ -120,10 +120,10 @@ public class NodeServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-memory-resources-response.json")));
 
-        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pna1UUID, hostName);
+        OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pna1UUID, hostName, "Germany", "Bavaria", "Bamberg");
 
         // when
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken);
+        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "Germany", "Bavaria", "Bamberg");
 
 
         // then
@@ -148,8 +148,7 @@ public class NodeServiceIntegrationTest {
                 .name("cloud-0")
                 .type("cloud")
                 .sku("Standard_B2s")
-                .nodeLocationCountry("eastus")
-                .nodeLocationCity("Virginia")
+                .region("eastus")
                 .build();
 
         // when
@@ -186,8 +185,7 @@ public class NodeServiceIntegrationTest {
                 .name("cloud-0")
                 .type("cloud")
                 .sku("Standard_B2s")
-                .nodeLocationCountry("eastus")
-                .nodeLocationCity("Virginia")
+                .region("eastus")
                 .build();
 
         wireMockServer.stubFor(get(urlEqualTo("/health"))
@@ -255,7 +253,7 @@ public class NodeServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-memory-resources-response.json")));
 
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken);
+        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "Germany", "Bavaria", "Bamberg");
 
         // when
         UUID remoteUUID = this.nodeService.getRemoteUUID(onPremNode.getUuid());

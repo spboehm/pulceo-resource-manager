@@ -157,8 +157,7 @@ public class NodeControllerTests {
                 .name("cloud-0")
                 .type("cloud")
                 .sku("Standard_B2s")
-                .nodeLocationCountry("eastus")
-                .nodeLocationCity("Virginia")
+                .region("eastus")
                 .build();
 
         String createNewAzureNodeDTOAsJson = this.objectMapper.writeValueAsString(createNewAzureNodeDTO);
