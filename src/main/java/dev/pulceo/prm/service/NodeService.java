@@ -1,6 +1,7 @@
 package dev.pulceo.prm.service;
 
 import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
+import dev.pulceo.prm.dto.node.cpu.PatchCPUDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
@@ -235,16 +236,6 @@ public class NodeService {
             azureNodeToBeUpdated.getNodeMetaData().setRemoteNodeUUID(cloudRegistration.getNodeUUID());
             azureNodeToBeUpdated.getNodeMetaData().setPnaUUID(cloudRegistration.getPnaUUID());
             azureNodeToBeUpdated.getNodeMetaData().setHostname(azureDeloymentResult.getFqdn());
-
-            // generate nodeMetaData
-//            NodeMetaData nodeMetaData = NodeMetaData.builder()
-//                    .remoteNodeUUID(cloudRegistration.getNodeUUID())
-//                    .pnaUUID(cloudRegistration.getPnaUUID())
-//                    .hostname(azureDeloymentResult.getFqdn())
-//                    .build();
-
-            // set NodeMetaData, CloudRegistration, AzureDeloymentResult
-//            azureNodeToBeUpdated.setNodeMetaData(nodeMetaData);
             azureNodeToBeUpdated.setCloudRegistration(cloudRegistration);
             azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
             this.azureNodeRepository.save(azureNodeToBeUpdated);
@@ -279,6 +270,59 @@ public class NodeService {
         } else {
             return "";
         }
+    }
+
+    public CPUResource updateCPUResource(UUID nodeUUID, String key, float value, CPUResourceType cpuResourceType) throws NodeServiceException {
+
+        if (value < 0.0f) {
+            throw new NodeServiceException("Value must be greater or equals 0!");
+        }
+
+        CPUResource cpuResource = this.readCPUResourceByUUID(nodeUUID);
+
+        CPU cpu ;
+
+        if (cpuResourceType == CPUResourceType.ALLOCATABLE) {
+            cpu = cpuResource.getCpuAllocatable();
+        } else {
+            cpu = cpuResource.getCpuCapacity();
+        }
+
+        switch (key) {
+            case "cores":
+                cpu.setCores((int) value);
+                break;
+            case "threads":
+                cpu.setThreads((int) value);
+                break;
+            case "bogoMIPS":
+                cpu.setBogoMIPS((int) value);
+                break;
+            case "minimalFrequency":
+                cpu.setMinimalFrequency(value);
+                break;
+            case "averageFrequency":
+                cpu.setAverageFrequency(value);
+                break;
+            case "maximalFrequency":
+                cpu.setMaximalFrequency(value);
+                break;
+            case "shares":
+                cpu.setShares((int) value);
+                break;
+            case "slots":
+                cpu.setSlots(value);
+                break;
+            case "mips":
+                cpu.setMIPS(value);
+                break;
+            case "gflop":
+                cpu.setGFlop(value);
+                break;
+            default:
+                throw new NodeServiceException("Key not supported!");
+        }
+        return this.cpuResourcesRepository.save(cpuResource);
     }
 
     private CPUResource getCpuResource(WebClient webClient, String pnaInitToken) {
@@ -345,9 +389,13 @@ public class NodeService {
             OnPremNode onPremNode = (OnPremNode) abstractNode.get();
             Long id = onPremNode.getNode().getCpuResource().getId();
             return this.cpuResourcesRepository.findById(id).orElseThrow();
-        } else {
-            throw new NodeServiceException("Node type not yet supported!");
+        } else if (internalNodeType == InternalNodeType.AZURE) {
+            AzureNode azureNode = (AzureNode) abstractNode.get();
+            Long id = azureNode.getNode().getCpuResource().getId();
+            return this.cpuResourcesRepository.findById(id).orElseThrow();
+
         }
+        throw new NodeServiceException("Node type not yet supported!");
     }
 
     public MemoryResource readMemoryResourceByUUID(UUID nodeUUID) throws NodeServiceException {
@@ -360,9 +408,12 @@ public class NodeService {
             OnPremNode onPremNode = (OnPremNode) abstractNode.get();
             Long id = onPremNode.getNode().getCpuResource().getId();
             return this.memoryResourcesRepository.findById(id).orElseThrow();
-        } else {
-            throw new NodeServiceException("Node type not yet supported!");
+        } else if (internalNodeType == InternalNodeType.AZURE) {
+            AzureNode azureNode = (AzureNode) abstractNode.get();
+            Long id = azureNode.getNode().getCpuResource().getId();
+            return this.memoryResourcesRepository.findById(id).orElseThrow();
         }
+        throw new NodeServiceException("Node type not yet supported!");
     }
 
     @Transactional

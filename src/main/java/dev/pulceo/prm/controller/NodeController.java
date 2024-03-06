@@ -1,6 +1,7 @@
 package dev.pulceo.prm.controller;
 
 import dev.pulceo.prm.dto.node.*;
+import dev.pulceo.prm.dto.node.cpu.PatchCPUDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
@@ -97,6 +98,32 @@ public class NodeController {
             return ResponseEntity.status(404).build();
         }
         CPUResource cpuResource = this.nodeService.readCPUResourceByUUID(abstractNode.get().getUuid());
+        return new ResponseEntity<>(CPUResourceDTO.fromCPUResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , cpuResource), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/cpu/capacity")
+    public ResponseEntity<CPUResourceDTO> updateCPUResourcesCapacity(@PathVariable String id, @Valid @RequestBody PatchCPUDTO patchCPUDTO) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        // only CPU allocatable
+        CPUResource cpuResource = this.nodeService.updateCPUResource(abstractNode.get().getUuid(), patchCPUDTO.getKey(), patchCPUDTO.getValue(), CPUResourceType.CAPACITY);
+
+        return new ResponseEntity<>(CPUResourceDTO.fromCPUResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , cpuResource), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/cpu/allocatable")
+    public ResponseEntity<CPUResourceDTO> updateCPUResourcesAllocatable(@PathVariable String id, @Valid @RequestBody PatchCPUDTO patchCPUDTO) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        // only CPU allocatable
+        CPUResource cpuResource = this.nodeService.updateCPUResource(abstractNode.get().getUuid(), patchCPUDTO.getKey(), patchCPUDTO.getValue(), CPUResourceType.ALLOCATABLE);
+
         return new ResponseEntity<>(CPUResourceDTO.fromCPUResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , cpuResource), HttpStatus.OK);
     }
 
