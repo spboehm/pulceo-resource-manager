@@ -67,6 +67,10 @@ public class Node extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private MemoryResource memoryResource= MemoryResource.builder().build();
 
+    @Builder.Default
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private StorageResource storageResource = StorageResource.builder().build();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
