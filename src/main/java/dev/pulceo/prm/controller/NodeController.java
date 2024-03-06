@@ -1,7 +1,9 @@
 package dev.pulceo.prm.controller;
 
+import com.azure.core.annotation.Patch;
 import dev.pulceo.prm.dto.node.*;
 import dev.pulceo.prm.dto.node.cpu.PatchCPUDTO;
+import dev.pulceo.prm.dto.node.cpu.PatchMemoryDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
@@ -108,8 +110,7 @@ public class NodeController {
             return ResponseEntity.status(404).build();
         }
 
-        // only CPU allocatable
-        CPUResource cpuResource = this.nodeService.updateCPUResource(abstractNode.get().getUuid(), patchCPUDTO.getKey(), patchCPUDTO.getValue(), CPUResourceType.CAPACITY);
+        CPUResource cpuResource = this.nodeService.updateCPUResource(abstractNode.get().getUuid(), patchCPUDTO.getKey(), patchCPUDTO.getValue(), ResourceType.CAPACITY);
 
         return new ResponseEntity<>(CPUResourceDTO.fromCPUResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , cpuResource), HttpStatus.OK);
     }
@@ -121,8 +122,7 @@ public class NodeController {
             return ResponseEntity.status(404).build();
         }
 
-        // only CPU allocatable
-        CPUResource cpuResource = this.nodeService.updateCPUResource(abstractNode.get().getUuid(), patchCPUDTO.getKey(), patchCPUDTO.getValue(), CPUResourceType.ALLOCATABLE);
+        CPUResource cpuResource = this.nodeService.updateCPUResource(abstractNode.get().getUuid(), patchCPUDTO.getKey(), patchCPUDTO.getValue(), ResourceType.ALLOCATABLE);
 
         return new ResponseEntity<>(CPUResourceDTO.fromCPUResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , cpuResource), HttpStatus.OK);
     }
@@ -136,6 +136,30 @@ public class NodeController {
             return ResponseEntity.status(404).build();
         }
         MemoryResource memoryResource = this.nodeService.readMemoryResourceByUUID(abstractNode.get().getUuid());
+        return new ResponseEntity<>(MemoryResourceDTO.fromMemoryResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , memoryResource), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/memory/capacity")
+    public ResponseEntity<MemoryResourceDTO> updateMemoryResourcesCapacity(@PathVariable String id, @Valid @RequestBody PatchMemoryDTO patchMemoryDTO) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        MemoryResource memoryResource = this.nodeService.updateMemoryResource(abstractNode.get().getUuid(), patchMemoryDTO.getKey(), patchMemoryDTO.getValue(), ResourceType.CAPACITY);
+
+        return new ResponseEntity<>(MemoryResourceDTO.fromMemoryResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , memoryResource), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/memory/allocatable")
+    public ResponseEntity<MemoryResourceDTO> updateMemoryResourcesAllocatable(@PathVariable String id, @Valid @RequestBody PatchMemoryDTO patchMemoryDTO) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        MemoryResource memoryResource = this.nodeService.updateMemoryResource(abstractNode.get().getUuid(), patchMemoryDTO.getKey(), patchMemoryDTO.getValue(), ResourceType.ALLOCATABLE);
+
         return new ResponseEntity<>(MemoryResourceDTO.fromMemoryResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , memoryResource), HttpStatus.OK);
     }
 

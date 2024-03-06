@@ -1,7 +1,6 @@
 package dev.pulceo.prm.service;
 
 import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
-import dev.pulceo.prm.dto.node.cpu.PatchCPUDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
@@ -272,7 +271,7 @@ public class NodeService {
         }
     }
 
-    public CPUResource updateCPUResource(UUID nodeUUID, String key, float value, CPUResourceType cpuResourceType) throws NodeServiceException {
+    public CPUResource updateCPUResource(UUID nodeUUID, String key, float value, ResourceType resourceType) throws NodeServiceException {
 
         if (value < 0.0f) {
             throw new NodeServiceException("Value must be greater or equals 0!");
@@ -282,7 +281,7 @@ public class NodeService {
 
         CPU cpu ;
 
-        if (cpuResourceType == CPUResourceType.ALLOCATABLE) {
+        if (resourceType == ResourceType.ALLOCATABLE) {
             cpu = cpuResource.getCpuAllocatable();
         } else {
             cpu = cpuResource.getCpuCapacity();
@@ -337,6 +336,34 @@ public class NodeService {
                 })
                 .block();
         return this.modelMapper.map(cpuResourceDTO, CPUResource.class);
+    }
+
+    public MemoryResource updateMemoryResource(UUID uuid, String key, float value, ResourceType resourceType) throws NodeServiceException {
+        if (value < 0.0f) {
+            throw new NodeServiceException("Value must be greater or equals 0!");
+        }
+
+        MemoryResource memoryResource = this.readMemoryResourceByUUID(uuid);
+
+        Memory memory;
+
+        if (resourceType == ResourceType.ALLOCATABLE) {
+            memory = memoryResource.getMemoryAllocatable();
+        } else {
+            memory = memoryResource.getMemoryCapacity();
+        }
+
+        switch (key) {
+            case "size":
+                memory.setSize(value);
+                break;
+            case "slots":
+                memory.setSlots((int) value);
+                break;
+            default:
+                throw new NodeServiceException("Key not supported!");
+        }
+        return this.memoryResourcesRepository.save(memoryResource);
     }
 
     private MemoryResource getMemoryResource(WebClient webClient, String pnaInitToken) {
@@ -445,6 +472,7 @@ public class NodeService {
     public Optional<AzureNode> readAzureNodeByUUID(UUID uuid) {
         return this.azureNodeRepository.readAzureNodeByUuid(uuid);
     }
+
 
 
 }

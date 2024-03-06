@@ -1,5 +1,5 @@
 package dev.pulceo.prm.model.node;
 
-public enum CPUResourceType {
+public enum ResourceType {
     CAPACITY, ALLOCATABLE
 }
