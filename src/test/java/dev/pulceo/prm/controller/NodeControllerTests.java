@@ -156,7 +156,8 @@ public class NodeControllerTests {
                 .providerName("azure-provider")
                 .name("cloud-0")
                 .type("cloud")
-                .sku("Standard_B2s")
+                .cpu(2)
+                .memory(4)
                 .region("eastus")
                 .build();
 

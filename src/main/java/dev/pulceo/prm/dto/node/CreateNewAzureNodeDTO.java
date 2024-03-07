@@ -18,9 +18,13 @@ public class CreateNewAzureNodeDTO extends CreateNewAbstractNodeDTO {
     private String name = DeploymentUtil.createRandomName("node-");
     @Builder.Default
     private String type = "edge";
-    private String sku;
+    @Builder.Default
+    private int cpu = 2;
+    @Builder.Default
+    private int memory = 4;
     @Builder.Default
     private String region = "eastus";
+
 
     public static CreateNewAzureNodeDTO fromAbstractNodeDTO(CreateNewAbstractNodeDTO createNewAbstractNodeDTO) {
         CreateNewAzureNodeDTO createNewAzureNodeDTO = (CreateNewAzureNodeDTO) createNewAbstractNodeDTO;
@@ -29,7 +33,8 @@ public class CreateNewAzureNodeDTO extends CreateNewAbstractNodeDTO {
                 .providerName(createNewAzureNodeDTO.getProviderName())
                 .name(createNewAzureNodeDTO.getName())
                 .type(createNewAzureNodeDTO.getType())
-                .sku(createNewAzureNodeDTO.getSku())
+                .cpu(createNewAzureNodeDTO.getCpu())
+                .memory(createNewAzureNodeDTO.getMemory())
                 .region(createNewAzureNodeDTO.getRegion())
                 .build();
     }

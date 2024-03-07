@@ -189,7 +189,7 @@ public class NodeService {
 
         try {
             // invoke AzureDeploymentService for creation of VM
-            AzureDeloymentResult azureDeloymentResult = this.azureDeploymentService.deploy(createNewAzureNodeDTO.getProviderName(), createNewAzureNodeDTO.getRegion(), createNewAzureNodeDTO.getSku());
+            AzureDeloymentResult azureDeloymentResult = this.azureDeploymentService.deploy(createNewAzureNodeDTO.getProviderName(), createNewAzureNodeDTO.getRegion(), createNewAzureNodeDTO.getCpu(), createNewAzureNodeDTO.getMemory());
             logger.info("Received azure deployment response: " + azureDeloymentResult.toString());
             // TODO: poll with /health until available, or alternatively, wait until completion with events
             // TODO: replace with https or make configuration
@@ -256,6 +256,16 @@ public class NodeService {
     private String getStateByRegion(String region) {
         if (region.equals("eastus")) {
             return "Virginia";
+        } else if (region.equals("westeurope")) {
+            return "Noord-Holland";
+        } else if (region.equals("northeurope")) {
+            return "Leinster";
+        } else if (region.equals("germanywestcentral")) {
+            return "Hessen";
+        } else if (region.equals("francecentral")) {
+            return "Paris (chef-lieu)";
+        } else if (region.equals("eastus2")) {
+            return "Virginia";
         } else {
             return "";
         }
@@ -264,7 +274,17 @@ public class NodeService {
 
     private String getCityByRegion(String region) {
         if (region.equals("eastus")) {
-            return "";
+            return "Boydton";
+        } else if (region.equals("westeurope")) {
+            return "Schiphol";
+        } else if (region.equals("northeurope")) {
+            return "Dublin";
+        } else if (region.equals("germanywestcentral")) {
+            return "Frankfurt";
+        } else if (region.equals("francecentral")) {
+            return "Paris";
+        } else if (region.equals("eastus2")) {
+            return "Boydton";
         } else {
             return "";
         }
@@ -272,6 +292,16 @@ public class NodeService {
 
     private String getCountryByRegion(String region) {
         if (region.equals("eastus")) {
+            return "USA";
+        } else if (region.equals("westeurope")) {
+            return "Netherlands";
+        } else if (region.equals("northeurope")) {
+            return "Ireland";
+        } else if (region.equals("germanywestcentral")) {
+            return "Germany";
+        } else if (region.equals("francecentral")) {
+            return "France";
+        } else if (region.equals("eastus2")) {
             return "USA";
         } else {
             return "";

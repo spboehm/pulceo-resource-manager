@@ -62,7 +62,7 @@ public class AzureDeploymentService {
     }
 
     // TODO: split
-    public AzureDeloymentResult deploy(String providerName, String nodeLocationCountry, String sku) throws AzureDeploymentServiceException {
+    public AzureDeloymentResult deploy(String providerName, String nodeLocationCountry, int cpu, int mem) throws AzureDeploymentServiceException {
 
         // retrieve AzureProvider
         AzureProvider azureProvider = this.providerService.readAzureProviderByProviderMetaDataName(providerName).orElseThrow();
@@ -101,6 +101,7 @@ public class AzureDeploymentService {
 
             // === Customer data for bootstrapping PNA
             String customerData = DeploymentUtil.templateBootStrapPnaScript(this.getCredentialsExportStatements(publicIPAddress.fqdn()));
+            String sku = this.getSkuByCPUandMemory(cpu, mem);
 
             // === Virtual Machine
             VirtualMachine linuxVM = azureResourceManager.virtualMachines().define(resourceName)
@@ -129,6 +130,20 @@ public class AzureDeploymentService {
             throw new AzureDeploymentServiceException("Could not deploy azure virtual machine...rolling back...", e);
         }
 
+    }
+
+    private String getSkuByCPUandMemory(int cpu, int memory) {
+        if (cpu == 1 && memory == 1) {
+            return "Standard_B1s";
+        } else if (cpu == 2 && memory == 4) {
+            return "Standard_B2s";
+        } else if (cpu == 2 && memory == 8) {
+            return "Standard_B2ms";
+        } else if (cpu == 4 && memory == 16) {
+            return "Standard_B4ms";
+        } else {
+            throw new RuntimeException("Invalid CPU and Memory combination");
+        }
     }
 
     private List<String> getCredentialsExportStatements(String domain) {

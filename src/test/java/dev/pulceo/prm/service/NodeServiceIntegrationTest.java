@@ -154,7 +154,8 @@ public class NodeServiceIntegrationTest {
                 .providerName(createdAzureProvider.getProviderMetaData().getProviderName())
                 .name("cloud-0")
                 .type("cloud")
-                .sku("Standard_B2s")
+                .cpu(2)
+                .memory(4)
                 .region("eastus")
                 .build();
 
@@ -179,7 +180,7 @@ public class NodeServiceIntegrationTest {
         AzureProvider createdAzureProvider = this.providerService.createAzureProvider(azureProvider);
 
         // TODO: mock azureDeploymentservice
-        when(this.azureDeploymentService.deploy(providerName, "eastus", "Standard_B2s"))
+        when(this.azureDeploymentService.deploy(providerName, "eastus", 2, 4))
                 .thenReturn(AzureDeloymentResult.builder()
                         .resourceGroupName("pulceo-node-b6d5536507")
                         .sku("Standard_B2s")
@@ -191,7 +192,8 @@ public class NodeServiceIntegrationTest {
                 .providerName(createdAzureProvider.getProviderMetaData().getProviderName())
                 .name("cloud-0")
                 .type("cloud")
-                .sku("Standard_B2s")
+                .cpu(2)
+                .memory(4)
                 .region("eastus")
                 .build();
 

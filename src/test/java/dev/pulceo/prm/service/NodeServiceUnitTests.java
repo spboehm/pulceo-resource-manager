@@ -153,7 +153,7 @@ public class NodeServiceUnitTests {
                                         .providerType(ProviderType.AZURE).build())
                                 .build()));
 
-        when(this.azureDeploymentService.deploy(azureProvider, "eastus", "Standard_B2s"))
+        when(this.azureDeploymentService.deploy(azureProvider, "eastus", 2, 4))
                 .thenReturn(AzureDeloymentResult.builder()
                         .resourceGroupName("pulceo-node-b6d5536507")
                         .sku("Standard_B2s")
@@ -165,7 +165,8 @@ public class NodeServiceUnitTests {
                 .providerName("azure-provider")
                 .name("cloud-0")
                 .type("cloud")
-                .sku("Standard_B2s")
+                .cpu(2)
+                .memory(4)
                 .region("eastus")
                 .build();
 
