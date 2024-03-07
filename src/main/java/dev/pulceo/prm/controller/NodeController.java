@@ -8,6 +8,7 @@ import dev.pulceo.prm.dto.node.cpu.PatchStorageDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.pna.node.storage.StorageResourceDTO;
+import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.service.AzureDeploymentService;
@@ -241,6 +242,17 @@ public class NodeController {
             }
         }
         return ResponseEntity.status(200).body(abstractNodeDTOList);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public ResponseEntity<Void> deleteNodeById(@PathVariable String id) throws LinkServiceException {
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(400).build();
+        }
+        this.nodeService.deleteNodeByUUID(abstractNode.get().getUuid());
+        return ResponseEntity.status(204).build();
     }
 
     private static boolean checkIfUUID(String uuid)  {

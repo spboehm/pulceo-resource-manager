@@ -5,6 +5,7 @@ import dev.pulceo.prm.model.link.NodeLink;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +17,5 @@ public interface AbstractLinkRepository extends CrudRepository<AbstractLink, Lon
     Optional<AbstractLink> findByUuid(UUID uuid);
 
     Optional<AbstractLink> findByName(String id);
+
 }

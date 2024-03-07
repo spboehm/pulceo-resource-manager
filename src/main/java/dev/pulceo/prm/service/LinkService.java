@@ -10,7 +10,6 @@ import dev.pulceo.prm.internal.G6.model.G6Edge;
 import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.link.NodeLink;
 import dev.pulceo.prm.model.node.AbstractNode;
-import dev.pulceo.prm.model.node.Node;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.NodeLinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -206,6 +205,9 @@ public class LinkService {
                 .uri("/api/v1/metric-requests?linkUUID=" + linkUuid)
                 .retrieve()
                 .bodyToFlux(ShortMetricResponseDTO.class)
+                .onErrorResume(error -> {
+                    throw new RuntimeException(new LinkServiceException("Can not delete metric request!"));
+                })
                 .collectList()
                 .block();
 
@@ -236,5 +238,16 @@ public class LinkService {
                 })
                 .block();
         this.abstractLinkRepository.delete(abstractLink.get());
+    }
+
+    public List<AbstractLink> readLinksSrcAndDestByNodeUUID(UUID uuid) {
+        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
+        if (abstractNode.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<AbstractLink> abstractLinks = new ArrayList<>();
+        this.nodeLinkRepository.findBySrcNode(abstractNode.get()).forEach(abstractLinks::add);
+        this.nodeLinkRepository.findByDestNode(abstractNode.get()).forEach(abstractLinks::add);
+        return abstractLinks;
     }
 }

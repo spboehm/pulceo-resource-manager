@@ -237,6 +237,15 @@ public class NodeServiceIntegrationTest {
     }
 
     @Test
+    public void testDeleteAzureNode() {
+        // given
+
+        // when
+
+        // then
+    }
+
+    @Test
     public void testGetByRemoteUUID() throws NodeServiceException {
         // given
         String providerName = "default";

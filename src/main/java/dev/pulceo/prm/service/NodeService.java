@@ -4,11 +4,14 @@ import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.pna.node.storage.StorageResourceDTO;
+import dev.pulceo.prm.dto.psm.ShortMetricResponseDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
 import dev.pulceo.prm.exception.AzureDeploymentServiceException;
+import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.internal.G6.model.G6Node;
+import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.model.provider.OnPremProvider;
@@ -20,16 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -48,6 +49,7 @@ public class NodeService {
     private final ModelMapper modelMapper = new ModelMapper();
     private final AzureDeploymentService azureDeploymentService;
     private final AzureNodeRepository azureNodeRepository;
+    private final LinkService linkService;
 
 
     @Value("${prm.uuid}")
@@ -58,9 +60,11 @@ public class NodeService {
     private String webClientScheme;
     @Value("${PNA_INIT_TOKEN}")
     private String pnaInitToken;
+    @Value("${pms.endpoint}")
+    private String pmsEndpoint;
 
     @Autowired
-    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, StorageResourcesRepositoy storageResourcesRepositoy, AzureDeploymentService azureDeploymentService, AzureNodeRepository azureNodeRepository) {
+    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, StorageResourcesRepositoy storageResourcesRepositoy, AzureDeploymentService azureDeploymentService, AzureNodeRepository azureNodeRepository, @Lazy LinkService linkService) {
         this.abstractNodeRepository = abstractNodeRepository;
         this.onPremNoderepository = onPremNoderepository;
         this.nodeMetaDataRepository = nodeMetaDataRepository;
@@ -72,6 +76,7 @@ public class NodeService {
         this.storageResourcesRepositoy = storageResourcesRepositoy;
         this.azureDeploymentService = azureDeploymentService;
         this.azureNodeRepository = azureNodeRepository;
+        this.linkService = linkService;
     }
 
     public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String type, String country, String state, String city) throws NodeServiceException {
@@ -615,10 +620,57 @@ public class NodeService {
         return this.abstractNodeRepository.findByName(name).isPresent();
     }
 
-    public Optional<AzureNode> readAzureNodeByUUID(UUID uuid) {
-        return this.azureNodeRepository.readAzureNodeByUuid(uuid);
+    public Optional<AzureNode> readAzureNodeByUUID(UUID nodeUUID) {
+        return this.azureNodeRepository.readAzureNodeByUuid(nodeUUID);
     }
 
+    public void deleteNodeByUUID(UUID uuid) throws LinkServiceException {
 
+        // TODO: findall all links and delete them
+        Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(uuid);
+        if (abstractNode.isEmpty()) {
+            return;
+        }
+
+        // find all links where the node is associated with, src and dest
+        List<AbstractLink> links = this.linkService.readLinksSrcAndDestByNodeUUID(uuid);
+
+        // delete node metricrequests
+        for (AbstractLink link : links) {
+            this.linkService.deleteLinkByUUID(link.getUuid());
+        }
+        WebClient webClient = WebClient.create(this.pmsEndpoint);
+
+        List<ShortMetricResponseDTO> shortMetricResponseDTO = webClient
+                .get()
+                .uri("/api/v1/metric-requests?linkUUID=" + uuid)
+                .retrieve()
+                .bodyToFlux(ShortMetricResponseDTO.class)
+                .onErrorResume(error -> {
+                    throw new RuntimeException(new LinkServiceException("Can not delete metric request!"));
+                })
+                .collectList()
+                .block();
+
+        for (ShortMetricResponseDTO metricRequest : shortMetricResponseDTO) {
+            webClient.delete()
+                    .uri("/api/v1/metric-requests/" + metricRequest.getUuid())
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .onErrorResume(error -> {
+                        throw new RuntimeException(new LinkServiceException("Can not delete metric request!"));
+                    })
+                    .block();
+        }
+
+        // TODO: decide for onprem and azure
+        if (abstractNode.get().getInternalNodeType() == InternalNodeType.AZURE) {
+            AzureNode azureNode = (AzureNode) abstractNode.get();
+            this.azureDeploymentService.deleteAzureVirtualMachine(azureNode.getAzureDeloymentResult().getResourceGroupName(), azureNode.getAzureProvider().getProviderMetaData().getProviderName(), false);
+        }
+
+        // TODO: check for applications
+        this.abstractNodeRepository.delete(abstractNode.get());
+    }
 
 }
