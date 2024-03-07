@@ -1,4 +1,6 @@
-# pulceo-resource-manager
+<img src="docs/assets/pulceo-logo-color.png" alt="pulceo-logo" width="25%" height="auto"/>
+
+# pulceo-resource-manager 
 
 ## General Prerequisites
 
