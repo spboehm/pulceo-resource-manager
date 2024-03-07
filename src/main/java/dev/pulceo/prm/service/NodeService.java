@@ -278,6 +278,52 @@ public class NodeService {
         }
     }
 
+    public Node updateNode(UUID nodeUUID, String key, String value) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(nodeUUID);
+        if (abstractNode.isEmpty()) {
+            throw new NodeServiceException("Node with UUID " + nodeUUID + " does not exist!");
+        }
+        Node node = abstractNode.get().getNode();
+        switch (key) {
+            case "name":
+                if (this.nameAlreadyExists(value)) {
+                    throw new NodeServiceException("Name already exists!");
+                }
+                node.setName(value);
+                break;
+            case "type":
+                node.setType(NodeType.valueOf(value.toUpperCase()));
+                break;
+            case "layer":
+                node.setLayer(Integer.parseInt(value));
+                break;
+            case "role":
+                node.setRole(NodeRole.valueOf(value.toUpperCase()));
+                break;
+            case "nodeGroup":
+                node.setNodeGroup(value);
+                break;
+            case "nodeLocationCountry":
+                node.setNodeLocationCountry(value);
+                break;
+            case "nodeLocationState":
+                node.setNodeLocationState(value);
+                break;
+            case "nodeLocationCity":
+                node.setNodeLocationCity(value);
+                break;
+            case "nodeLocationLongitude":
+                node.setNodeLocationLongitude(Double.parseDouble(value));
+                break;
+            case "nodeLocationLatitude":
+                node.setNodeLocationLatitude(Double.parseDouble(value));
+                break;
+            default:
+                throw new NodeServiceException("Key not supported!");
+        }
+        return this.nodeRepository.save(node);
+    }
+
     public CPUResource updateCPUResource(UUID nodeUUID, String key, float value, ResourceType resourceType) throws NodeServiceException {
 
         if (value < 0.0f) {

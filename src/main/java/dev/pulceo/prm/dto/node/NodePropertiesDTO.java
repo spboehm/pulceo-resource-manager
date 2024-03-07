@@ -64,6 +64,7 @@ public class NodePropertiesDTO {
             .type(node.getType())
             .layer(node.getLayer())
             .role(node.getRole())
+            .group(node.getNodeGroup())
             .nodeLocationCountry(node.getNodeLocationCountry())
             .nodeLocationState(node.getNodeLocationState())
             .nodeLocationCity(node.getNodeLocationCity())

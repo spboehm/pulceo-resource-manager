@@ -83,6 +83,19 @@ public class NodeController {
         return ResponseEntity.status(400).build();
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<NodePropertiesDTO> patchNode(@PathVariable String id, @Valid @RequestBody PatchNodeDTO patchNodeDTO) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(400).build();
+        }
+
+        Node patchedNode = this.nodeService.updateNode(abstractNode.get().getUuid(), patchNodeDTO.getKey(), patchNodeDTO.getValue());
+
+        return new ResponseEntity<>(NodePropertiesDTO.fromNode(patchedNode), HttpStatus.OK);
+    }
+
     private Optional<AbstractNode> resolveAbstractNode(String id) {
         Optional<AbstractNode> abstractNode;
         // TODO: add resolve to name here, heck if UUID
