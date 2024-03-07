@@ -624,12 +624,13 @@ public class NodeService {
         return this.azureNodeRepository.readAzureNodeByUuid(nodeUUID);
     }
 
-    public void deleteNodeByUUID(UUID uuid) throws LinkServiceException {
+    @Async
+    public CompletableFuture<Void> deleteNodeByUUID(UUID uuid) throws LinkServiceException {
 
         // TODO: findall all links and delete them
         Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(uuid);
         if (abstractNode.isEmpty()) {
-            return;
+            throw new LinkServiceException("Node with UUID " + uuid + " does not exist!");
         }
 
         // find all links where the node is associated with, src and dest
@@ -665,12 +666,13 @@ public class NodeService {
 
         // TODO: decide for onprem and azure
         if (abstractNode.get().getInternalNodeType() == InternalNodeType.AZURE) {
-            AzureNode azureNode = (AzureNode) abstractNode.get();
+            AzureNode azureNode = this.readAzureNode(abstractNode.get().getId());
             this.azureDeploymentService.deleteAzureVirtualMachine(azureNode.getAzureDeloymentResult().getResourceGroupName(), azureNode.getAzureProvider().getProviderMetaData().getProviderName(), false);
         }
 
         // TODO: check for applications
         this.abstractNodeRepository.delete(abstractNode.get());
+        return CompletableFuture.completedFuture(null);
     }
 
 }

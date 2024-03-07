@@ -20,6 +20,7 @@ import lombok.experimental.SuperBuilder;
                 @NamedAttributeNode(value = "azureProvider", subgraph = "graph.AzureNode.azureProvider"),
                 @NamedAttributeNode("nodeMetaData"),
                 @NamedAttributeNode(value = "node", subgraph = "graph.AzureNode.node"),
+                @NamedAttributeNode("azureDeloymentResult"),
         },
         subgraphs = {
                 @NamedSubgraph(
