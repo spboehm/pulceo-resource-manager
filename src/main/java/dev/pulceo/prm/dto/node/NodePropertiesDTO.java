@@ -33,6 +33,10 @@ public class NodePropertiesDTO {
 
     @Builder.Default
     @NotNull
+    private String group = "";
+
+    @Builder.Default
+    @NotNull
     private String nodeLocationCountry = "";
 
     @Builder.Default

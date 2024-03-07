@@ -39,6 +39,10 @@ public class Node extends BaseEntity {
 
     @Builder.Default
     @NotNull
+    private String nodeGroup = "";
+
+    @Builder.Default
+    @NotNull
     private String nodeLocationCountry = "";
 
     @Builder.Default
