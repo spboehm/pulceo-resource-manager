@@ -4,6 +4,7 @@ import dev.pulceo.prm.dto.link.NodeLinkDTO;
 import dev.pulceo.prm.dto.pna.node.CreateNewNodeDTO;
 import dev.pulceo.prm.dto.pna.node.CreateNewNodeLinkOnPNADTO;
 import dev.pulceo.prm.dto.pna.node.NodeDTO;
+import dev.pulceo.prm.dto.psm.ShortMetricResponseDTO;
 import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.internal.G6.model.G6Edge;
 import dev.pulceo.prm.model.link.AbstractLink;
@@ -28,6 +29,9 @@ public class LinkService {
 
     @Value("${webclient.scheme}")
     private String webClientScheme;
+
+    @Value("${pms.endpoint}")
+    private String pmsEndpoint;
 
     @Autowired
     public LinkService(AbstractLinkRepository abstractLinkRepository, NodeService nodeService, NodeLinkRepository nodeLinkRepository) {
@@ -187,5 +191,50 @@ public class LinkService {
 
     public Optional<AbstractLink> readLinkByName(String id) {
         return this.abstractLinkRepository.findByName(id);
+    }
+
+    public void deleteLinkByUUID(UUID linkUuid) throws LinkServiceException {
+
+        // TODO: retrieve metric-requests from psm and delete them
+        Optional<AbstractLink> abstractLink = this.readLinkByUUID(linkUuid);
+        if (abstractLink.isEmpty()) {
+            throw new LinkServiceException("Link with UUID " + linkUuid + " does not exist!");
+        }
+
+        WebClient webClient = WebClient.create(this.pmsEndpoint);
+        List<ShortMetricResponseDTO> metricRequests = webClient.get()
+                .uri("/api/v1/metric-requests?linkUUID=" + linkUuid)
+                .retrieve()
+                .bodyToFlux(ShortMetricResponseDTO.class)
+                .collectList()
+                .block();
+
+        // delete all metric requests
+        for (ShortMetricResponseDTO metricRequest : metricRequests) {
+            webClient.delete()
+                    .uri("/api/v1/metric-requests/" + metricRequest.getUuid())
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .onErrorResume(error -> {
+                        throw new RuntimeException(new LinkServiceException("Can not delete metric request!"));
+                    })
+                    .block();
+        }
+
+        // delete link
+        NodeLink nodeLink = (NodeLink) abstractLink.get();
+        AbstractNode srcNode = nodeLink.getSrcNode();
+
+        WebClient webClientToDestNode = WebClient.create(this.webClientScheme + "://" + srcNode.getNodeMetaData().getHostname() + ":7676");
+        webClientToDestNode.delete()
+                .uri("/api/v1/links/" + nodeLink.getRemoteNodeLinkUUID())
+                .header("Authorization", "Basic " + srcNode.getToken())
+                .retrieve()
+                .bodyToMono(Void.class)
+                .onErrorResume(error -> {
+                    throw new RuntimeException(new LinkServiceException("Can not delete link!"));
+                })
+                .block();
+        this.abstractLinkRepository.delete(abstractLink.get());
     }
 }

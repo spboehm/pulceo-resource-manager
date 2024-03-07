@@ -25,7 +25,6 @@ public class Node extends BaseEntity {
     private String name;
 
     @Builder.Default
-    @NotNull(message = "Node type is required!")
     private NodeType type = NodeType.EDGE;
 
     @Builder.Default
@@ -38,19 +37,15 @@ public class Node extends BaseEntity {
     private NodeRole role = NodeRole.WORKLOAD;
 
     @Builder.Default
-    @NotNull
     private String nodeGroup = "";
 
     @Builder.Default
-    @NotNull
     private String nodeLocationCountry = "";
 
     @Builder.Default
-    @NotNull
     private String nodeLocationState = "";
 
     @Builder.Default
-    @NotNull
     private String nodeLocationCity = "";
 
     @Builder.Default

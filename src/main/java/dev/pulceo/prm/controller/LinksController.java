@@ -1,6 +1,7 @@
 package dev.pulceo.prm.controller;
 
 import dev.pulceo.prm.dto.link.*;
+import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.link.NodeLink;
 import dev.pulceo.prm.service.LinkService;
@@ -49,6 +50,16 @@ public class LinksController {
             }
         }
         return ResponseEntity.status(200).body(linksDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteLinkByUUID(@PathVariable String id) throws LinkServiceException {
+        Optional<AbstractLink> abstractLink = this.resolveAbstractLink(id);
+        if (abstractLink.isEmpty()) {
+            return ResponseEntity.status(400).build();
+        }
+        this.linkService.deleteLinkByUUID(UUID.fromString(id));
+        return ResponseEntity.status(204).build();
     }
 
     // TODO: typing
