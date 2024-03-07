@@ -122,6 +122,13 @@ public class NodeServiceUnitTests {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-memory-resources-response.json")));
 
+        // read local storage resources
+        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/storage"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-read-storage-resources-response.json")));
+
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pnaUUID, hostName, "Germany", "Bavaria", "Munich");
 
         // when
@@ -191,6 +198,13 @@ public class NodeServiceUnitTests {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-memory-resources-response.json")));
+
+        // read local storage resources
+        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/storage"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-read-storage-resources-response.json")));
 
         // when
         AzureNode preliminaryAzureNode = this.nodeService.createPreliminaryAzureNode(createNewAzureNodeDTO);

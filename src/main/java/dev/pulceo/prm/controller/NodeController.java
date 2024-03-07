@@ -4,8 +4,10 @@ import com.azure.core.annotation.Patch;
 import dev.pulceo.prm.dto.node.*;
 import dev.pulceo.prm.dto.node.cpu.PatchCPUDTO;
 import dev.pulceo.prm.dto.node.cpu.PatchMemoryDTO;
+import dev.pulceo.prm.dto.node.cpu.PatchStorageDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
+import dev.pulceo.prm.dto.pna.node.storage.StorageResourceDTO;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.service.AzureDeploymentService;
@@ -161,6 +163,42 @@ public class NodeController {
         MemoryResource memoryResource = this.nodeService.updateMemoryResource(abstractNode.get().getUuid(), patchMemoryDTO.getKey(), patchMemoryDTO.getValue(), ResourceType.ALLOCATABLE);
 
         return new ResponseEntity<>(MemoryResourceDTO.fromMemoryResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , memoryResource), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/storage")
+    public ResponseEntity<StorageResourceDTO> readStorageResources(@PathVariable String id) throws NodeServiceException {
+        // TODO: add resolve to name here, heck if UUID
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+//        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(uuid);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+        StorageResource storageResource = this.nodeService.readStorageResourceByUUID(abstractNode.get().getUuid());
+        return new ResponseEntity<>(StorageResourceDTO.fromStorageResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , storageResource), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/storage/capacity")
+    public ResponseEntity<StorageResourceDTO> updateStorageResourcesCapacity(@PathVariable String id, @Valid @RequestBody PatchStorageDTO patchStorageDTO) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        StorageResource storageResource = this.nodeService.updateStorageResource(abstractNode.get().getUuid(), patchStorageDTO.getKey(), patchStorageDTO.getValue(), ResourceType.CAPACITY);
+
+        return new ResponseEntity<>(StorageResourceDTO.fromStorageResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , storageResource), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/storage/allocatable")
+    public ResponseEntity<StorageResourceDTO> updateStorageResourcesAllocatable(@PathVariable String id, @Valid @RequestBody PatchStorageDTO patchStorageDTO) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
+        if (abstractNode.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        StorageResource storageResource = this.nodeService.updateStorageResource(abstractNode.get().getUuid(), patchStorageDTO.getKey(), patchStorageDTO.getValue(), ResourceType.ALLOCATABLE);
+
+        return new ResponseEntity<>(StorageResourceDTO.fromStorageResource(abstractNode.get().getUuid(),abstractNode.get().getNode().getName() , storageResource), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/pna-token")

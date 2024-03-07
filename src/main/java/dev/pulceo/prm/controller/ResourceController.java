@@ -3,9 +3,11 @@ package dev.pulceo.prm.controller;
 import com.azure.core.annotation.Patch;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
+import dev.pulceo.prm.dto.pna.node.storage.StorageResourceDTO;
 import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.model.node.CPUResource;
 import dev.pulceo.prm.model.node.MemoryResource;
+import dev.pulceo.prm.model.node.StorageResource;
 import dev.pulceo.prm.service.NodeService;
 import dev.pulceo.prm.service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +62,21 @@ public class ResourceController {
             }
         }
         return ResponseEntity.ok(memoryResourceDTO);
+    }
+
+    @GetMapping("/storage")
+    public ResponseEntity<List<StorageResourceDTO>> readAllStorage() {
+        List<AbstractNode> nodes = this.nodeService.readAllNodes();
+        List<StorageResourceDTO> storageResourceDTO = new ArrayList<>();
+        for (AbstractNode node : nodes) {
+            Long storageResourcesID = node.getNode().getStorageResource().getId();
+            Optional<StorageResource> storageResource = this.resourceService.readStorageResourcesById(storageResourcesID);
+            if (storageResource.isPresent()) {
+                storageResourceDTO.add(StorageResourceDTO.fromStorageResource(node.getUuid(), node.getNode().getName(), storageResource.get()));
+            } else {
+                return ResponseEntity.status(400).build();
+            }
+        }
+        return ResponseEntity.ok(storageResourceDTO);
     }
 }

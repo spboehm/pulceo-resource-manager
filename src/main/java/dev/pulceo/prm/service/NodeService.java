@@ -3,6 +3,7 @@ package dev.pulceo.prm.service;
 import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
+import dev.pulceo.prm.dto.pna.node.storage.StorageResourceDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
 import dev.pulceo.prm.exception.AzureDeploymentServiceException;
@@ -43,6 +44,7 @@ public class NodeService {
     private final CloudRegistraionService cloudRegistraionService;
     private final CPUResourcesRepository cpuResourcesRepository;
     private final MemoryResourcesRepository memoryResourcesRepository;
+    private final StorageResourcesRepositoy storageResourcesRepositoy;
     private final ModelMapper modelMapper = new ModelMapper();
     private final AzureDeploymentService azureDeploymentService;
     private final AzureNodeRepository azureNodeRepository;
@@ -58,7 +60,7 @@ public class NodeService {
     private String pnaInitToken;
 
     @Autowired
-    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, AzureDeploymentService azureDeploymentService, AzureNodeRepository azureNodeRepository) {
+    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, StorageResourcesRepositoy storageResourcesRepositoy, AzureDeploymentService azureDeploymentService, AzureNodeRepository azureNodeRepository) {
         this.abstractNodeRepository = abstractNodeRepository;
         this.onPremNoderepository = onPremNoderepository;
         this.nodeMetaDataRepository = nodeMetaDataRepository;
@@ -67,6 +69,7 @@ public class NodeService {
         this.cloudRegistraionService = cloudRegistraionService;
         this.cpuResourcesRepository = cpuResourcesRepository;
         this.memoryResourcesRepository = memoryResourcesRepository;
+        this.storageResourcesRepositoy = storageResourcesRepositoy;
         this.azureDeploymentService = azureDeploymentService;
         this.azureNodeRepository = azureNodeRepository;
     }
@@ -110,6 +113,7 @@ public class NodeService {
         // obtain remote resources
         CPUResource cpuResource = getCpuResource(webClient, pnaInitToken);
         MemoryResource memoryResource = getMemoryResource(webClient, pnaInitToken);
+        StorageResource storageResource = getStorageResource(webClient, pnaInitToken);
 
         Node node = Node.builder()
                 .name(name)
@@ -119,6 +123,7 @@ public class NodeService {
                 .nodeLocationCity(city)
                 .cpuResource(cpuResource)
                 .memoryResource(memoryResource)
+                .storageResource(storageResource)
                 .build();
 
         NodeMetaData nodeMetaData = NodeMetaData.builder()
@@ -224,6 +229,7 @@ public class NodeService {
             // obtain remote resources
             CPUResource cpuResource = getCpuResource(webClientToAzureNode, pnaInitToken);
             MemoryResource memoryResource = getMemoryResource(webClientToAzureNode, pnaInitToken);
+            StorageResource storageResource = getStorageResource(webClientToAzureNode, pnaInitToken);
 
             // update azure node
             AzureNode azureNodeToBeUpdated = azureNode.get();
@@ -231,6 +237,7 @@ public class NodeService {
             // complete dynamically obtained data from node
             azureNodeToBeUpdated.getNode().setCpuResource(cpuResource);
             azureNodeToBeUpdated.getNode().setMemoryResource(memoryResource);
+            azureNodeToBeUpdated.getNode().setStorageResource(storageResource);
 
             azureNodeToBeUpdated.getNodeMetaData().setRemoteNodeUUID(cloudRegistration.getNodeUUID());
             azureNodeToBeUpdated.getNodeMetaData().setPnaUUID(cloudRegistration.getPnaUUID());
@@ -366,6 +373,36 @@ public class NodeService {
         return this.memoryResourcesRepository.save(memoryResource);
     }
 
+    public StorageResource updateStorageResource(UUID uuid, String key, float value, ResourceType resourceType) throws NodeServiceException {
+        if (value < 0.0f) {
+            throw new NodeServiceException("Value must be greater or equals 0!");
+        }
+
+        StorageResource storageResource = this.readStorageResourceByUUID(uuid);
+
+        Storage storage;
+
+        if (resourceType == ResourceType.ALLOCATABLE) {
+            storage = storageResource.getStorageAllocatable();
+        } else {
+            storage = storageResource.getStorageCapacity();
+        }
+
+        switch (key) {
+            case "size":
+                storage.setSize(value);
+                break;
+            case "slots":
+                storage.setSlots((int) value);
+                break;
+            default:
+                throw new NodeServiceException("Key not supported!");
+        }
+        return this.storageResourcesRepositoy.save(storageResource);
+    }
+
+
+
     private MemoryResource getMemoryResource(WebClient webClient, String pnaInitToken) {
         MemoryResourceDTO memoryResourceDTO = webClient.get()
                 .uri("/api/v1/nodes/localNode/memory")
@@ -378,6 +415,20 @@ public class NodeService {
                 })
                 .block();
         return this.modelMapper.map(memoryResourceDTO, MemoryResource.class);
+    }
+
+    private StorageResource getStorageResource(WebClient webClient, String pnaInitToken) {
+        StorageResourceDTO storageResourceDTO = webClient.get()
+                .uri("/api/v1/nodes/localNode/storage")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Basic " + pnaInitToken)
+                .retrieve()
+                .bodyToMono(StorageResourceDTO.class)
+                .onErrorResume(e -> {
+                    throw new RuntimeException(new NodeServiceException("Failed to read Storage resources"));
+                })
+                .block();
+        return this.modelMapper.map(storageResourceDTO, StorageResource.class);
     }
 
     @Transactional
@@ -441,6 +492,25 @@ public class NodeService {
             return this.memoryResourcesRepository.findById(id).orElseThrow();
         }
         throw new NodeServiceException("Node type not yet supported!");
+    }
+
+    public StorageResource readStorageResourceByUUID(UUID nodeUUID) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(nodeUUID);
+        if (abstractNode.isEmpty()) {
+            throw new NodeServiceException("Node with UUID " + nodeUUID + " does not exist!");
+        }
+        InternalNodeType internalNodeType = abstractNode.get().getInternalNodeType();
+        if (internalNodeType == InternalNodeType.ONPREM) {
+            OnPremNode onPremNode = (OnPremNode) abstractNode.get();
+            Long id = onPremNode.getNode().getCpuResource().getId();
+            return this.storageResourcesRepositoy.findById(id).orElseThrow();
+        } else if (internalNodeType == InternalNodeType.AZURE) {
+            AzureNode azureNode = (AzureNode) abstractNode.get();
+            Long id = azureNode.getNode().getCpuResource().getId();
+            return this.storageResourcesRepositoy.findById(id).orElseThrow();
+        }
+        throw new NodeServiceException("Node type not yet supported!");
+
     }
 
     @Transactional

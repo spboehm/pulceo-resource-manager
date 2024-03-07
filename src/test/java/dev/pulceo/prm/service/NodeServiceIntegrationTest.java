@@ -120,6 +120,13 @@ public class NodeServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-memory-resources-response.json")));
 
+        // read local storage resources
+        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/storage"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-read-storage-resources-response.json")));
+
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pna1UUID, hostName, "Germany", "Bavaria", "Bamberg");
 
         // when
@@ -252,6 +259,13 @@ public class NodeServiceIntegrationTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-memory-resources-response.json")));
+
+        // read local storage resources
+        wireMockServer.stubFor(get(urlEqualTo("/api/v1/nodes/localNode/storage"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("node/pna-read-storage-resources-response.json")));
 
         OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Bamberg");
 
