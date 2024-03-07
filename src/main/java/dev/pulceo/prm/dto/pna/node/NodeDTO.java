@@ -45,25 +45,25 @@ public class NodeDTO {
 
     @Builder.Default
     @NotNull
-    private String nodeGroup = "";
+    private String group = "";
 
     @Builder.Default
     @NotNull
-    private String nodeLocationCountry = "";
+    private String country = "";
 
     @Builder.Default
     @NotNull
-    private String nodeLocationCity = "";
+    private String city = "";
 
     @Builder.Default
     @Min(-180)
     @Max(180)
-    private double nodeLocationLongitude = 0.000000;
+    private double longitude = 0.000000;
 
     @Builder.Default
     @Min(-90)
     @Max(90)
-    private double nodeLocationLatitude = 0.000000;
+    private double latitude = 0.000000;
 
     @NotBlank(message="Node endpoint is required!")
     @URL

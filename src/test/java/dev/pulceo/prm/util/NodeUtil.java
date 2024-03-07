@@ -70,9 +70,9 @@ public class NodeUtil {
 
         Node node = Node.builder()
                 .name(name)
-                .nodeLocationCountry(country)
-                .nodeLocationState(state)
-                .nodeLocationCity(city)
+                .country(country)
+                .state(state)
+                .city(city)
                 .cpuResource(cpuResource)
                 .memoryResource(memoryResource)
                 .build();

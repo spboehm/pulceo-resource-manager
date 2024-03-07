@@ -40,23 +40,23 @@ public class Node extends BaseEntity {
     private String nodeGroup = "";
 
     @Builder.Default
-    private String nodeLocationCountry = "";
+    private String country = "";
 
     @Builder.Default
-    private String nodeLocationState = "";
+    private String state = "";
 
     @Builder.Default
-    private String nodeLocationCity = "";
+    private String city = "";
 
     @Builder.Default
     @Min(-180)
     @Max(180)
-    private double nodeLocationLongitude = 0.000000;
+    private double longitude = 0.000000;
 
     @Builder.Default
     @Min(-90)
     @Max(90)
-    private double nodeLocationLatitude = 0.000000;
+    private double latitude = 0.000000;
 
     @Builder.Default
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -78,14 +78,14 @@ public class Node extends BaseEntity {
         Node node = (Node) o;
 
         if (layer != node.layer) return false;
-        if (Double.compare(nodeLocationLongitude, node.nodeLocationLongitude) != 0) return false;
-        if (Double.compare(nodeLocationLatitude, node.nodeLocationLatitude) != 0) return false;
+        if (Double.compare(longitude, node.longitude) != 0) return false;
+        if (Double.compare(latitude, node.latitude) != 0) return false;
         if (!Objects.equals(name, node.name)) return false;
         if (type != node.type) return false;
         if (role != node.role) return false;
-        if (!Objects.equals(nodeLocationCountry, node.nodeLocationCountry))
+        if (!Objects.equals(country, node.country))
             return false;
-        if (!Objects.equals(nodeLocationCity, node.nodeLocationCity))
+        if (!Objects.equals(city, node.city))
             return false;
         if (!Objects.equals(cpuResource, node.cpuResource)) return false;
         return Objects.equals(memoryResource, node.memoryResource);
@@ -99,11 +99,11 @@ public class Node extends BaseEntity {
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + layer;
         result = 31 * result + (role != null ? role.hashCode() : 0);
-        result = 31 * result + (nodeLocationCountry != null ? nodeLocationCountry.hashCode() : 0);
-        result = 31 * result + (nodeLocationCity != null ? nodeLocationCity.hashCode() : 0);
-        temp = Double.doubleToLongBits(nodeLocationLongitude);
+        result = 31 * result + (country != null ? country.hashCode() : 0);
+        result = 31 * result + (city != null ? city.hashCode() : 0);
+        temp = Double.doubleToLongBits(longitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(nodeLocationLatitude);
+        temp = Double.doubleToLongBits(latitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (cpuResource != null ? cpuResource.hashCode() : 0);
         result = 31 * result + (memoryResource != null ? memoryResource.hashCode() : 0);

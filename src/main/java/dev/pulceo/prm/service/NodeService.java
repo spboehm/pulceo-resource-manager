@@ -123,9 +123,9 @@ public class NodeService {
         Node node = Node.builder()
                 .name(name)
                 .type(NodeType.valueOf(type.toUpperCase())) // TODO: replace
-                .nodeLocationCountry(country)
-                .nodeLocationState(state)
-                .nodeLocationCity(city)
+                .country(country)
+                .state(state)
+                .city(city)
                 .cpuResource(cpuResource)
                 .memoryResource(memoryResource)
                 .storageResource(storageResource)
@@ -164,9 +164,9 @@ public class NodeService {
         Node node = Node.builder()
                 .name(createNewAzureNodeDTO.getName())
                 .type(NodeType.valueOf(createNewAzureNodeDTO.getType().toUpperCase())) // TODO: replace
-                .nodeLocationCountry(this.getCountryByRegion(createNewAzureNodeDTO.getRegion()))
-                .nodeLocationState(this.getStateByRegion(createNewAzureNodeDTO.getRegion()))
-                .nodeLocationCity(this.getCityByRegion(createNewAzureNodeDTO.getRegion()))
+                .country(this.getCountryByRegion(createNewAzureNodeDTO.getRegion()))
+                .state(this.getStateByRegion(createNewAzureNodeDTO.getRegion()))
+                .city(this.getCityByRegion(createNewAzureNodeDTO.getRegion()))
                 .build();
 
         AzureNode azureNode = AzureNode.builder()
@@ -339,19 +339,19 @@ public class NodeService {
                 node.setNodeGroup(value);
                 break;
             case "nodeLocationCountry":
-                node.setNodeLocationCountry(value);
+                node.setCountry(value);
                 break;
             case "nodeLocationState":
-                node.setNodeLocationState(value);
+                node.setState(value);
                 break;
             case "nodeLocationCity":
-                node.setNodeLocationCity(value);
+                node.setCity(value);
                 break;
             case "nodeLocationLongitude":
-                node.setNodeLocationLongitude(Double.parseDouble(value));
+                node.setLongitude(Double.parseDouble(value));
                 break;
             case "nodeLocationLatitude":
-                node.setNodeLocationLatitude(Double.parseDouble(value));
+                node.setLatitude(Double.parseDouble(value));
                 break;
             default:
                 throw new NodeServiceException("Key not supported!");
