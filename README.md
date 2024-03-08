@@ -1,6 +1,6 @@
-# pulceo-resource-manager 
-
 <img src="docs/assets/pulceo-logo-color.png" alt="pulceo-logo" width="25%" height="auto"/>
+
+# pulceo-resource-manager 
 
 ## General Prerequisites
 
@@ -24,7 +24,6 @@
 ```bash
 mkdir -p $HOME/k3d-pulceo-volumes
 ```
-
 ```bash
 k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer --volume $HOME/k3d-pulceo-volumes:/var/lib/rancher/k3s/storage@all
 ```
@@ -73,4 +72,10 @@ HTTP/1.1 200 OK
 Content-Length: 2
 Content-Type: text/plain;charset=UTF-8
 Date: Sat, 02 Mar 2024 08:52:52 GMT
+```
+
+## Undeploy
+
+```bash
+kubectl delete -f prm-deployment.yaml
 ```
