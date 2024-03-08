@@ -79,12 +79,25 @@ spec:
         - name: pulceo-resource-manager
           image: ghcr.io/spboehm/pulceo-resource-manager:main
           imagePullPolicy: Always
+          volumeMounts:
+            - name: pulceo-resource-manager-db
+              mountPath: /db
           env:
             - name: PRM_HOST
               valueFrom:
                 configMapKeyRef:
                   name: prm-configmap
                   key: PRM_HOST
+            - name: PMS_HOST
+              valueFrom:
+                 configMapKeyRef:
+                   name: prm-configmap
+                   key: PMS_HOST
+            - name: PSM_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: prm-configmap
+                  key: PSM_HOST
             - name: PNA_MQTT_BROKER_URL
               valueFrom:
                 secretKeyRef:
@@ -118,3 +131,21 @@ spec:
           ports:
             - containerPort: 7878
               name: web
+      volumes:
+        - name: pulceo-resource-manager-db
+          persistentVolumeClaim:
+            claimName: pulceo-resource-manager-db
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pulceo-resource-manager-db
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi

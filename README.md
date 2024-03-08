@@ -18,30 +18,33 @@
 
 **TODO: Add a guide on how to create a local MQTT broker**
 
-```bash
-k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer
-```
 ## Run with k3d
+
+- Create a temporary directory to store the k3d volumes
+```bash
+mkdir -p $HOME/k3d-pulceo-volumes
+```
+
+```bash
+k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer --volume $HOME/k3d-pulceo-volumes:/var/lib/rancher/k3s/storage@all
+```
 
 **[TODO]: Add a step to generate the secrets**
 - Apply the following kubernetes manifest to the cluster
 ```bash
 kubectl --kubeconfig=/home/$USER/.kube/config create configmap prm-configmap \
-  --from-literal=PRM_HOST=pulceo-resource-manager
+  --from-literal=PRM_HOST=pulceo-resource-manager \
+  --from-literal=PMS_HOST=pulceo-monitoring-service \
+  --from-literal=PSM_HOST=pulceo-service-manager
 ```
 ```bash
 kubectl --kubeconfig=/home/$USER/.kube/config create secret generic prm-credentials \
-  --from-literal=AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID} \
-  --from-literal=AZURE_CLIENT_ID=${AZURE_CLIENT_ID} \
-  --from-literal=AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET} \
-  --from-literal=AZURE_TENANT_ID=${AZURE_TENANT_ID} \
   --from-literal=PNA_MQTT_BROKER_URL=${PNA_MQTT_BROKER_URL} \
   --from-literal=PNA_MQTT_CLIENT_USERNAME=${PNA_MQTT_CLIENT_USERNAME} \
   --from-literal=PNA_MQTT_CLIENT_PASSWORD=${PNA_MQTT_CLIENT_PASSWORD} \
   --from-literal=PNA_USERNAME=${PNA_USERNAME} \
   --from-literal=PNA_PASSWORD=${PNA_PASSWORD} \
-  --from-literal=PNA_INIT_TOKEN=${PNA_INIT_TOKEN} \
-  --from-literal=PNA_HOST_FQDN=${PNA_HOST_FQDN}
+  --from-literal=PNA_INIT_TOKEN=${PNA_INIT_TOKEN}
 ```
 ```bash
 kubectl apply -f prm-deployment.yaml
