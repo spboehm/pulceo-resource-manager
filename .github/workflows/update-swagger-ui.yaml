@@ -1,0 +1,62 @@
+name: Update Swagger UI
+
+on:
+  workflow_run:
+    workflows: ["Build pulceo-resource-manager"]
+    branches: [main]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    env:
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ vars.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      PNA_INIT_TOKEN: ${{ vars.PNA_INIT_TOKEN }}
+      PNA_MQTT_BROKER_URL: ${{ vars.PNA_MQTT_BROKER_URL }}
+      PNA_MQTT_CLIENT_PASSWORD: ${{ vars.PNA_MQTT_CLIENT_PASSWORD }}
+      PNA_MQTT_CLIENT_USERNAME: ${{ vars.PNA_MQTT_CLIENT_USERNAME }}
+      PNA_PASSWORD: ${{ vars.PNA_PASSWORD }}
+      PNA_USERNAME: ${{ vars.PNA_USERNAME }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
+      - name: Run with Gradle
+        run: |
+          nohup ./gradlew bootRun > /dev/null 2>&1 &
+          echo $! > prm.pid
+          curl --retry-connrefused --connect-timeout 5 --max-time 10 --retry 3 --retry-delay 5 --retry-max-time 40 'http://localhost:7878/v3/api-docs' > docs/prm-api.json
+          kill $(cat prm.pid)
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './docs'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
