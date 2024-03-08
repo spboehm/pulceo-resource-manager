@@ -24,6 +24,17 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ vars.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      PNA_INIT_TOKEN: ${{ vars.PNA_INIT_TOKEN }}
+      PNA_MQTT_BROKER_URL: ${{ vars.PNA_MQTT_BROKER_URL }}
+      PNA_MQTT_CLIENT_PASSWORD: ${{ vars.PNA_MQTT_CLIENT_PASSWORD }}
+      PNA_MQTT_CLIENT_USERNAME: ${{ vars.PNA_MQTT_CLIENT_USERNAME }}
+      PNA_PASSWORD: ${{ vars.PNA_PASSWORD }}
+      PNA_USERNAME: ${{ vars.PNA_USERNAME }}
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout
