@@ -2,6 +2,8 @@
 
 # pulceo-resource-manager 
 
+[OpenAPI definition for pulceo-resource-manager](https://spboehm.github.io/pulceo-resource-manager/)
+
 ## General Prerequisites
 
 - Make sure that the following ports are available on the local system:
@@ -62,7 +64,7 @@ kubernetes                ClusterIP   10.43.0.1      <none>        443/TCP    26
 pulceo-resource-manager   ClusterIP   10.43.164.93   <none>        7878/TCP   6m37s
 ```
 
-pulceo-node-agent is now running and ready to accept workloads under `http://EXTERNAL-IP`
+pulceo-resource-manager is now running and ready to accept workloads under `http://EXTERNAL-IP`
 
 ```bash
 curl -I http://localhost:80/prm/health
