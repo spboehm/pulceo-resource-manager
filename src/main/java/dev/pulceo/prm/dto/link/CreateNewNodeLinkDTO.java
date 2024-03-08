@@ -19,7 +19,6 @@ public class CreateNewNodeLinkDTO extends CreateNewAbstractLinkDTO {
     public static CreateNewNodeLinkDTO fromAbstractLinkDTO(CreateNewAbstractLinkDTO createNewAbstractLinkDTO) {
         CreateNewNodeLinkDTO createNewNodeLinkDTO = (CreateNewNodeLinkDTO) createNewAbstractLinkDTO;
         return CreateNewNodeLinkDTO.builder()
-                .linkType(createNewNodeLinkDTO.getLinkType())
                 .name(createNewNodeLinkDTO.getName())
                 .srcNodeId(createNewNodeLinkDTO.getSrcNodeId())
                 .destNodeId(createNewNodeLinkDTO.getDestNodeId())

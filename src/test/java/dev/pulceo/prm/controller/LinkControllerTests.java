@@ -101,7 +101,6 @@ public class LinkControllerTests {
 
         // link
         CreateNewAbstractLinkDTO createNewAbstractLinkDTO = CreateNewNodeLinkDTO.builder()
-                .linkType(LinkTypeDTO.NODE_LINK)
                 .name("test-link")
                 .srcNodeId(String.valueOf(srcNodeUUID))
                 .destNodeId(String.valueOf(destNodeUUID))

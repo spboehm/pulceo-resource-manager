@@ -626,7 +626,7 @@ public class NodeService {
 
     @Async
     public CompletableFuture<Void> deleteNodeByUUID(UUID uuid) throws LinkServiceException {
-
+        System.out.println(uuid);
         // TODO: findall all links and delete them
         Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(uuid);
         if (abstractNode.isEmpty()) {
@@ -641,7 +641,6 @@ public class NodeService {
             this.linkService.deleteLinkByUUID(link.getUuid());
         }
         WebClient webClient = WebClient.create(this.pmsEndpoint);
-
         List<ShortMetricResponseDTO> shortMetricResponseDTO = webClient
                 .get()
                 .uri("/api/v1/metric-requests?linkUUID=" + uuid)
@@ -672,6 +671,7 @@ public class NodeService {
 
         // TODO: check for applications
         this.abstractNodeRepository.delete(abstractNode.get());
+        System.out.println("Deleted node with UUID " + uuid);
         return CompletableFuture.completedFuture(null);
     }
 

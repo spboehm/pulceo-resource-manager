@@ -29,15 +29,11 @@ public class LinksController {
 
     @PostMapping
     public ResponseEntity<AbstractLinkDTO> createLink(@RequestBody CreateNewAbstractLinkDTO createNewAbstractLinkDTO) throws Exception {
-        if (createNewAbstractLinkDTO.getLinkType() == LinkTypeDTO.NODE_LINK) {
-            this.logger.info("Received request to create a new NodeLink: " + createNewAbstractLinkDTO);
-            CreateNewNodeLinkDTO createNewNodeLinkDTO = CreateNewNodeLinkDTO.fromAbstractLinkDTO(createNewAbstractLinkDTO);
-            NodeLink nodeLink = this.linkService.createNodeLinkById(createNewNodeLinkDTO.getName(), createNewNodeLinkDTO.getSrcNodeId(), createNewNodeLinkDTO.getDestNodeId());
-            return ResponseEntity.status(201).body(NodeLinkDTO.fromNodeLink(nodeLink));
-        } else {
-            logger.info("Received request to create a new link of type: " + createNewAbstractLinkDTO.getLinkType());
-            throw new Exception("Link type not yet supported!");
-        }
+        this.logger.info("Received request to create a new NodeLink: " + createNewAbstractLinkDTO);
+        CreateNewNodeLinkDTO createNewNodeLinkDTO = CreateNewNodeLinkDTO.fromAbstractLinkDTO(createNewAbstractLinkDTO);
+        NodeLink nodeLink = this.linkService.createNodeLinkById(createNewNodeLinkDTO.getName(), createNewNodeLinkDTO.getSrcNodeId(), createNewNodeLinkDTO.getDestNodeId());
+        logger.info("Received request to create a new link");
+        return ResponseEntity.status(201).body(NodeLinkDTO.fromNodeLink(nodeLink));
     }
 
     // TODO: typing and move to service
@@ -60,7 +56,7 @@ public class LinksController {
         if (abstractLink.isEmpty()) {
             return ResponseEntity.status(400).build();
         }
-        this.linkService.deleteLinkByUUID(UUID.fromString(id));
+        this.linkService.deleteLinkByUUID(abstractLink.get().getUuid());
         return ResponseEntity.status(204).build();
     }
 
