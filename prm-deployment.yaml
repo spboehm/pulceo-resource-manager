@@ -80,7 +80,7 @@ spec:
           image: ghcr.io/spboehm/pulceo-resource-manager:main
           imagePullPolicy: Always
           volumeMounts:
-            - name: pulceo-resource-manager-db
+            - name: prm-pv-db
               mountPath: /db
           env:
             - name: PRM_HOST
@@ -132,15 +132,15 @@ spec:
             - containerPort: 7878
               name: web
       volumes:
-        - name: pulceo-resource-manager-db
+        - name: prm-pv-db
           persistentVolumeClaim:
-            claimName: pulceo-resource-manager-db
+            claimName: prm-pv-db
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pulceo-resource-manager-db
+  name: prm-pv-db
   namespace: default
 spec:
   accessModes:
