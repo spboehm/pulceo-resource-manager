@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/sh
 set -e
 set -o noglob
 generate_password() {
