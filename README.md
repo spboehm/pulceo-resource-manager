@@ -11,10 +11,24 @@
   - `443/tcp`
   - `40476/tcp` (for k3d API server)
 
-## Quickstart
+- Any Linux distribution is recommended (tested on Ubuntu 20.04 and openSUSE Tumbleweed)
+
+## Quickstart (try locally)
+
+- Docker must be installed on the local system
+- Create a test cluster with k3d
+- Create a basic MQTT broker on [HiveMQ](https://console.hivemq.cloud/?utm_source=HiveMQ+Pricing+Page&utm_medium=serverless+signup+CTA+Button&utm_campaign=HiveMQ+Cloud+PaaS&utm_content=serverless)
+- Make sure that you select the free plan: Serverless (Free)
+- Note down the MQTT broker URL, client username, and client password
 
 ```bash
+# k3d
+mkdir -p $HOME/k3d-pulceo-volumes
+k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer --volume $HOME/k3d-pulceo-volumes:/var/lib/rancher/k3s/storage@all
+curl -sfL https://github.com/spboehm/pulceo-resource-manager/blob/main/bootstrap-pulceo.sh | bash -s 
 ```
+
+The script asks for the MQTT broker URL, client username, and client password. After providing the required information, the script will deploy `PULCEO` to the k3d cluster.
 
 ## Create a free MQTT broker (recommended)
 

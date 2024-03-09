@@ -1,4 +1,7 @@
 #!/bin/bash
+#!/bin/sh
+set -e
+set -o noglob
 generate_password() {
   local chars=$1
   head /dev/urandom | tr -dc A-Za-z0-9 | head -c $chars ; echo ''
