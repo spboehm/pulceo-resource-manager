@@ -37,14 +37,18 @@ echo ""
 
 # PNA_MQTT_BROKER_URL
 if [ -z "$PNA_MQTT_BROKER_URL" ]; then
-  PNA_MQTT_BROKER_URL=$(read -p "Enter the MQTT broker URL (should be like ssl://be3147d06377478a8eee29fd8f09495d.s1.eu.hivemq.cloud:8883): " PNA_MQTT_BROKER_URL)
+  read -p "Enter the MQTT broker URL (should be like ssl://be3147d06377478a8eee29fd8f09495d.s1.eu.hivemq.cloud:8883): " PNA_MQTT_BROKER_URL
+  if [ -z "$PNA_MQTT_BROKER_URL" ]; then
+    echo "PNA_MQTT_BROKER_URL is required"
+    exit 1
+  fi
 fi
 validate_mqtt_broker_url $PNA_MQTT_BROKER_URL
 
 # PNA_MQTT_CLIENT_USERNAME
 if [ -z "$PNA_MQTT_CLIENT_USERNAME" ]; then
   EXAMPLE_MQTT_CLIENT_USERNAME=$(generate_password 8)
-  PNA_MQTT_CLIENT_USERNAME=$(read -p "Enter the MQTT client username (should be like $EXAMPLE_MQTT_CLIENT_USERNAME): ENTER TO ACCEPT" PNA_MQTT_CLIENT_USERNAME)
+  read -p "Enter the MQTT client username (should be like $EXAMPLE_MQTT_CLIENT_USERNAME): ENTER TO ACCEPT THE SUGGESTION" PNA_MQTT_CLIENT_USERNAME
   if [ -z "$PNA_MQTT_CLIENT_USERNAME" ]; then
     PNA_MQTT_CLIENT_USERNAME=$EXAMPLE_MQTT_CLIENT_USERNAME
   fi
@@ -54,7 +58,7 @@ validate_alphanumeric "PNA_MQTT_CLIENT_USERNAME" $PNA_MQTT_CLIENT_USERNAME
 # PNA_MQTT_CLIENT_PASSWORD
 if [ -z "$PNA_MQTT_CLIENT_PASSWORD" ]; then
   EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD=$(generate_password 8)
-  PNA_MQTT_CLIENT_PASSWORD=$(read -p "Enter the MQTT client password (should be like $EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD): ENTER TO ACCEPT" PNA_MQTT_CLIENT_PASSWORD)
+  read -p "Enter the MQTT client password (should be like $EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD): ENTER TO ACCEPT THE SUGGESTION" PNA_MQTT_CLIENT_PASSWORD
   if [ -z "$PNA_MQTT_CLIENT_PASSWORD" ]; then
     PNA_MQTT_CLIENT_PASSWORD=$EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD
   fi
@@ -81,17 +85,17 @@ DOCKER_INFLUXDB_INIT_PASSWORD=$(generate_password 8)
 # DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
 DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=$(generate_password 8)
 
-echo "PNA_MQTT_BROKER_URL=$PNA_MQTT_BROKER_URL" > .env
-echo "PNA_MQTT_CLIENT_USERNAME=$PNA_MQTT_CLIENT_USERNAME" >> .env
-echo "PNA_MQTT_CLIENT_PASSWORD=$PNA_MQTT_CLIENT_PASSWORD" >> .env
-echo "PNA_USERNAME=$PNA_USERNAME" >> .env
-echo "PNA_PASSWORD=$PNA_PASSWORD" >> .env
-echo "PNA_INIT_TOKEN=$PNA_INIT_TOKEN" >> .env
-echo "DOCKER_INFLUXDB_INIT_USERNAME=$DOCKER_INFLUXDB_INIT_USERNAME" >> .env
-echo "DOCKER_INFLUXDB_INIT_PASSWORD=$DOCKER_INFLUXDB_INIT_PASSWORD" >> .env
-echo "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=$DOCKER_INFLUXDB_INIT_ADMIN_TOKEN" >> .env
+echo "PNA_MQTT_BROKER_URL=$PNA_MQTT_BROKER_URL" > .env-pulceo
+echo "PNA_MQTT_CLIENT_USERNAME=$PNA_MQTT_CLIENT_USERNAME" >> .env-pulceo
+echo "PNA_MQTT_CLIENT_PASSWORD=$PNA_MQTT_CLIENT_PASSWORD" >> .env-pulceo
+echo "PNA_USERNAME=$PNA_USERNAME" >> .env-pulceo
+echo "PNA_PASSWORD=$PNA_PASSWORD" >> .env-pulceo
+echo "PNA_INIT_TOKEN=$PNA_INIT_TOKEN" >> .env-pulceo
+echo "DOCKER_INFLUXDB_INIT_USERNAME=$DOCKER_INFLUXDB_INIT_USERNAME" >> .env-pulceo
+echo "DOCKER_INFLUXDB_INIT_PASSWORD=$DOCKER_INFLUXDB_INIT_PASSWORD" >> .env-pulceo
+echo "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=$DOCKER_INFLUXDB_INIT_ADMIN_TOKEN" >> .env-pulceo
 
-echo "Successfully created .env file with all credentials...DO NOT SHARE THIS FILE WITH ANYONE!!!"
+echo "Successfully created .env-pulceo file with all credentials...DO NOT SHARE THIS FILE WITH ANYONE!!!"
 
 kubectl --kubeconfig=/home/$USER/.kube/config create configmap prm-configmap \
   --from-literal=PRM_HOST=pulceo-resource-manager \

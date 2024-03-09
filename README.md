@@ -11,7 +11,6 @@
   - `443/tcp` (pulceo)
   - `8089/tcp` (access to influxdb)
   - `40476/tcp` (for k3d API server)
-
 - Any Linux distribution is recommended (tested on Ubuntu 20.04 and openSUSE Tumbleweed)
 
 ## Quickstart (try locally)
