@@ -1,6 +1,8 @@
 #!/bin/bash
 kubectl --kubeconfig=/home/$USER/.kube/config create configmap prm-configmap \
-  --from-literal=PRM_HOST=localhost
+  --from-literal=PRM_HOST=pulceo-resource-manager \
+  --from-literal=PMS_HOST=pulceo-monitoring-service \
+  --from-literal=PSM_HOST=pulceo-service-manager
 
 kubectl --kubeconfig=/home/$USER/.kube/config create secret generic prm-credentials \
   --from-literal=AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID} \

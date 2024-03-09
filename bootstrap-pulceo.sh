@@ -19,36 +19,47 @@ validate_mqtt_broker_url() {
 }
 
 validate_alphanumeric() {
-  local str=$1
+  local key=$1
+  local str=$2
   local regex="^[a-zA-Z0-9]{8,}$"
 
   if [[ $str =~ $regex ]]; then
-    echo "Valid alphanumeric string"
+    echo "Valid" "$key"
   else
-    echo "Invalid alphanumeric string"
+    echo "Invalid" "$key"
     exit 1
   fi
 }
 
+echo ""
+echo "PULCEO - Bootstrapping tool. USE AT OWN RISK!!!"
+echo ""
+
 # PNA_MQTT_BROKER_URL
-read -p "Enter the MQTT broker URL (should be like ssl://be3147d06377478a8eee29fd8f09495d.s1.eu.hivemq.cloud:8883): " PNA_MQTT_BROKER_URL
+if [ -z "$PNA_MQTT_BROKER_URL" ]; then
+  PNA_MQTT_BROKER_URL=$(read -p "Enter the MQTT broker URL (should be like ssl://be3147d06377478a8eee29fd8f09495d.s1.eu.hivemq.cloud:8883): " PNA_MQTT_BROKER_URL)
+fi
 validate_mqtt_broker_url $PNA_MQTT_BROKER_URL
 
 # PNA_MQTT_CLIENT_USERNAME
-EXAMPLE_MQTT_CLIENT_USERNAME=$(generate_password 8)
-read -p "Enter the MQTT client username (should be like $EXAMPLE_MQTT_CLIENT_USERNAME): COPY AND PRESS ENTER TO ACCEPT" PNA_MQTT_CLIENT_USERNAME
 if [ -z "$PNA_MQTT_CLIENT_USERNAME" ]; then
-  PNA_MQTT_CLIENT_USERNAME=$EXAMPLE_MQTT_CLIENT_USERNAME
+  EXAMPLE_MQTT_CLIENT_USERNAME=$(generate_password 8)
+  PNA_MQTT_CLIENT_USERNAME=$(read -p "Enter the MQTT client username (should be like $EXAMPLE_MQTT_CLIENT_USERNAME): ENTER TO ACCEPT" PNA_MQTT_CLIENT_USERNAME)
+  if [ -z "$PNA_MQTT_CLIENT_USERNAME" ]; then
+    PNA_MQTT_CLIENT_USERNAME=$EXAMPLE_MQTT_CLIENT_USERNAME
+  fi
 fi
-validate_alphanumeric $PNA_MQTT_CLIENT_USERNAME
+validate_alphanumeric "PNA_MQTT_CLIENT_USERNAME" $PNA_MQTT_CLIENT_USERNAME
 
 # PNA_MQTT_CLIENT_PASSWORD
-EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD=$(generate_password 16)
-read -p "Enter the MQTT client password (should be like $EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD): COPY AND PRESS ENTER TO ACCEPT" PNA_MQTT_CLIENT_PASSWORD
 if [ -z "$PNA_MQTT_CLIENT_PASSWORD" ]; then
-  PNA_MQTT_CLIENT_PASSWORD=$EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD
+  EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD=$(generate_password 8)
+  PNA_MQTT_CLIENT_PASSWORD=$(read -p "Enter the MQTT client password (should be like $EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD): ENTER TO ACCEPT" PNA_MQTT_CLIENT_PASSWORD)
+  if [ -z "$PNA_MQTT_CLIENT_PASSWORD" ]; then
+    PNA_MQTT_CLIENT_PASSWORD=$EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD
+  fi
 fi
-validate_alphanumeric $PNA_MQTT_CLIENT_PASSWORD
+validate_alphanumeric "PNA_MQTT_CLIENT_PASSWORD" $PNA_MQTT_CLIENT_PASSWORD
 
 # PNA_USERNAME
 # 24 chars
@@ -83,7 +94,9 @@ echo "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=$DOCKER_INFLUXDB_INIT_ADMIN_TOKEN" >> .en
 echo "Successfully created .env file with all credentials...DO NOT SHARE THIS FILE WITH ANYONE!!!"
 
 kubectl --kubeconfig=/home/$USER/.kube/config create configmap prm-configmap \
-  --from-literal=PRM_HOST=localhost
+  --from-literal=PRM_HOST=pulceo-resource-manager \
+  --from-literal=PMS_HOST=pulceo-monitoring-service \
+  --from-literal=PSM_HOST=pulceo-service-manager
 
 kubectl --kubeconfig=/home/$USER/.kube/config create secret generic prm-credentials \
   --from-literal=AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID} \

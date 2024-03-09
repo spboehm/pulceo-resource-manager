@@ -25,7 +25,7 @@
 # k3d
 mkdir -p $HOME/k3d-pulceo-volumes
 k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer --volume $HOME/k3d-pulceo-volumes:/var/lib/rancher/k3s/storage@all
-curl -s https://github.com/spboehm/pulceo-resource-manager/blob/main/bootstrap-pulceo.sh | bash -s 
+bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/main/bootstrap-pulceo.sh)
 ```
 
 The script asks for the MQTT broker URL, client username, and client password. After providing the required information, the script will deploy `PULCEO` to the k3d cluster.
