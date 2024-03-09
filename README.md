@@ -7,28 +7,36 @@
 ## General Prerequisites
 
 - Make sure that the following ports are available on the local system:
-  - `80/tcp`
-  - `443/tcp`
+  - `80/tcp` (pulceo)
+  - `443/tcp` (pulceo)
+  - `8089/tcp` (access to influxdb)
   - `40476/tcp` (for k3d API server)
 
 - Any Linux distribution is recommended (tested on Ubuntu 20.04 and openSUSE Tumbleweed)
 
 ## Quickstart (try locally)
 
-- Docker must be installed on the local system
-- Create a test cluster with k3d
-- Create a basic MQTT broker on [HiveMQ](https://console.hivemq.cloud/?utm_source=HiveMQ+Pricing+Page&utm_medium=serverless+signup+CTA+Button&utm_campaign=HiveMQ+Cloud+PaaS&utm_content=serverless)
-- Make sure that you select the free plan: Serverless (Free)
-- Note down the MQTT broker URL, client username, and client password
-
+- Install [Docker](https://docs.docker.com/get-docker/) on your machine by following the official installation guide
+- Install [k3d](https://k3d.io/v5.6.0/#learning) on your machine by following the official installation guide OR [k3s](https://k3s.io/) by following the official installation guide
+- Create a basic MQTT broker with free plan on [HiveMQ](https://console.hivemq.cloud/?utm_source=HiveMQ+Pricing+Page&utm_medium=serverless+signup+CTA+Button&utm_campaign=HiveMQ+Cloud+PaaS&utm_content=serverless)
+- Export the following environment variables
 ```bash
-# k3d
-mkdir -p $HOME/k3d-pulceo-volumes
-k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer --volume $HOME/k3d-pulceo-volumes:/var/lib/rancher/k3s/storage@all
-bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/main/bootstrap-pulceo.sh)
+# OPTIONAL: if you want to skip the username and password generation tool 
+export PNA_MQTT_BROKER_URL="ssl://broker.hivemq.com:1883"
+export PNA_MQTT_CLIENT_USERNAME="<USERNAME>"
+export PNA_MQTT_CLIENT_PASSWORD="<PASSWORD>"
 ```
 
-The script asks for the MQTT broker URL, client username, and client password. After providing the required information, the script will deploy `PULCEO` to the k3d cluster.
+- If you decided to run with k3d, create a temporary test cluster with k3d, users of k3s can skip this step
+```bash
+mkdir -p $HOME/k3d-pulceo-volumes
+k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer --port 8089:8089@loadbalancer --volume $HOME/k3d-pulceo-volumes:/var/lib/rancher/k3s/storage@all
+```
+
+- Bootstrap PULCEO with the following command
+```bash
+bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/main/bootstrap-pulceo.sh)
+```
 
 ## Create a free MQTT broker (recommended)
 
