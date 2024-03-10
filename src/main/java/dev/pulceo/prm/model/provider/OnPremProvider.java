@@ -37,4 +37,11 @@ public class OnPremProvider extends BaseEntity {
     public int hashCode() {
         return providerMetaData != null ? providerMetaData.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "OnPremProvider{" +
+                "providerMetaData=" + providerMetaData +
+                '}';
+    }
 }

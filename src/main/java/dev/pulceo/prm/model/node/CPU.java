@@ -64,4 +64,21 @@ public class CPU extends BaseEntity {
         result = 31 * result + (slots != 0.0f ? Float.floatToIntBits(slots) : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "CPU{" +
+                "modelName='" + modelName + '\'' +
+                ", cores=" + cores +
+                ", threads=" + threads +
+                ", bogoMIPS=" + bogoMIPS +
+                ", MIPS=" + MIPS +
+                ", GFlop=" + GFlop +
+                ", minimalFrequency=" + minimalFrequency +
+                ", averageFrequency=" + averageFrequency +
+                ", maximalFrequency=" + maximalFrequency +
+                ", shares=" + shares +
+                ", slots=" + slots +
+                '}';
+    }
 }

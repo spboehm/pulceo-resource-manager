@@ -35,4 +35,12 @@ public class Memory extends BaseEntity {
         result = 31 * result + slots;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Memory{" +
+                "size=" + size +
+                ", slots=" + slots +
+                '}';
+    }
 }

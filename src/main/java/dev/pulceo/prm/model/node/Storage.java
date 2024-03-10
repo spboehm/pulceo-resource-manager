@@ -34,4 +34,12 @@ public class Storage extends BaseEntity {
         result = 31 * result + slots;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Storage{" +
+                "size=" + size +
+                ", slots=" + slots +
+                '}';
+    }
 }

@@ -37,4 +37,12 @@ public class ProviderMetaData extends BaseEntity {
         result = 31 * result + (providerType != null ? providerType.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "ProviderMetaData{" +
+                "providerName='" + providerName + '\'' +
+                ", providerType=" + providerType +
+                '}';
+    }
 }

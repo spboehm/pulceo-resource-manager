@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.internal.verification.Times;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.contract.wiremock.WireMockSpring;
+import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
@@ -52,6 +53,10 @@ public class NodeServiceUnitTests {
     private CloudRegistraionService cloudRegistraionService;
     @Mock
     private AzureDeploymentService azureDeploymentService;
+
+    @Mock
+    private PublishSubscribeChannel eventServiceChannel;
+
     @InjectMocks
     private NodeService nodeService;
 
@@ -103,6 +108,8 @@ public class NodeServiceUnitTests {
                                 .providerMetaData(ProviderMetaData.builder()
                                         .providerName("default")
                                         .providerType(ProviderType.ON_PREM).build()).build()));
+        when(this.eventServiceChannel.send(ArgumentMatchers.any()))
+                .thenReturn(true);
         wireMockServer.stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
                 .willReturn(aResponse()
                         .withStatus(200)

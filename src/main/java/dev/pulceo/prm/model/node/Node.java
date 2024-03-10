@@ -109,4 +109,23 @@ public class Node extends BaseEntity {
         result = 31 * result + (memoryResource != null ? memoryResource.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                ", layer=" + layer +
+                ", role=" + role +
+                ", nodeGroup='" + nodeGroup + '\'' +
+                ", country='" + country + '\'' +
+                ", state='" + state + '\'' +
+                ", city='" + city + '\'' +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
+                ", cpuResource=" + cpuResource +
+                ", memoryResource=" + memoryResource +
+                ", storageResource=" + storageResource +
+                '}';
+    }
 }

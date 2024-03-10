@@ -43,4 +43,12 @@ public class MemoryResource extends BaseEntity {
         result = 31 * result + (memoryAllocatable != null ? memoryAllocatable.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "MemoryResource{" +
+                "memoryCapacity=" + memoryCapacity +
+                ", memoryAllocatable=" + memoryAllocatable +
+                '}';
+    }
 }

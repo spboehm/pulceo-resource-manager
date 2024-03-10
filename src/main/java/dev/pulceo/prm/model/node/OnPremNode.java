@@ -85,4 +85,13 @@ public class OnPremNode extends AbstractNode {
     public String getToken() {
         return this.cloudRegistration.getPnaToken();
     }
+
+    @Override
+    public String toString() {
+        return "OnPremNode{" +
+                "onPremProvider=" + onPremProvider +
+                ", nodeMetaData=" + nodeMetaData +
+                ", node=" + node +
+                '}';
+    }
 }

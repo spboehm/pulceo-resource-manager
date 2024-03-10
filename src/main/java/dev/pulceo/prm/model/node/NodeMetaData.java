@@ -48,4 +48,13 @@ public class NodeMetaData extends BaseEntity {
         result = 31 * result + (hostname != null ? hostname.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "NodeMetaData{" +
+                "remoteNodeUUID=" + remoteNodeUUID +
+                ", pnaUUID=" + pnaUUID +
+                ", hostname='" + hostname + '\'' +
+                '}';
+    }
 }

@@ -11,6 +11,8 @@ import dev.pulceo.prm.exception.AzureDeploymentServiceException;
 import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.internal.G6.model.G6Node;
+import dev.pulceo.prm.model.event.EventType;
+import dev.pulceo.prm.model.event.PulceoEvent;
 import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.model.provider.AzureProvider;
@@ -24,6 +26,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.integration.channel.PublishSubscribeChannel;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -50,6 +57,7 @@ public class NodeService {
     private final AzureDeploymentService azureDeploymentService;
     private final AzureNodeRepository azureNodeRepository;
     private final LinkService linkService;
+    private final PublishSubscribeChannel eventServiceChannel;
 
 
     @Value("${prm.uuid}")
@@ -62,9 +70,11 @@ public class NodeService {
     private String pnaInitToken;
     @Value("${pms.endpoint}")
     private String pmsEndpoint;
+    @Value("${pms.mqtt.topic}")
+    private String pmsMqttTopic;
 
     @Autowired
-    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, StorageResourcesRepositoy storageResourcesRepositoy, AzureDeploymentService azureDeploymentService, AzureNodeRepository azureNodeRepository, @Lazy LinkService linkService) {
+    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, StorageResourcesRepositoy storageResourcesRepositoy, AzureDeploymentService azureDeploymentService, AzureNodeRepository azureNodeRepository, @Lazy LinkService linkService, PublishSubscribeChannel eventServiceChannel) {
         this.abstractNodeRepository = abstractNodeRepository;
         this.onPremNoderepository = onPremNoderepository;
         this.nodeMetaDataRepository = nodeMetaDataRepository;
@@ -77,6 +87,7 @@ public class NodeService {
         this.azureDeploymentService = azureDeploymentService;
         this.azureNodeRepository = azureNodeRepository;
         this.linkService = linkService;
+        this.eventServiceChannel = eventServiceChannel;
     }
 
     public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String type, String country, String state, String city) throws NodeServiceException {
@@ -146,6 +157,12 @@ public class NodeService {
                 .cloudRegistration(cloudRegistration)
                 .build();
 
+        logger.info("Successfully created on-prem node: " + onPremNode.toString());
+        PulceoEvent pulceoEvent = PulceoEvent.builder()
+                .eventType(EventType.NODE_CREATED)
+                .payload(onPremNode.toString())
+                .build();
+        this.eventServiceChannel.send(new GenericMessage<>(pulceoEvent));
         return this.abstractNodeRepository.save(onPremNode);
     }
 

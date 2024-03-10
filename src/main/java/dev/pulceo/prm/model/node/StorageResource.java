@@ -26,5 +26,11 @@ public class StorageResource extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Storage storageAllocatable = Storage.builder().build();
 
-
+    @Override
+    public String toString() {
+        return "StorageResource{" +
+                "storageCapacity=" + storageCapacity +
+                ", storageAllocatable=" + storageAllocatable +
+                '}';
+    }
 }

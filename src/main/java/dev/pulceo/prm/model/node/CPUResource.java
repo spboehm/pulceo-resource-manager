@@ -42,4 +42,12 @@ public class CPUResource extends BaseEntity {
         result = 31 * result + (cpuAllocatable != null ? cpuAllocatable.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "CPUResource{" +
+                "cpuCapacity=" + cpuCapacity +
+                ", cpuAllocatable=" + cpuAllocatable +
+                '}';
+    }
 }
