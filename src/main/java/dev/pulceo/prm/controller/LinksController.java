@@ -51,7 +51,7 @@ public class LinksController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> deleteLinkByUUID(@PathVariable String id) throws LinkServiceException {
+    public ResponseEntity<Void> deleteLinkByUUID(@PathVariable String id) throws LinkServiceException, InterruptedException {
         Optional<AbstractLink> abstractLink = this.resolveAbstractLink(id);
         if (abstractLink.isEmpty()) {
             return ResponseEntity.status(400).build();

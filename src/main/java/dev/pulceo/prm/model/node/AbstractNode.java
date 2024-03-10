@@ -21,4 +21,11 @@ public abstract class AbstractNode extends BaseEntity implements HasNodeMetaData
     @Pattern(regexp = "^[a-zA-Z0-9-]*$", message = "Name must be alphanumeric and can contain hyphens only.")
     private String name;
 
+    @Override
+    public String toString() {
+        return "AbstractNode{" +
+                "internalNodeType=" + internalNodeType +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

@@ -246,7 +246,7 @@ public class NodeController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> deleteNodeById(@PathVariable String id) throws LinkServiceException {
+    public ResponseEntity<Void> deleteNodeById(@PathVariable String id) throws LinkServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(400).build();

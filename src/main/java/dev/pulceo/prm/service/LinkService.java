@@ -7,11 +7,14 @@ import dev.pulceo.prm.dto.pna.node.NodeDTO;
 import dev.pulceo.prm.dto.psm.ShortMetricResponseDTO;
 import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.internal.G6.model.G6Edge;
+import dev.pulceo.prm.model.event.EventType;
+import dev.pulceo.prm.model.event.PulceoEvent;
 import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.link.NodeLink;
 import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.NodeLinkRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,14 +35,18 @@ public class LinkService {
     @Value("${pms.endpoint}")
     private String pmsEndpoint;
 
+    private final EventHandler eventHandler;
+
     @Autowired
-    public LinkService(AbstractLinkRepository abstractLinkRepository, NodeService nodeService, NodeLinkRepository nodeLinkRepository) {
+    public LinkService(AbstractLinkRepository abstractLinkRepository, NodeService nodeService, NodeLinkRepository nodeLinkRepository, EventHandler eventHandler) {
         this.abstractLinkRepository = abstractLinkRepository;
         this.nodeService = nodeService;
         this.nodeLinkRepository = nodeLinkRepository;
+        this.eventHandler = eventHandler;
     }
 
     // TODO: ambigious
+    @Transactional
     public NodeLink createNodeLinkById(String name, String srcNodeId, String destNodeId) throws Exception {
 
         Optional<AbstractLink> abstractNodeLink = this.readLinkByName(name);
@@ -68,11 +75,12 @@ public class LinkService {
                 .srcNode(srcNode.get())
                 .destNode(destNode.get())
                 .build();
+
         return this.createNodeLink(nodeLink);
     }
 
     // TODO: replace with name and srcNodeUUID and destNodeUUID or do by request object
-    public NodeLink createNodeLink(NodeLink nodeLink) throws LinkServiceException {
+    public NodeLink createNodeLink(NodeLink nodeLink) throws LinkServiceException, InterruptedException {
         /* TODO: check if nodeLink already exists from srcNodeUUID to destNodeUUID */
 
         // check if link does already exist
@@ -140,6 +148,13 @@ public class LinkService {
         /* Transaction ends */
         // before persisting the NodeLink we need to set the remoteNodeLinkUUID to the UUID of the link pna returns
         nodeLink.setRemoteNodeLinkUUID(UUID.fromString(srcNodeLinkDTO.getLinkUUID()));
+
+        PulceoEvent pulceoEvent = PulceoEvent.builder()
+                .eventType(EventType.LINK_CREATED)
+                .payload(nodeLink.toString())
+                .build();
+        this.eventHandler.handleEvent(pulceoEvent);
+
         // TODO: assertions
         return this.abstractLinkRepository.save(nodeLink);
     }
@@ -192,7 +207,8 @@ public class LinkService {
         return this.abstractLinkRepository.findByName(id);
     }
 
-    public void deleteLinkByUUID(UUID linkUuid) throws LinkServiceException {
+    @Transactional
+    public void deleteLinkByUUID(UUID linkUuid) throws LinkServiceException, InterruptedException {
 
         // TODO: retrieve metric-requests from psm and delete them
         Optional<AbstractLink> abstractLink = this.readLinkByUUID(linkUuid);
@@ -237,6 +253,13 @@ public class LinkService {
                     throw new RuntimeException(new LinkServiceException("Can not delete link!"));
                 })
                 .block();
+
+        PulceoEvent pulceoEvent = PulceoEvent.builder()
+                .eventType(EventType.LINK_DELETED)
+                .payload(nodeLink.toString())
+                .build();
+        this.eventHandler.handleEvent(pulceoEvent);
+
         this.abstractLinkRepository.delete(abstractLink.get());
     }
 

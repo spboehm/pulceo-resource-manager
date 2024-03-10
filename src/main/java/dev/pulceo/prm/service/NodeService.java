@@ -52,7 +52,6 @@ public class NodeService {
     private final AzureDeploymentService azureDeploymentService;
     private final AzureNodeRepository azureNodeRepository;
     private final LinkService linkService;
-
     private final EventHandler eventHandler;
 
     @Value("${prm.uuid}")
@@ -676,6 +675,10 @@ public class NodeService {
         return this.abstractNodeRepository.findByUuid(uuid);
     }
 
+    public Optional<AbstractNode> readAbstractNodeById(Long id) {
+        return this.abstractNodeRepository.findById(id);
+    }
+
     public Optional<AbstractNode> readAbstractNodeByName(String name) {
         return this.abstractNodeRepository.findByName(name);
     }
@@ -693,7 +696,7 @@ public class NodeService {
     }
 
     @Async
-    public CompletableFuture<Void> deleteNodeByUUID(UUID uuid) throws LinkServiceException {
+    public CompletableFuture<Void> deleteNodeByUUID(UUID uuid) throws LinkServiceException, InterruptedException {
         System.out.println(uuid);
         // TODO: findall all links and delete them
         Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(uuid);

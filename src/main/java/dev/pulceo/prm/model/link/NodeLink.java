@@ -39,4 +39,13 @@ public class NodeLink extends AbstractLink {
                 .label(this.getName())
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return "NodeLink{" +
+                "remoteNodeLinkUUID=" + remoteNodeLinkUUID +
+                ", srcNode=" + srcNode +
+                ", destNode=" + destNode +
+                '}';
+    }
 }
