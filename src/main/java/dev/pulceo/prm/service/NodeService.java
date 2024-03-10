@@ -54,8 +54,8 @@ public class NodeService {
     private final AzureDeploymentService azureDeploymentService;
     private final AzureNodeRepository azureNodeRepository;
     private final LinkService linkService;
-    private final PublishSubscribeChannel eventServiceChannel;
 
+    private final EventHandler eventHandler;
 
     @Value("${prm.uuid}")
     private UUID prmUUID;
@@ -71,7 +71,7 @@ public class NodeService {
     private String pmsMqttTopic;
 
     @Autowired
-    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, StorageResourcesRepositoy storageResourcesRepositoy, AzureDeploymentService azureDeploymentService, AzureNodeRepository azureNodeRepository, @Lazy LinkService linkService, PublishSubscribeChannel eventServiceChannel) {
+    public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, StorageResourcesRepositoy storageResourcesRepositoy, AzureDeploymentService azureDeploymentService, AzureNodeRepository azureNodeRepository, @Lazy LinkService linkService, EventHandler eventHandler) {
         this.abstractNodeRepository = abstractNodeRepository;
         this.onPremNoderepository = onPremNoderepository;
         this.nodeMetaDataRepository = nodeMetaDataRepository;
@@ -84,10 +84,10 @@ public class NodeService {
         this.azureDeploymentService = azureDeploymentService;
         this.azureNodeRepository = azureNodeRepository;
         this.linkService = linkService;
-        this.eventServiceChannel = eventServiceChannel;
+        this.eventHandler = eventHandler;
     }
 
-    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String type, String country, String state, String city) throws NodeServiceException {
+    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String type, String country, String state, String city) throws NodeServiceException, InterruptedException {
         Optional<OnPremProvider> onPremProvider = this.providerService.readOnPremProviderByProviderName(providerName);
         if (onPremProvider.isEmpty()) {
             throw new NodeServiceException("Provider does not exist!");
@@ -159,7 +159,7 @@ public class NodeService {
                 .eventType(EventType.NODE_CREATED)
                 .payload(onPremNode.toString())
                 .build();
-        this.eventServiceChannel.send(new GenericMessage<>(pulceoEvent));
+        this.eventHandler.handleEvent(pulceoEvent);
         return this.abstractNodeRepository.save(onPremNode);
     }
 

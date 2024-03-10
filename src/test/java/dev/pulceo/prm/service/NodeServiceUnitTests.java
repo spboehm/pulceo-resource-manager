@@ -6,6 +6,7 @@ import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
 import dev.pulceo.prm.dto.node.NodeDTOType;
 import dev.pulceo.prm.exception.AzureDeploymentServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
+import dev.pulceo.prm.model.event.PulceoEvent;
 import dev.pulceo.prm.model.node.AzureDeloymentResult;
 import dev.pulceo.prm.model.node.AzureNode;
 import dev.pulceo.prm.model.node.OnPremNode;
@@ -22,6 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.internal.stubbing.answers.DoesNothing;
 import org.mockito.internal.verification.Times;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.contract.wiremock.WireMockSpring;
@@ -55,7 +58,7 @@ public class NodeServiceUnitTests {
     private AzureDeploymentService azureDeploymentService;
 
     @Mock
-    private PublishSubscribeChannel eventServiceChannel;
+    private EventHandler eventHandler;
 
     @InjectMocks
     private NodeService nodeService;
@@ -97,7 +100,7 @@ public class NodeServiceUnitTests {
     }
 
     @Test
-    public void testCreateOnPremNode() throws NodeServiceException {
+    public void testCreateOnPremNode() throws NodeServiceException, InterruptedException {
         // given
         String providerName = "default";
         String hostName = "127.0.0.2";
@@ -108,8 +111,7 @@ public class NodeServiceUnitTests {
                                 .providerMetaData(ProviderMetaData.builder()
                                         .providerName("default")
                                         .providerType(ProviderType.ON_PREM).build()).build()));
-        when(this.eventServiceChannel.send(ArgumentMatchers.any()))
-                .thenReturn(true);
+        Mockito.doNothing().when(this.eventHandler).handleEvent(ArgumentMatchers.any(PulceoEvent.class));
         wireMockServer.stubFor(post(urlEqualTo("/api/v1/cloud-registrations"))
                 .willReturn(aResponse()
                         .withStatus(200)

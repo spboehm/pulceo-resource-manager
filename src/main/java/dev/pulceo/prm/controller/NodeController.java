@@ -48,7 +48,7 @@ public class NodeController {
     }
 
     @PostMapping("")
-    public ResponseEntity<AbstractNodeDTO> createNode(@Valid @RequestBody CreateNewAbstractNodeDTO createNewAbstractNodeDTO) throws NodeServiceException {
+    public ResponseEntity<AbstractNodeDTO> createNode(@Valid @RequestBody CreateNewAbstractNodeDTO createNewAbstractNodeDTO) throws NodeServiceException, InterruptedException {
         if (createNewAbstractNodeDTO.getNodeType() == NodeDTOType.ONPREM) {
             this.logger.info("Received request to create a new OnPremNode: " + createNewAbstractNodeDTO);
             CreateNewOnPremNodeDTO createNewOnPremNodeDTO = CreateNewOnPremNodeDTO.fromAbstractNodeDTO(createNewAbstractNodeDTO);

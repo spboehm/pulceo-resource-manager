@@ -101,7 +101,7 @@ public class NodeServiceIntegrationTest {
     }
 
     @Test
-    public void testCreateOnPremNode() throws NodeServiceException {
+    public void testCreateOnPremNode() throws NodeServiceException, InterruptedException {
         // given
         String providerName = "default";
         String hostName = "127.0.0.1";
@@ -335,7 +335,7 @@ public class NodeServiceIntegrationTest {
     }
 
     @Test
-    public void testGetByRemoteUUID() throws NodeServiceException {
+    public void testGetByRemoteUUID() throws NodeServiceException, InterruptedException {
         // given
         String providerName = "default";
         String hostName = "127.0.0.1";

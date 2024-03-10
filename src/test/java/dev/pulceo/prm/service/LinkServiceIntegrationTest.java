@@ -67,7 +67,7 @@ public class LinkServiceIntegrationTest {
     }
 
     @Test
-    public void testCreateLinkWithExistingNodes() throws NodeServiceException, LinkServiceException {
+    public void testCreateLinkWithExistingNodes() throws NodeServiceException, LinkServiceException, InterruptedException {
         // given
         // assume two nodes are already running with simulators
         // create two nodes
