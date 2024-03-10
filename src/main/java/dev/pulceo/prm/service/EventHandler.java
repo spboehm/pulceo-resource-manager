@@ -39,9 +39,9 @@ public class EventHandler {
     }
 
     @PreDestroy
-    private void stop() {
+    private void stop() throws InterruptedException {
         isRunning.set(false);
-        Thread.currentThread().interrupt();
+        this.eventQueue.put(PulceoEvent.builder().eventType(EventType.SHUTDOWN).build());
         this.threadPoolTaskExecutor.shutdown();
     }
 
@@ -51,14 +51,16 @@ public class EventHandler {
             while (isRunning.get()) {
                 try {
                     PulceoEvent event = eventQueue.take();
+                    if (event.getEventType() == EventType.SHUTDOWN) {
+                        return;
+                    }
                     this.eventServiceChannel.send(new GenericMessage<>(event));
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
                     System.out.println("Event handler interrupted");
+                } finally {
                     for (PulceoEvent event : eventQueue) {
                         this.eventServiceChannel.send(new GenericMessage<>(event));
                     }
-                    return;
                 }
             }
         });
