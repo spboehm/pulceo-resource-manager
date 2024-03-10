@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.integration.channel.PublishSubscribeChannel;
-import org.springframework.messaging.support.GenericMessage;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -334,7 +332,7 @@ public class NodeService {
         }
     }
 
-    public Node updateNode(UUID nodeUUID, String key, String value) throws NodeServiceException {
+    public Node updateNode(UUID nodeUUID, String key, String value) throws NodeServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(nodeUUID);
         if (abstractNode.isEmpty()) {
             throw new NodeServiceException("Node with UUID " + nodeUUID + " does not exist!");
@@ -377,10 +375,17 @@ public class NodeService {
             default:
                 throw new NodeServiceException("Key not supported!");
         }
+
+        PulceoEvent pulceoEvent = PulceoEvent.builder()
+                .eventType(EventType.NODE_UPDATED)
+                .payload(node.toString())
+                .build();
+        this.eventHandler.handleEvent(pulceoEvent);
+
         return this.nodeRepository.save(node);
     }
 
-    public CPUResource updateCPUResource(UUID nodeUUID, String key, float value, ResourceType resourceType) throws NodeServiceException {
+    public CPUResource updateCPUResource(UUID nodeUUID, String key, float value, ResourceType resourceType) throws NodeServiceException, InterruptedException {
 
         if (value < 0.0f) {
             throw new NodeServiceException("Value must be greater or equals 0!");
@@ -430,6 +435,20 @@ public class NodeService {
             default:
                 throw new NodeServiceException("Key not supported!");
         }
+
+        NodeResourceUpdateRequest nodeResourceUpdateRequest = NodeResourceUpdateRequest.builder()
+                .nodeUUID(nodeUUID)
+                .key(key)
+                .value(value)
+                .resourceType(resourceType)
+                .build();
+
+        PulceoEvent pulceoEvent = PulceoEvent.builder()
+                .eventType(EventType.NODE_CPU_RESOURCES_UPDATED)
+                .payload(nodeResourceUpdateRequest.toString())
+                .build();
+        this.eventHandler.handleEvent(pulceoEvent);
+
         return this.cpuResourcesRepository.save(cpuResource);
     }
 
@@ -447,7 +466,7 @@ public class NodeService {
         return this.modelMapper.map(cpuResourceDTO, CPUResource.class);
     }
 
-    public MemoryResource updateMemoryResource(UUID uuid, String key, float value, ResourceType resourceType) throws NodeServiceException {
+    public MemoryResource updateMemoryResource(UUID uuid, String key, float value, ResourceType resourceType) throws NodeServiceException, InterruptedException {
         if (value < 0.0f) {
             throw new NodeServiceException("Value must be greater or equals 0!");
         }
@@ -472,10 +491,24 @@ public class NodeService {
             default:
                 throw new NodeServiceException("Key not supported!");
         }
+
+        NodeResourceUpdateRequest nodeResourceUpdateRequest = NodeResourceUpdateRequest.builder()
+                .nodeUUID(uuid)
+                .key(key)
+                .value(value)
+                .resourceType(resourceType)
+                .build();
+
+        PulceoEvent pulceoEvent = PulceoEvent.builder()
+                .eventType(EventType.NODE_MEMORY_RESOURCES_UPDATED)
+                .payload(nodeResourceUpdateRequest.toString())
+                .build();
+        this.eventHandler.handleEvent(pulceoEvent);
+
         return this.memoryResourcesRepository.save(memoryResource);
     }
 
-    public StorageResource updateStorageResource(UUID uuid, String key, float value, ResourceType resourceType) throws NodeServiceException {
+    public StorageResource updateStorageResource(UUID uuid, String key, float value, ResourceType resourceType) throws NodeServiceException, InterruptedException {
         if (value < 0.0f) {
             throw new NodeServiceException("Value must be greater or equals 0!");
         }
@@ -500,6 +533,20 @@ public class NodeService {
             default:
                 throw new NodeServiceException("Key not supported!");
         }
+
+        NodeResourceUpdateRequest nodeResourceUpdateRequest = NodeResourceUpdateRequest.builder()
+                .nodeUUID(uuid)
+                .key(key)
+                .value(value)
+                .resourceType(resourceType)
+                .build();
+
+        PulceoEvent pulceoEvent = PulceoEvent.builder()
+                .eventType(EventType.NODE_STORAGE_RESOURCES_UPDATED)
+                .payload(nodeResourceUpdateRequest.toString())
+                .build();
+        this.eventHandler.handleEvent(pulceoEvent);
+
         return this.storageResourcesRepositoy.save(storageResource);
     }
 

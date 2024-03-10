@@ -85,7 +85,7 @@ public class NodeController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<NodePropertiesDTO> patchNode(@PathVariable String id, @Valid @RequestBody PatchNodeDTO patchNodeDTO) throws NodeServiceException {
+    public ResponseEntity<NodePropertiesDTO> patchNode(@PathVariable String id, @Valid @RequestBody PatchNodeDTO patchNodeDTO) throws NodeServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
 
         if (abstractNode.isEmpty()) {
@@ -120,7 +120,7 @@ public class NodeController {
     }
 
     @PatchMapping("/{id}/cpu/capacity")
-    public ResponseEntity<CPUResourceDTO> updateCPUResourcesCapacity(@PathVariable String id, @Valid @RequestBody PatchCPUDTO patchCPUDTO) throws NodeServiceException {
+    public ResponseEntity<CPUResourceDTO> updateCPUResourcesCapacity(@PathVariable String id, @Valid @RequestBody PatchCPUDTO patchCPUDTO) throws NodeServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(404).build();
@@ -132,7 +132,7 @@ public class NodeController {
     }
 
     @PatchMapping("/{id}/cpu/allocatable")
-    public ResponseEntity<CPUResourceDTO> updateCPUResourcesAllocatable(@PathVariable String id, @Valid @RequestBody PatchCPUDTO patchCPUDTO) throws NodeServiceException {
+    public ResponseEntity<CPUResourceDTO> updateCPUResourcesAllocatable(@PathVariable String id, @Valid @RequestBody PatchCPUDTO patchCPUDTO) throws NodeServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(404).build();
@@ -156,7 +156,7 @@ public class NodeController {
     }
 
     @PatchMapping("/{id}/memory/capacity")
-    public ResponseEntity<MemoryResourceDTO> updateMemoryResourcesCapacity(@PathVariable String id, @Valid @RequestBody PatchMemoryDTO patchMemoryDTO) throws NodeServiceException {
+    public ResponseEntity<MemoryResourceDTO> updateMemoryResourcesCapacity(@PathVariable String id, @Valid @RequestBody PatchMemoryDTO patchMemoryDTO) throws NodeServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(404).build();
@@ -168,7 +168,7 @@ public class NodeController {
     }
 
     @PatchMapping("/{id}/memory/allocatable")
-    public ResponseEntity<MemoryResourceDTO> updateMemoryResourcesAllocatable(@PathVariable String id, @Valid @RequestBody PatchMemoryDTO patchMemoryDTO) throws NodeServiceException {
+    public ResponseEntity<MemoryResourceDTO> updateMemoryResourcesAllocatable(@PathVariable String id, @Valid @RequestBody PatchMemoryDTO patchMemoryDTO) throws NodeServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(404).build();
@@ -192,7 +192,7 @@ public class NodeController {
     }
 
     @PatchMapping("/{id}/storage/capacity")
-    public ResponseEntity<StorageResourceDTO> updateStorageResourcesCapacity(@PathVariable String id, @Valid @RequestBody PatchStorageDTO patchStorageDTO) throws NodeServiceException {
+    public ResponseEntity<StorageResourceDTO> updateStorageResourcesCapacity(@PathVariable String id, @Valid @RequestBody PatchStorageDTO patchStorageDTO) throws NodeServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(404).build();
@@ -204,7 +204,7 @@ public class NodeController {
     }
 
     @PatchMapping("/{id}/storage/allocatable")
-    public ResponseEntity<StorageResourceDTO> updateStorageResourcesAllocatable(@PathVariable String id, @Valid @RequestBody PatchStorageDTO patchStorageDTO) throws NodeServiceException {
+    public ResponseEntity<StorageResourceDTO> updateStorageResourcesAllocatable(@PathVariable String id, @Valid @RequestBody PatchStorageDTO patchStorageDTO) throws NodeServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = resolveAbstractNode(id);
         if (abstractNode.isEmpty()) {
             return ResponseEntity.status(404).build();
