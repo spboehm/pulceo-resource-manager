@@ -39,4 +39,11 @@ public class AzureProvider extends BaseEntity {
                         .build())
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return "AzureProvider{" +
+                "providerMetaData=" + providerMetaData +
+                '}';
+    }
 }

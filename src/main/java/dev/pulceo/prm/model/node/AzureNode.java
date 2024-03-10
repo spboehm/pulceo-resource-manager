@@ -64,4 +64,14 @@ public class AzureNode extends AbstractNode {
     public String getToken() {
         return this.cloudRegistration.getPnaToken();
     }
+
+    @Override
+    public String toString() {
+        return "AzureNode{" +
+                "azureProvider=" + azureProvider +
+                ", nodeMetaData=" + nodeMetaData +
+                ", node=" + node +
+                ", azureDeloymentResult=" + azureDeloymentResult +
+                '}';
+    }
 }

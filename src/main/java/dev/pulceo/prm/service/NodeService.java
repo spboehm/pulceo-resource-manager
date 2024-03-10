@@ -263,6 +263,13 @@ public class NodeService {
             azureNodeToBeUpdated.getNodeMetaData().setHostname(azureDeloymentResult.getFqdn());
             azureNodeToBeUpdated.setCloudRegistration(cloudRegistration);
             azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
+
+            PulceoEvent pulceoEvent = PulceoEvent.builder()
+                    .eventType(EventType.NODE_CREATED)
+                    .payload(azureNodeToBeUpdated.toString())
+                    .build();
+            this.eventHandler.handleEvent(pulceoEvent);
+
             this.azureNodeRepository.save(azureNodeToBeUpdated);
             return CompletableFuture.completedFuture(azureNodeToBeUpdated);
         } catch (AzureDeploymentServiceException e) {

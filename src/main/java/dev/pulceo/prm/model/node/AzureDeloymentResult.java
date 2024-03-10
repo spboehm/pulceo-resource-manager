@@ -13,10 +13,17 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class AzureDeloymentResult extends BaseEntity {
     private String resourceGroupName;
     private String sku;
     private String fqdn;
 
+    @Override
+    public String toString() {
+        return "AzureDeloymentResult{" +
+                "resourceGroupName='" + resourceGroupName + '\'' +
+                ", sku='" + sku + '\'' +
+                ", fqdn='" + fqdn + '\'' +
+                '}';
+    }
 }

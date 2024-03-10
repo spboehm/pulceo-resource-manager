@@ -15,5 +15,6 @@ public interface AzureNodeRepository extends CrudRepository<AzureNode, Long> {
     @EntityGraph(value="graph.AzureNode.azureProvider")
     Optional<AzureNode> findById(Long id);
 
+    @EntityGraph(value="graph.AzureNode.azureProvider")
     Optional<AzureNode> readAzureNodeByUuid(UUID uuid);
 }
