@@ -27,9 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.integration.channel.PublishSubscribeChannel;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -66,7 +63,7 @@ public class NodeService {
     private String prmEndpoint;
     @Value("${webclient.scheme}")
     private String webClientScheme;
-    @Value("${PNA_INIT_TOKEN}")
+    @Value("${pna.init.token}")
     private String pnaInitToken;
     @Value("${pms.endpoint}")
     private String pmsEndpoint;

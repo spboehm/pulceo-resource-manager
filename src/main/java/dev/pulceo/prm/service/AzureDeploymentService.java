@@ -38,22 +38,22 @@ public class AzureDeploymentService {
     @Value("${AZURE_VM_USERNAME}")
     private String AZURE_VM_USERNAME;
 
-    @Value("${PNA_USERNAME}")
+    @Value("${pna.username}")
     private String PNA_USERNAME;
 
-    @Value("${PNA_PASSWORD}")
+    @Value("${pna.password}")
     private String PNA_PASSWORD;
 
-    @Value("${PNA_INIT_TOKEN}")
+    @Value("${pna.init.token}")
     private String PNA_INIT_TOKEN;
 
-    @Value("${PNA_MQTT_BROKER_URL}")
+    @Value("${pna.mqtt.broker.url}")
     private String PNA_MQTT_BROKER_URL;
 
-    @Value("${PNA_MQTT_CLIENT_USERNAME}")
+    @Value("${pna.mqtt.client.username}")
     private String PNA_MQTT_CLIENT_USERNAME;
 
-    @Value("${PNA_MQTT_CLIENT_PASSWORD}")
+    @Value("${pna.mqtt.client.password}")
     private String PNA_MQTT_CLIENT_PASSWORD;
 
     @Autowired
