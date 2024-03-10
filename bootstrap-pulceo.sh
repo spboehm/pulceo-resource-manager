@@ -115,6 +115,7 @@ kubectl --kubeconfig=/home/$USER/.kube/config create secret generic prm-credenti
   --from-literal=PNA_INIT_TOKEN=${PNA_INIT_TOKEN}
 
 kubectl --kubeconfig=/home/$USER/.kube/config create configmap pms-configmap \
+  --from-literal=PSM_HOST=pulceo-service-manager \
   --from-literal=PRM_HOST=pulceo-resource-manager \
   --from-literal=INFLUXDB_URL=http://pms-influxdb:8086 \
   --from-literal=INFLUXDB_ORG=org \
