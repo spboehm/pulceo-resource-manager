@@ -155,6 +155,8 @@ public class NodeService {
                 .cloudRegistration(cloudRegistration)
                 .build();
 
+        OnPremNode readyOnPremNode = this.abstractNodeRepository.save(onPremNode);
+
         // application dummy
         WebClient webClientToPSM = WebClient.create(this.psmEndpoint);
         CreateNewApplicationDTO pulceoNodeAgentDTO = CreateNewApplicationDTO.builder()
@@ -195,7 +197,7 @@ public class NodeService {
                 .payload(onPremNode.toString())
                 .build();
         this.eventHandler.handleEvent(pulceoEvent);
-        return this.abstractNodeRepository.save(onPremNode);
+        return readyOnPremNode;
     }
 
     public AzureNode createPreliminaryAzureNode(CreateNewAzureNodeDTO createNewAzureNodeDTO) throws NodeServiceException {
@@ -299,13 +301,15 @@ public class NodeService {
             azureNodeToBeUpdated.setCloudRegistration(cloudRegistration);
             azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
 
+            AzureNode finalAzureNode = this.azureNodeRepository.save(azureNodeToBeUpdated);
+
+
             // application dummy
             WebClient webClientToPSM = WebClient.create(this.psmEndpoint);
             CreateNewApplicationDTO pulceoNodeAgentDTO = CreateNewApplicationDTO.builder()
                     .nodeId(azureNodeToBeUpdated.getUuid().toString())
                     .name("pulceo-node-agent")
                     .build();
-
             webClientToPSM.post()
                     .uri("/api/v1/applications")
                     .header("Content-Type", "application/json")
@@ -339,8 +343,7 @@ public class NodeService {
                     .build();
             this.eventHandler.handleEvent(pulceoEvent);
 
-            this.azureNodeRepository.save(azureNodeToBeUpdated);
-            return CompletableFuture.completedFuture(azureNodeToBeUpdated);
+            return CompletableFuture.completedFuture(finalAzureNode);
         } catch (AzureDeploymentServiceException e) {
             throw new NodeServiceException("Could not create azure node!", e);
         } catch (InterruptedException e) {
