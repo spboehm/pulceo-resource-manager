@@ -18,7 +18,8 @@ kubectl --kubeconfig=/home/$USER/.kube/config create secret generic pna-credenti
   --from-literal=PNA_USERNAME=${PNA_USERNAME} \
   --from-literal=PNA_PASSWORD=${PNA_PASSWORD} \
   --from-literal=PNA_INIT_TOKEN=${PNA_INIT_TOKEN} \
-  --from-literal=PNA_HOST_FQDN=${PNA_HOST_FQDN}
+  --from-literal=PNA_HOST_FQDN=${PNA_HOST_FQDN} \
+  --from-literal=PNA_UUID=$(uuidgen)
 kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-node-agent/main/traefik/0-crd.yaml
 kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-node-agent/main/traefik/1-crd.yaml
 kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-node-agent/main/traefik/2-traefik-services.yaml
