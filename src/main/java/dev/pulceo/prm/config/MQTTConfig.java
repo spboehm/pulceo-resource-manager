@@ -31,56 +31,6 @@ public class MQTTConfig {
     @Value("${pna.mqtt.client.password}")
     private String mqttBrokerPassword;
 
-    /* Inbound */
-//    @Bean
-//    public MessageChannel mqttInputChannel() {
-//        return new DirectChannel();
-//    }
-//
-//    @Bean
-//    public MessageProducer inbound() {
-//        MqttPahoMessageDrivenChannelAdapter adapter =
-//                new MqttPahoMessageDrivenChannelAdapter("tcp://127.0.0.1:1883", mqttClientId,
-//                        "topic1");
-//        adapter.setCompletionTimeout(5000);
-//        adapter.setConverter(new DefaultPahoMessageConverter());
-//        adapter.setQos(1);
-//        adapter.connectComplete(true);
-//        adapter.setOutputChannel(mqttInputChannel());
-//        return adapter;
-//    }
-//
-//    @Bean
-//    @ServiceActivator(inputChannel = "channelA")
-//    public MessageHandler handler() {
-//        return message -> System.out.println(message.getHeaders());
-//    }
-//
-//    @Bean
-//    public IntegrationFlow routerFlow1() {
-//        return IntegrationFlow.from("mqttInputChannel")
-//                .route(router())
-//                .get();
-//    }
-//
-//    @Bean
-//    public HeaderValueRouter router() {
-//        HeaderValueRouter router = new HeaderValueRouter("mqtt_receivedTopic");
-//        router.setChannelMapping("topic1", "channelA");
-//        router.setChannelMapping("topic2", "channelB");
-//        return router;
-//    }
-//
-//    @Bean
-//    public MessageChannel channelA() {
-//        return new DirectChannel();
-//    }
-//
-//    @Bean
-//    public MessageChannel channelB() {
-//        return new DirectChannel();
-//    }
-
     /* Outbound */
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {
