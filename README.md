@@ -13,7 +13,27 @@
   - `40476/tcp` (for k3d API server)
 - Any Linux distribution is recommended (tested on Ubuntu 20.04 and openSUSE Tumbleweed)
 
-## Quickstart (try locally)
+## Quickstart with k3s
+- Install [Docker](https://docs.docker.com/get-docker/) on your machine by following the official installation guide
+- Install [k3s](https://k3s.io/) on your machine by following the official installation guide
+```bash
+curl -sfL https://get.k3s.io | sh - 
+```
+- Create a basic MQTT broker with free plan on [HiveMQ](https://console.hivemq.cloud/?utm_source=HiveMQ+Pricing+Page&utm_medium=serverless+signup+CTA+Button&utm_campaign=HiveMQ+Cloud+PaaS&utm_content=serverless)
+- \[OPTIONAL\] Export the following environment variables
+```bash
+# OPTIONAL: if you want to skip the username and password generation tool 
+export PNA_MQTT_BROKER_URL="ssl://broker.hivemq.com:1883"
+export PNA_MQTT_CLIENT_USERNAME="<USERNAME>"
+export PNA_MQTT_CLIENT_PASSWORD="<PASSWORD>"
+```
+
+- Bootstrap PULCEO with the following command
+```bash
+bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/main/bootstrap-pulceo.sh)
+```
+
+## Quickstart with k3d
 
 - Install [Docker](https://docs.docker.com/get-docker/) on your machine by following the official installation guide
 - Install [k3d](https://k3d.io/v5.6.0/#learning) on your machine by following the official installation guide OR [k3s](https://k3s.io/) by following the official installation guide
@@ -26,7 +46,7 @@ export PNA_MQTT_CLIENT_USERNAME="<USERNAME>"
 export PNA_MQTT_CLIENT_PASSWORD="<PASSWORD>"
 ```
 
-- If you decided to run with k3d, create a temporary test cluster with k3d, users of k3s can skip this step
+- Create a temporary test cluster with local-path-provisioner using k3d
 ```bash
 mkdir -p $HOME/k3d-pulceo-volumes
 k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer --port 8089:8089@loadbalancer --volume $HOME/k3d-pulceo-volumes:/var/lib/rancher/k3s/storage@all

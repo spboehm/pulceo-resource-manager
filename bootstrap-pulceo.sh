@@ -35,6 +35,11 @@ echo ""
 echo "PULCEO - Bootstrapping tool. USE AT OWN RISK!!!"
 echo ""
 
+mkdir -p ~/.kube
+sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+sudo chown -R $USER:$USER ~/.kube
+sudo chmod 0600 ~/.kube/config
+
 # PNA_MQTT_BROKER_URL
 if [ -z "$PNA_MQTT_BROKER_URL" ]; then
   read -p "Enter the MQTT broker URL (should be like ssl://be3147d06377478a8eee29fd8f09495d.s1.eu.hivemq.cloud:8883): " PNA_MQTT_BROKER_URL
@@ -48,7 +53,7 @@ validate_mqtt_broker_url $PNA_MQTT_BROKER_URL
 # PNA_MQTT_CLIENT_USERNAME
 if [ -z "$PNA_MQTT_CLIENT_USERNAME" ]; then
   EXAMPLE_MQTT_CLIENT_USERNAME=$(generate_password 8)
-  read -p "Enter the MQTT client username (should be like $EXAMPLE_MQTT_CLIENT_USERNAME): ENTER TO ACCEPT THE SUGGESTION" PNA_MQTT_CLIENT_USERNAME
+  read -p "Enter the MQTT client username (should be like $EXAMPLE_MQTT_CLIENT_USERNAME, ENTER TO ACCEPT THE SUGGESTION): " PNA_MQTT_CLIENT_USERNAME
   if [ -z "$PNA_MQTT_CLIENT_USERNAME" ]; then
     PNA_MQTT_CLIENT_USERNAME=$EXAMPLE_MQTT_CLIENT_USERNAME
   fi
@@ -58,7 +63,7 @@ validate_alphanumeric "PNA_MQTT_CLIENT_USERNAME" $PNA_MQTT_CLIENT_USERNAME
 # PNA_MQTT_CLIENT_PASSWORD
 if [ -z "$PNA_MQTT_CLIENT_PASSWORD" ]; then
   EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD=$(generate_password 8)
-  read -p "Enter the MQTT client password (should be like $EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD): ENTER TO ACCEPT THE SUGGESTION" PNA_MQTT_CLIENT_PASSWORD
+  read -p "Enter the MQTT client password (should be like $EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD, ENTER TO ACCEPT THE SUGGESTION): " PNA_MQTT_CLIENT_PASSWORD
   if [ -z "$PNA_MQTT_CLIENT_PASSWORD" ]; then
     PNA_MQTT_CLIENT_PASSWORD=$EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD
   fi
@@ -77,7 +82,7 @@ PNA_PASSWORD=$(generate_password 32)
 PNA_INIT_TOKEN=$(echo -n "${PNA_USERNAME}:${PNA_PASSWORD}" | base64)
 
 # DOCKER_INFLUXDB_INIT_USERNAME
-DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=$(generate_password 8)
+DOCKER_INFLUXDB_INIT_USERNAME=$(generate_password 8)
 
 # DOCKER_INFLUXDB_INIT_PASSWORD
 DOCKER_INFLUXDB_INIT_PASSWORD=$(generate_password 8)
