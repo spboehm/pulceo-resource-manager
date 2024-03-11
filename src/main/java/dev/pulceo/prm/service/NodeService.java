@@ -91,11 +91,11 @@ public class NodeService {
         }
 
         if (this.hostNameAlreadyExists(hostName)) {
-            throw new NodeServiceException("Hostname already exists-");
+            throw new NodeServiceException("Hostname already exists!");
         }
 
         if (this.nameAlreadyExists(name)) {
-            throw new NodeServiceException("Name already exists-");
+            throw new NodeServiceException("Name already exists!");
         }
 
         CloudRegistrationRequestDTO cloudRegistrationRequestDTO = CloudRegistrationRequestDTO.builder()
@@ -697,7 +697,6 @@ public class NodeService {
 
     @Async
     public CompletableFuture<Void> deleteNodeByUUID(UUID uuid) throws LinkServiceException, InterruptedException {
-        System.out.println(uuid);
         // TODO: findall all links and delete them
         Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(uuid);
         if (abstractNode.isEmpty()) {
