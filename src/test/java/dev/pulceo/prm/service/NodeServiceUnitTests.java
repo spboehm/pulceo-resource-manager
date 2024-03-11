@@ -1,6 +1,7 @@
 package dev.pulceo.prm.service;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.Fault;
 import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
 import dev.pulceo.prm.dto.node.NodeDTOType;
@@ -68,6 +69,7 @@ public class NodeServiceUnitTests {
     private String pnaToken = "dGppWG5XamMyV2ZXYTBadzlWZ0dvWnVsOjVINHhtWUpNNG1wTXB2YzJaQjlTS2ZnNHRZcWl2OTRl";
     private UUID prmUUID = UUID.fromString("ecda0beb-dba9-4836-a0f8-da6d0fd0cd0a");
     private String prmEndpoint = "http://localhost:7878";
+    private String psmEndpoint = "http://localhost:7979";
 
     private String webClientScheme = "http";
 
@@ -75,6 +77,8 @@ public class NodeServiceUnitTests {
 
     // for some reason `dynamicPort()` is not working properly
     public static WireMockServer wireMockServer = new WireMockServer(WireMockSpring.options().bindAddress("127.0.0.2").port(7676));
+    public static WireMockServer wireMockServerForPSM = new WireMockServer(WireMockSpring.options().bindAddress("127.0.0.1").port(7979));
+
 
     @BeforeEach
     public void setUp() {
@@ -82,21 +86,26 @@ public class NodeServiceUnitTests {
         ReflectionTestUtils.setField(nodeService, "prmEndpoint", prmEndpoint);
         ReflectionTestUtils.setField(nodeService, "pnaInitToken", pnaInitToken);
         ReflectionTestUtils.setField(nodeService, "webClientScheme", webClientScheme);
+        ReflectionTestUtils.setField(nodeService, "psmEndpoint", psmEndpoint);
     }
 
     @BeforeAll
-    static void setupClass() {
+    static void setupClass() throws InterruptedException {
+        Thread.sleep(500);
         wireMockServer.start();
+        wireMockServerForPSM.start();
     }
 
     @AfterEach
     void after() {
-        wireMockServer.resetAll();
+//        wireMockServer.resetAll();
+//        wireMockServerForPSM.resetAll();
     }
 
     @AfterAll
     static void clean() {
         wireMockServer.shutdown();
+        wireMockServerForPSM.shutdown();
     }
 
     @Test
@@ -137,6 +146,12 @@ public class NodeServiceUnitTests {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-storage-resources-response.json")));
+
+        wireMockServerForPSM.stubFor(post(urlEqualTo("/api/v1/applications"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withJsonBody(new Body("[]").asJson())));
 
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pnaUUID, hostName, "Germany", "Bavaria", "Munich");
 

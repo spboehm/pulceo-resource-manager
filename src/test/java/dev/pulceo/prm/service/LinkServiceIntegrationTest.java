@@ -1,6 +1,9 @@
 package dev.pulceo.prm.service;
 
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.Body;
 import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.link.NodeLink;
@@ -13,9 +16,12 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.WireMockSpring;
 
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(properties = { "webclient.scheme=http"})
@@ -45,6 +51,9 @@ public class LinkServiceIntegrationTest {
     @Value("${pna2.test.init.token}")
     private String pna2InitToken;
 
+    public static WireMockServer wireMockServerForPSM = new WireMockServer(WireMockSpring.options().bindAddress("127.0.0.1").port(7979));
+
+
     @BeforeEach
     void before() {
         this.abstractLinkRepository.deleteAll();
@@ -52,8 +61,10 @@ public class LinkServiceIntegrationTest {
     }
 
     @BeforeAll
-    static void setupClass() {
+    static void setupClass() throws InterruptedException {
+        Thread.sleep(500);
         SimulatedPulceoNodeAgent.createAgents(2);
+        wireMockServerForPSM.start();
     }
 
     @AfterEach
@@ -64,6 +75,7 @@ public class LinkServiceIntegrationTest {
     @AfterAll
     static void clean() {
         SimulatedPulceoNodeAgent.stopAgents();
+        wireMockServerForPSM.stop();
     }
 
     @Test
@@ -71,6 +83,12 @@ public class LinkServiceIntegrationTest {
         // given
         // assume two nodes are already running with simulators
         // create two nodes
+
+        wireMockServerForPSM.stubFor(WireMock.post(urlEqualTo("/api/v1/applications"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withJsonBody(new Body("[]").asJson())));
 
         OnPremNode srcNode = NodeUtil.createTestOnPremNode("edge0", pna1RemoteUUID, UUID.randomUUID(), "127.0.0.1", "Germany", "Bavaria", "Munich");
         OnPremNode destNode = NodeUtil.createTestOnPremNode("edge1", pna2RemoteUUID, UUID.randomUUID(), "127.0.0.2", "Germany", "Bavaria", "Munich");

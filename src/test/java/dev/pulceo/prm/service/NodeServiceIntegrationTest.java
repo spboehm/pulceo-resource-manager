@@ -22,7 +22,6 @@ import dev.pulceo.prm.repository.AzureProviderRepository;
 import dev.pulceo.prm.repository.OnPremProviderRepository;
 import dev.pulceo.prm.util.NodeUtil;
 import org.junit.jupiter.api.*;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -74,10 +73,13 @@ public class NodeServiceIntegrationTest {
     // for some reason `dynamicPort()` is not working properly
     public static WireMockServer wireMockServer = new WireMockServer(WireMockSpring.options().bindAddress("127.0.0.1").port(7676));
 
-    public static WireMockServer wireMockServerForPSM = new WireMockServer(WireMockSpring.options().bindAddress("127.0.0.1").port(7777));
+    public static WireMockServer wireMockServerForPMS = new WireMockServer(WireMockSpring.options().bindAddress("127.0.0.1").port(7777));
+    public static WireMockServer wireMockServerForPSM = new WireMockServer(WireMockSpring.options().bindAddress("127.0.0.1").port(7979));
     @BeforeAll
-    static void setupClass() {
+    static void setupClass() throws InterruptedException {
+        Thread.sleep(500);
         wireMockServer.start();
+        wireMockServerForPMS.start();
         wireMockServerForPSM.start();
     }
 
@@ -89,6 +91,7 @@ public class NodeServiceIntegrationTest {
     @AfterAll
     static void clean() {
         wireMockServer.shutdown();
+        wireMockServerForPMS.shutdown();
         wireMockServerForPSM.shutdown();
     }
 
@@ -132,6 +135,12 @@ public class NodeServiceIntegrationTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-storage-resources-response.json")));
+
+        wireMockServerForPSM.stubFor(post(urlEqualTo("/api/v1/applications"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withJsonBody(new Body("[]").asJson())));
 
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pna1UUID, hostName, "Germany", "Bavaria", "Bamberg");
 
@@ -316,7 +325,7 @@ public class NodeServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-storage-resources-response.json")));
 
-        wireMockServerForPSM.stubFor(get(urlMatching("/api/v1/metric-requests\\?linkUUID=(.*)"))
+        wireMockServerForPMS.stubFor(get(urlMatching("/api/v1/metric-requests\\?linkUUID=(.*)"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")

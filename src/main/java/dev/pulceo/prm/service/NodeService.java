@@ -4,6 +4,8 @@ import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.pna.node.storage.StorageResourceDTO;
+import dev.pulceo.prm.dto.psm.ApplicationDTO;
+import dev.pulceo.prm.dto.psm.CreateNewApplicationDTO;
 import dev.pulceo.prm.dto.psm.ShortMetricResponseDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationResponseDTO;
@@ -66,6 +68,8 @@ public class NodeService {
     private String pmsEndpoint;
     @Value("${pms.mqtt.topic}")
     private String pmsMqttTopic;
+    @Value("${psm.endpoint}")
+    private String psmEndpoint;
 
     @Autowired
     public NodeService(AbstractNodeRepository abstractNodeRepository, OnPremNodeRepository onPremNoderepository, NodeMetaDataRepository nodeMetaDataRepository, NodeRepository nodeRepository, ProviderService providerService, CloudRegistraionService cloudRegistraionService, CPUResourcesRepository cpuResourcesRepository, MemoryResourcesRepository memoryResourcesRepository, StorageResourcesRepositoy storageResourcesRepositoy, AzureDeploymentService azureDeploymentService, AzureNodeRepository azureNodeRepository, @Lazy LinkService linkService, EventHandler eventHandler) {
@@ -150,6 +154,40 @@ public class NodeService {
                 .node(node)
                 .cloudRegistration(cloudRegistration)
                 .build();
+
+        // application dummy
+        WebClient webClientToPSM = WebClient.create(this.psmEndpoint);
+        CreateNewApplicationDTO pulceoNodeAgentDTO = CreateNewApplicationDTO.builder()
+                .nodeId(onPremNode.getUuid().toString())
+                .name("pulceo-node-agent")
+                .build();
+
+        webClientToPSM.post()
+                .uri("/api/v1/applications")
+                .header("Content-Type", "application/json")
+                .bodyValue(pulceoNodeAgentDTO)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .onErrorResume(e -> {
+                    throw new RuntimeException(new NodeServiceException("Failed to create application"));
+                })
+                .block();
+
+        CreateNewApplicationDTO traefikDTO = CreateNewApplicationDTO.builder()
+                .nodeId(onPremNode.getUuid().toString())
+                .name("traefik")
+                .build();
+
+        webClientToPSM.post()
+                .uri("/api/v1/applications")
+                .header("Content-Type", "application/json")
+                .bodyValue(traefikDTO)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .onErrorResume(e -> {
+                    throw new RuntimeException(new NodeServiceException("Failed to create application"));
+                })
+                .block();
 
         logger.info("Successfully created on-prem node: " + onPremNode.toString());
         PulceoEvent pulceoEvent = PulceoEvent.builder()
@@ -260,6 +298,40 @@ public class NodeService {
             azureNodeToBeUpdated.getNodeMetaData().setHostname(azureDeloymentResult.getFqdn());
             azureNodeToBeUpdated.setCloudRegistration(cloudRegistration);
             azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
+
+            // application dummy
+            WebClient webClientToPSM = WebClient.create(this.psmEndpoint);
+            CreateNewApplicationDTO pulceoNodeAgentDTO = CreateNewApplicationDTO.builder()
+                    .nodeId(azureNodeToBeUpdated.getUuid().toString())
+                    .name("pulceo-node-agent")
+                    .build();
+
+            webClientToPSM.post()
+                    .uri("/api/v1/applications")
+                    .header("Content-Type", "application/json")
+                    .bodyValue(pulceoNodeAgentDTO)
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .onErrorResume(e -> {
+                        throw new RuntimeException(new NodeServiceException("Failed to create application"));
+                    })
+                    .block();
+
+            CreateNewApplicationDTO traefikDTO = CreateNewApplicationDTO.builder()
+                    .nodeId(azureNodeToBeUpdated.getUuid().toString())
+                    .name("traefik")
+                    .build();
+
+            webClientToPSM.post()
+                    .uri("/api/v1/applications")
+                    .header("Content-Type", "application/json")
+                    .bodyValue(traefikDTO)
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .onErrorResume(e -> {
+                        throw new RuntimeException(new NodeServiceException("Failed to create application"));
+                    })
+                    .block();
 
             PulceoEvent pulceoEvent = PulceoEvent.builder()
                     .eventType(EventType.NODE_CREATED)

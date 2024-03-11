@@ -1,6 +1,9 @@
 package dev.pulceo.prm.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.Body;
 import dev.pulceo.prm.dto.link.CreateNewAbstractLinkDTO;
 import dev.pulceo.prm.dto.link.CreateNewNodeLinkDTO;
 import dev.pulceo.prm.dto.link.LinkTypeDTO;
@@ -9,16 +12,20 @@ import dev.pulceo.prm.dto.node.CreateNewOnPremNodeDTO;
 import dev.pulceo.prm.dto.node.NodeDTOType;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
+import dev.pulceo.prm.service.NodeServiceIntegrationTest;
 import dev.pulceo.prm.util.SimulatedPulceoNodeAgent;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.WireMockSpring;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,8 +55,10 @@ public class LinkControllerTests {
     }
 
     @BeforeAll
-    static void setupClass() {
+    static void setupClass() throws InterruptedException {
         SimulatedPulceoNodeAgent.createAgents(2);
+        NodeServiceIntegrationTest.wireMockServerForPSM.start();
+        Thread.sleep(500);
     }
 
     @AfterEach
@@ -60,6 +69,7 @@ public class LinkControllerTests {
     @AfterAll
     static void clean() {
         SimulatedPulceoNodeAgent.stopAgents();
+        NodeServiceIntegrationTest.wireMockServerForPSM.stop();
     }
 
     @Test
@@ -73,6 +83,13 @@ public class LinkControllerTests {
                 .pnaInitToken("pna-init-token")
                 .build();
         String createNewOnPremSrcNodeDTOAsJson = this.objectMapper.writeValueAsString(createNewOnPremNodeDTO);
+
+        NodeServiceIntegrationTest.wireMockServerForPSM.stubFor(WireMock.post(urlEqualTo("/api/v1/applications"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withJsonBody(new Body("[]").asJson())));
+
         MvcResult createNewOnPremSrcNodeResult = this.mockMvc.perform(post("/api/v1/nodes")
                         .contentType("application/json")
                         .accept("application/json")

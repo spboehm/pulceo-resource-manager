@@ -1,6 +1,9 @@
 package dev.pulceo.prm.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.Body;
 import dev.pulceo.prm.dto.node.CreateNewAbstractNodeDTO;
 import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
 import dev.pulceo.prm.dto.node.CreateNewOnPremNodeDTO;
@@ -14,6 +17,8 @@ import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
 import dev.pulceo.prm.repository.AzureProviderRepository;
 import dev.pulceo.prm.repository.CloudRegistrationRepository;
+import dev.pulceo.prm.service.NodeServiceIntegrationTest;
+import dev.pulceo.prm.service.NodeServiceUnitTests;
 import dev.pulceo.prm.service.ProviderService;
 import dev.pulceo.prm.util.SimulatedPulceoNodeAgent;
 import org.junit.jupiter.api.*;
@@ -21,11 +26,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.WireMockSpring;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import wiremock.org.apache.hc.client5.http.impl.Wire;
 
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -73,8 +82,10 @@ public class NodeControllerTests {
     }
 
     @BeforeAll
-    static void setupClass() {
+    static void setupClass() throws InterruptedException {
+        Thread.sleep(500);
         SimulatedPulceoNodeAgent.createAgents(2);
+        NodeServiceIntegrationTest.wireMockServerForPSM.start();
     }
 
     @AfterEach
@@ -86,6 +97,7 @@ public class NodeControllerTests {
     @AfterAll
     static void clean() {
         SimulatedPulceoNodeAgent.stopAgents();
+        NodeServiceIntegrationTest.wireMockServerForPSM.stop();
     }
 
     @Test
@@ -99,6 +111,13 @@ public class NodeControllerTests {
                 .pnaInitToken("pna-init-token")
                 .build();
         String createNewOnPremNodeDTOAsJson = this.objectMapper.writeValueAsString(createNewOnPremNodeDTO);
+
+        NodeServiceIntegrationTest.wireMockServerForPSM.stubFor(WireMock.post(urlEqualTo("/api/v1/applications"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withJsonBody(new Body("[]").asJson())));
+
 
         // when and then
         MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/nodes")
@@ -127,6 +146,12 @@ public class NodeControllerTests {
                 .andExpect(status().isCreated())
                 .andReturn();
         UUID srcNodeUUID = UUID.fromString(objectMapper.readTree(nodeResult.getResponse().getContentAsString()).get("uuid").asText());
+
+        NodeServiceIntegrationTest.wireMockServerForPSM.stubFor(WireMock.post(urlEqualTo("/api/v1/applications"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withJsonBody(new Body("[]").asJson())));
 
         // when and then
         MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/nodes/" + srcNodeUUID + "/cpu")
