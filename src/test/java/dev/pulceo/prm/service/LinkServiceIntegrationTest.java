@@ -51,6 +51,9 @@ public class LinkServiceIntegrationTest {
     @Value("${pna2.test.init.token}")
     private String pna2InitToken;
 
+    private UUID pna3RemoteUUID = UUID.randomUUID();
+    private String pna3InitToken = UUID.randomUUID().toString();
+
     public static WireMockServer wireMockServerForPSM = new WireMockServer(WireMockSpring.options().bindAddress("127.0.0.1").port(7979));
 
 
@@ -63,13 +66,13 @@ public class LinkServiceIntegrationTest {
     @BeforeAll
     static void setupClass() throws InterruptedException {
         Thread.sleep(500);
-        SimulatedPulceoNodeAgent.createAgents(2);
+        SimulatedPulceoNodeAgent.createAgents(3);
         wireMockServerForPSM.start();
     }
 
     @AfterEach
     void after() {
-        SimulatedPulceoNodeAgent.resetAgents();
+        // SimulatedPulceoNodeAgent.resetAgents();
     }
 
     @AfterAll
@@ -100,6 +103,39 @@ public class LinkServiceIntegrationTest {
 
         // when
         NodeLink createdNodeLink = this.linkService.createNodeLink(nodeLink);
+
+        // then
+        assertEquals(createdNodeLink.getSrcNode(), createdSrcOnPremNode);
+        assertEquals(createdNodeLink.getDestNode(), createdDestOnPremNode);
+    }
+
+    @Test
+    public void testCreateLinkWithThreeNodes() throws NodeServiceException, LinkServiceException, InterruptedException {
+        // given
+        // assume two nodes are already running with simulators
+        // create two nodes
+        wireMockServerForPSM.stubFor(WireMock.post(urlEqualTo("/api/v1/applications"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withJsonBody(new Body("[]").asJson())));
+
+        OnPremNode srcNode = NodeUtil.createTestOnPremNode("edge0", pna1RemoteUUID, UUID.randomUUID(), "127.0.0.1", "Germany", "Bavaria", "Munich");
+        OnPremNode destNode = NodeUtil.createTestOnPremNode("edge1", pna2RemoteUUID, UUID.randomUUID(), "127.0.0.2", "Germany", "Bavaria", "Munich");
+        OnPremNode destNode2 = NodeUtil.createTestOnPremNode("edge2", pna3RemoteUUID, UUID.randomUUID(), "127.0.0.3", "Germany", "Bavaria", "Munich");
+        OnPremNode createdSrcOnPremNode = this.nodeService.createOnPremNode("edge0", srcNode.getOnPremProvider().getProviderMetaData().getProviderName(),
+                srcNode.getNodeMetaData().getHostname(), pna1InitToken, "edge", "Germany", "Bavaria", "Munich");
+        OnPremNode createdDestOnPremNode = this.nodeService.createOnPremNode("edge1", destNode.getOnPremProvider().getProviderMetaData().getProviderName(),
+                destNode.getNodeMetaData().getHostname(), pna2InitToken, "edge", "Germany", "Bavaria", "Munich");
+        OnPremNode createdthirdOnPremNode = this.nodeService.createOnPremNode("edge2", destNode2.getOnPremProvider().getProviderMetaData().getProviderName(),
+                destNode2.getNodeMetaData().getHostname(), pna3InitToken, "edge", "Germany", "Bavaria", "Munich");
+
+        NodeLink nodeLink = NodeLink.builder().name("testLink").srcNode(createdSrcOnPremNode).destNode(createdDestOnPremNode).build();
+        NodeLink nodeLink2 = NodeLink.builder().name("testLink2").srcNode(createdSrcOnPremNode).destNode(createdthirdOnPremNode).build();
+
+        // when
+        NodeLink createdNodeLink = this.linkService.createNodeLink(nodeLink);
+        NodeLink createdNodeLink2 = this.linkService.createNodeLink(nodeLink2);
 
         // then
         assertEquals(createdNodeLink.getSrcNode(), createdSrcOnPremNode);

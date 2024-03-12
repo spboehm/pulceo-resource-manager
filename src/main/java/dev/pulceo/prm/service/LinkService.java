@@ -79,6 +79,7 @@ public class LinkService {
         return this.createNodeLink(nodeLink);
     }
 
+    @Transactional
     // TODO: replace with name and srcNodeUUID and destNodeUUID or do by request object
     public NodeLink createNodeLink(NodeLink nodeLink) throws LinkServiceException, InterruptedException {
         /* TODO: check if nodeLink already exists from srcNodeUUID to destNodeUUID */
