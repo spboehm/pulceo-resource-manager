@@ -32,6 +32,7 @@ import org.springframework.cloud.contract.wiremock.WireMockSpring;
 import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -156,7 +157,7 @@ public class NodeServiceUnitTests {
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pnaUUID, hostName, "Germany", "Bavaria", "Munich");
 
         // when
-        this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Munich");
+        this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Munich", new ArrayList<>());
 
         // then
         // TODO: more verifications

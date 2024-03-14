@@ -32,7 +32,10 @@ import lombok.experimental.SuperBuilder;
                 @NamedSubgraph(
                         name = "graph.AzureNode.node",
                         attributeNodes = {
-                                @NamedAttributeNode("cpuResource")
+                                @NamedAttributeNode("cpuResource"),
+                                @NamedAttributeNode("memoryResource"),
+                                @NamedAttributeNode("storageResource"),
+                                @NamedAttributeNode("nodeTags"),
                         }
                 ),
         }

@@ -8,6 +8,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -28,6 +31,8 @@ public class CreateNewOnPremNodeDTO extends CreateNewAbstractNodeDTO {
     private String state = "";
     @Builder.Default
     private String city = "";
+    @Builder.Default
+    private List<NodeTagDTO> tags = new ArrayList<>();
 
     public static CreateNewOnPremNodeDTO fromAbstractNodeDTO(CreateNewAbstractNodeDTO createNewAbstractNodeDTO) {
         CreateNewOnPremNodeDTO createNewOnPremNodeDTO = (CreateNewOnPremNodeDTO) createNewAbstractNodeDTO;
@@ -41,6 +46,7 @@ public class CreateNewOnPremNodeDTO extends CreateNewAbstractNodeDTO {
                 .country(createNewOnPremNodeDTO.getCountry())
                 .state(createNewOnPremNodeDTO.getState())
                 .city(createNewOnPremNodeDTO.getCity())
+                .tags(createNewOnPremNodeDTO.getTags())
                 .build();
 
     }

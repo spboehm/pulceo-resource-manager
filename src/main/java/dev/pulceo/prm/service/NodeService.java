@@ -1,6 +1,7 @@
 package dev.pulceo.prm.service;
 
 import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
+import dev.pulceo.prm.dto.node.NodeDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.pna.node.storage.StorageResourceDTO;
@@ -88,7 +89,7 @@ public class NodeService {
         this.eventHandler = eventHandler;
     }
 
-    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String type, String country, String state, String city) throws NodeServiceException, InterruptedException {
+    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String type, String country, String state, String city, List<NodeTag> nodeTags) throws NodeServiceException, InterruptedException {
         Optional<OnPremProvider> onPremProvider = this.providerService.readOnPremProviderByProviderName(providerName);
         if (onPremProvider.isEmpty()) {
             throw new NodeServiceException("Provider does not exist!");
@@ -138,6 +139,7 @@ public class NodeService {
                 .cpuResource(cpuResource)
                 .memoryResource(memoryResource)
                 .storageResource(storageResource)
+                .nodeTags(nodeTags)
                 .build();
 
         NodeMetaData nodeMetaData = NodeMetaData.builder()
@@ -218,6 +220,7 @@ public class NodeService {
                 .country(this.getCountryByRegion(createNewAzureNodeDTO.getRegion()))
                 .state(this.getStateByRegion(createNewAzureNodeDTO.getRegion()))
                 .city(this.getCityByRegion(createNewAzureNodeDTO.getRegion()))
+                .nodeTags(createNewAzureNodeDTO.getTags().stream().map(NodeTag::fromNodeTagDTO).toList())
                 .build();
 
         AzureNode azureNode = AzureNode.builder()

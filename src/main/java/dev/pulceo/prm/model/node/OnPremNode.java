@@ -34,7 +34,10 @@ import java.util.Objects;
                 @NamedSubgraph(
                         name = "graph.OnPremNode.node",
                         attributeNodes = {
-                                @NamedAttributeNode("cpuResource")
+                                @NamedAttributeNode("cpuResource"),
+                                @NamedAttributeNode("memoryResource"),
+                                @NamedAttributeNode("storageResource"),
+                                @NamedAttributeNode("nodeTags"),
                         }
                 ),
         }

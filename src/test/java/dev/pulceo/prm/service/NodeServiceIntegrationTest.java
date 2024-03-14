@@ -28,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.WireMockSpring;
 
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -145,7 +146,7 @@ public class NodeServiceIntegrationTest {
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pna1UUID, hostName, "Germany", "Bavaria", "Bamberg");
 
         // when
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Bamberg");
+        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Bamberg", new ArrayList<>());
 
 
         // then
@@ -376,7 +377,7 @@ public class NodeServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-storage-resources-response.json")));
 
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Bamberg");
+        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Bamberg", new ArrayList<>());
 
         // when
         UUID remoteUUID = this.nodeService.getRemoteUUID(onPremNode.getUuid());

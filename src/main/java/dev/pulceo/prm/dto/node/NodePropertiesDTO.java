@@ -2,6 +2,7 @@ package dev.pulceo.prm.dto.node;
 
 import dev.pulceo.prm.model.node.Node;
 import dev.pulceo.prm.model.node.NodeRole;
+import dev.pulceo.prm.model.node.NodeTag;
 import dev.pulceo.prm.model.node.NodeType;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Max;
@@ -11,6 +12,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @SuperBuilder
@@ -59,6 +63,9 @@ public class NodePropertiesDTO {
     @Max(90)
     private double latitude = 0.000000;
 
+    @Builder.Default
+    List<NodeTagDTO> tags = new ArrayList<>();
+
 
     public static NodePropertiesDTO fromNode(Node node) {
         return NodePropertiesDTO.builder()
@@ -72,6 +79,7 @@ public class NodePropertiesDTO {
             .city(node.getCity())
             .longitude(node.getLongitude())
             .latitude(node.getLatitude())
+            .tags(node.getNodeTags().stream().map(NodeTagDTO::fromNodeTag).toList())
             .build();
     }
 

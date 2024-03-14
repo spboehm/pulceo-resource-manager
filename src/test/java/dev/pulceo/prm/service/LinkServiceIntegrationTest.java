@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.WireMockSpring;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -96,9 +97,9 @@ public class LinkServiceIntegrationTest {
         OnPremNode srcNode = NodeUtil.createTestOnPremNode("edge0", pna1RemoteUUID, UUID.randomUUID(), "127.0.0.1", "Germany", "Bavaria", "Munich");
         OnPremNode destNode = NodeUtil.createTestOnPremNode("edge1", pna2RemoteUUID, UUID.randomUUID(), "127.0.0.2", "Germany", "Bavaria", "Munich");
         OnPremNode createdSrcOnPremNode = this.nodeService.createOnPremNode("edge0", srcNode.getOnPremProvider().getProviderMetaData().getProviderName(),
-                srcNode.getNodeMetaData().getHostname(), pna1InitToken, "edge", "Germany", "Bavaria", "Munich");
+                srcNode.getNodeMetaData().getHostname(), pna1InitToken, "edge", "Germany", "Bavaria", "Munich", new ArrayList<>());
         OnPremNode createdDestOnPremNode = this.nodeService.createOnPremNode("edge1", destNode.getOnPremProvider().getProviderMetaData().getProviderName(),
-                destNode.getNodeMetaData().getHostname(), pna2InitToken, "edge", "Germany", "Bavaria", "Munich");
+                destNode.getNodeMetaData().getHostname(), pna2InitToken, "edge", "Germany", "Bavaria", "Munich", new ArrayList<>());
         NodeLink nodeLink = NodeLink.builder().name("testLink").srcNode(createdSrcOnPremNode).destNode(createdDestOnPremNode).build();
 
         // when
@@ -124,11 +125,11 @@ public class LinkServiceIntegrationTest {
         OnPremNode destNode = NodeUtil.createTestOnPremNode("edge1", pna2RemoteUUID, UUID.randomUUID(), "127.0.0.2", "Germany", "Bavaria", "Munich");
         OnPremNode destNode2 = NodeUtil.createTestOnPremNode("edge2", pna3RemoteUUID, UUID.randomUUID(), "127.0.0.3", "Germany", "Bavaria", "Munich");
         OnPremNode createdSrcOnPremNode = this.nodeService.createOnPremNode("edge0", srcNode.getOnPremProvider().getProviderMetaData().getProviderName(),
-                srcNode.getNodeMetaData().getHostname(), pna1InitToken, "edge", "Germany", "Bavaria", "Munich");
+                srcNode.getNodeMetaData().getHostname(), pna1InitToken, "edge", "Germany", "Bavaria", "Munich", new ArrayList<>());
         OnPremNode createdDestOnPremNode = this.nodeService.createOnPremNode("edge1", destNode.getOnPremProvider().getProviderMetaData().getProviderName(),
-                destNode.getNodeMetaData().getHostname(), pna2InitToken, "edge", "Germany", "Bavaria", "Munich");
+                destNode.getNodeMetaData().getHostname(), pna2InitToken, "edge", "Germany", "Bavaria", "Munich", new ArrayList<>());
         OnPremNode createdthirdOnPremNode = this.nodeService.createOnPremNode("edge2", destNode2.getOnPremProvider().getProviderMetaData().getProviderName(),
-                destNode2.getNodeMetaData().getHostname(), pna3InitToken, "edge", "Germany", "Bavaria", "Munich");
+                destNode2.getNodeMetaData().getHostname(), pna3InitToken, "edge", "Germany", "Bavaria", "Munich", new ArrayList<>());
 
         NodeLink nodeLink = NodeLink.builder().name("testLink").srcNode(createdSrcOnPremNode).destNode(createdDestOnPremNode).build();
         NodeLink nodeLink2 = NodeLink.builder().name("testLink2").srcNode(createdSrcOnPremNode).destNode(createdthirdOnPremNode).build();

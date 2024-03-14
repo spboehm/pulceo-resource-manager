@@ -5,6 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -24,6 +27,8 @@ public class CreateNewAzureNodeDTO extends CreateNewAbstractNodeDTO {
     private int memory = 4;
     @Builder.Default
     private String region = "eastus";
+    @Builder.Default
+    private List<NodeTagDTO> tags = new ArrayList<>();
 
 
     public static CreateNewAzureNodeDTO fromAbstractNodeDTO(CreateNewAbstractNodeDTO createNewAbstractNodeDTO) {
@@ -36,6 +41,7 @@ public class CreateNewAzureNodeDTO extends CreateNewAbstractNodeDTO {
                 .cpu(createNewAzureNodeDTO.getCpu())
                 .memory(createNewAzureNodeDTO.getMemory())
                 .region(createNewAzureNodeDTO.getRegion())
+                .tags(createNewAzureNodeDTO.getTags())
                 .build();
     }
 }

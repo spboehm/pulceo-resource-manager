@@ -1,10 +1,7 @@
 package dev.pulceo.prm.model.node;
 
 import dev.pulceo.prm.model.BaseEntity;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -12,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -70,6 +69,10 @@ public class Node extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private StorageResource storageResource = StorageResource.builder().build();
 
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<NodeTag> nodeTags = new ArrayList<>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -126,6 +129,7 @@ public class Node extends BaseEntity {
                 ", cpuResource=" + cpuResource +
                 ", memoryResource=" + memoryResource +
                 ", storageResource=" + storageResource +
+                ", nodeTags=" + nodeTags +
                 '}';
     }
 }
