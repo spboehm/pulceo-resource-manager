@@ -35,10 +35,20 @@ echo ""
 echo "PULCEO - Bootstrapping tool. USE AT OWN RISK!!!"
 echo ""
 
+echo "Check if a .env-pulceo file is present..."
+if [ -f .env-pulceo ]; then
+  echo "Found .env-pulceo file...loading variables..."
+  source .env-pulceo
+else
+  echo "No .env-pulceo file found...creating one..."
+fi
+
 mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown -R $USER:$USER ~/.kube
 sudo chmod 0600 ~/.kube/config
+
+VARIABLES_CHANGED=false
 
 # PNA_MQTT_BROKER_URL
 if [ -z "$PNA_MQTT_BROKER_URL" ]; then
@@ -47,6 +57,7 @@ if [ -z "$PNA_MQTT_BROKER_URL" ]; then
     echo "PNA_MQTT_BROKER_URL is required"
     exit 1
   fi
+  VARIABLES_CHANGED=true
 fi
 validate_mqtt_broker_url $PNA_MQTT_BROKER_URL
 
@@ -57,6 +68,7 @@ if [ -z "$PNA_MQTT_CLIENT_USERNAME" ]; then
   if [ -z "$PNA_MQTT_CLIENT_USERNAME" ]; then
     PNA_MQTT_CLIENT_USERNAME=$EXAMPLE_MQTT_CLIENT_USERNAME
   fi
+    VARIABLES_CHANGED=true
 fi
 validate_alphanumeric "PNA_MQTT_CLIENT_USERNAME" $PNA_MQTT_CLIENT_USERNAME
 
@@ -67,28 +79,62 @@ if [ -z "$PNA_MQTT_CLIENT_PASSWORD" ]; then
   if [ -z "$PNA_MQTT_CLIENT_PASSWORD" ]; then
     PNA_MQTT_CLIENT_PASSWORD=$EXAMPLE_MQTT_CLIENT_PNA_MQTT_CLIENT_PASSWORD
   fi
+  VARIABLES_CHANGED=true
 fi
 validate_alphanumeric "PNA_MQTT_CLIENT_PASSWORD" $PNA_MQTT_CLIENT_PASSWORD
 
 # PNA_USERNAME
 # 24 chars
-PNA_USERNAME=$(generate_password 24)
+if [ -z "$PNA_USERNAME" ]; then
+  PNA_USERNAME=$(generate_password 24)
+  VARIABLES_CHANGED=true
+elif [ ${#PNA_USERNAME} -ne 24 ]; then
+  echo "PNA_USERNAME should be 24 characters long"
+  exit 1
+fi
+validate_alphanumeric "PNA_USERNAME" $PNA_USERNAME
 
 # PNA_PASSWORD
-# 32 chars
-PNA_PASSWORD=$(generate_password 32)
+if [ -z "$PNA_PASSWORD" ]; then
+  PNA_PASSWORD=$(generate_password 32)
+    VARIABLES_CHANGED=true
+elif [ ${#PNA_PASSWORD} -ne 32 ]; then
+  echo "PNA_PASSWORD should be 32 characters long"
+  exit 1
+fi
+validate_alphanumeric "PNA_PASSWORD" $PNA_PASSWORD
 
 # PNA_INIT_TOKEN
 PNA_INIT_TOKEN=$(echo -n "${PNA_USERNAME}:${PNA_PASSWORD}" | base64)
 
 # DOCKER_INFLUXDB_INIT_USERNAME
-DOCKER_INFLUXDB_INIT_USERNAME=$(generate_password 8)
+if [ -z "$DOCKER_INFLUXDB_INIT_USERNAME" ]; then
+  DOCKER_INFLUXDB_INIT_USERNAME=$(generate_password 8)
+  VARIABLES_CHANGED=true
+elif [ ${#DOCKER_INFLUXDB_INIT_USERNAME} -ne 8 ]; then
+  echo "DOCKER_INFLUXDB_INIT_USERNAME should be 8 characters long"
+  exit 1
+fi
+validate_alphanumeric "DOCKER_INFLUXDB_INIT_USERNAME" $DOCKER_INFLUXDB_INIT_USERNAME
 
 # DOCKER_INFLUXDB_INIT_PASSWORD
-DOCKER_INFLUXDB_INIT_PASSWORD=$(generate_password 8)
+if [ -z "$DOCKER_INFLUXDB_INIT_PASSWORD" ]; then
+  DOCKER_INFLUXDB_INIT_PASSWORD=$(generate_password 8)
+  VARIABLES_CHANGED=true
+elif [ ${#DOCKER_INFLUXDB_INIT_PASSWORD} -ne 8 ]; then
+  echo "DOCKER_INFLUXDB_INIT_PASSWORD should be 8 characters long"
+  exit 1
+fi
+validate_alphanumeric "DOCKER_INFLUXDB_INIT_PASSWORD" $DOCKER_INFLUXDB_INIT_PASSWORD
 
-# DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
-DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=$(generate_password 8)
+if [ -z "$DOCKER_INFLUXDB_INIT_ADMIN_TOKEN" ]; then
+  DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=$(generate_password 8)
+  VARIABLES_CHANGED=true
+elif [ ${#DOCKER_INFLUXDB_INIT_ADMIN_TOKEN} -ne 8 ]; then
+  echo "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN should be 8 characters long"
+  exit 1
+fi
+validate_alphanumeric "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN" $DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
 
 echo "PNA_MQTT_BROKER_URL=$PNA_MQTT_BROKER_URL" > .env-pulceo
 echo "PNA_MQTT_CLIENT_USERNAME=$PNA_MQTT_CLIENT_USERNAME" >> .env-pulceo
@@ -100,7 +146,11 @@ echo "DOCKER_INFLUXDB_INIT_USERNAME=$DOCKER_INFLUXDB_INIT_USERNAME" >> .env-pulc
 echo "DOCKER_INFLUXDB_INIT_PASSWORD=$DOCKER_INFLUXDB_INIT_PASSWORD" >> .env-pulceo
 echo "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=$DOCKER_INFLUXDB_INIT_ADMIN_TOKEN" >> .env-pulceo
 
-echo "Successfully created .env-pulceo file with all credentials...DO NOT SHARE THIS FILE WITH ANYONE!!!"
+if [ "$VARIABLES_CHANGED" = false ]; then
+  echo "File .env-pulceo unchanged...DO NOT SHARE THIS FILE WITH ANYONE!!!"
+else
+  echo "Successfully created .env-pulceo file with all credentials...DO NOT SHARE THIS FILE WITH ANYONE!!!"
+fi
 
 kubectl --kubeconfig=/home/$USER/.kube/config create configmap prm-configmap \
   --from-literal=PRM_HOST=pulceo-resource-manager \
