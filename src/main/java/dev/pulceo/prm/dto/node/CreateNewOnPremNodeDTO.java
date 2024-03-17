@@ -32,6 +32,10 @@ public class CreateNewOnPremNodeDTO extends CreateNewAbstractNodeDTO {
     @Builder.Default
     private String city = "";
     @Builder.Default
+    private double latitude = 0.0;
+    @Builder.Default
+    private double longitude = 0.0;
+    @Builder.Default
     private List<NodeTagDTO> tags = new ArrayList<>();
 
     public static CreateNewOnPremNodeDTO fromAbstractNodeDTO(CreateNewAbstractNodeDTO createNewAbstractNodeDTO) {
@@ -46,6 +50,8 @@ public class CreateNewOnPremNodeDTO extends CreateNewAbstractNodeDTO {
                 .country(createNewOnPremNodeDTO.getCountry())
                 .state(createNewOnPremNodeDTO.getState())
                 .city(createNewOnPremNodeDTO.getCity())
+                .latitude(createNewOnPremNodeDTO.getLatitude())
+                .longitude(createNewOnPremNodeDTO.getLongitude())
                 .tags(createNewOnPremNodeDTO.getTags())
                 .build();
 

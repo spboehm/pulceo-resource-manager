@@ -8,14 +8,13 @@ import dev.pulceo.prm.dto.node.NodeDTOType;
 import dev.pulceo.prm.exception.AzureDeploymentServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.event.PulceoEvent;
-import dev.pulceo.prm.model.node.AzureDeloymentResult;
-import dev.pulceo.prm.model.node.AzureNode;
-import dev.pulceo.prm.model.node.OnPremNode;
+import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.model.provider.OnPremProvider;
 import dev.pulceo.prm.model.provider.ProviderMetaData;
 import dev.pulceo.prm.model.provider.ProviderType;
 import dev.pulceo.prm.repository.AbstractNodeRepository;
+import dev.pulceo.prm.repository.AzureNodeRepository;
 import dev.pulceo.prm.repository.NodeMetaDataRepository;
 import dev.pulceo.prm.repository.NodeRepository;
 import dev.pulceo.prm.util.NodeUtil;
@@ -33,6 +32,7 @@ import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -57,11 +57,11 @@ public class NodeServiceUnitTests {
     @Mock
     private CloudRegistraionService cloudRegistraionService;
     @Mock
+    private AzureNodeRepository azureNodeRepository;
+    @Mock
     private AzureDeploymentService azureDeploymentService;
-
     @Mock
     private EventHandler eventHandler;
-
     @InjectMocks
     private NodeService nodeService;
 
@@ -148,6 +148,7 @@ public class NodeServiceUnitTests {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-storage-resources-response.json")));
 
+        // create dummy applications
         wireMockServerForPSM.stubFor(post(urlEqualTo("/api/v1/applications"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -155,17 +156,19 @@ public class NodeServiceUnitTests {
                         .withJsonBody(new Body("[]").asJson())));
 
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pnaUUID, hostName, "Germany", "Bavaria", "Munich");
+        expectedOnPremNode.getNode().setLatitude(1.0);
+        expectedOnPremNode.getNode().setLongitude(2.0);
 
         // when
-        this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Munich", new ArrayList<>());
+        this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Munich", 1.0, 2.0, new ArrayList<>());
 
         // then
         // TODO: more verifications
+        verify(this.abstractNodeRepository, new Times(1)).findByName(name);
         verify(this.abstractNodeRepository, new Times(1)).save(expectedOnPremNode);
     }
 
     @Test
-    @Disabled
     // TODO: fix
     public void testCreateAzureNode() throws NodeServiceException, AzureDeploymentServiceException, ExecutionException, InterruptedException {
         // given
@@ -194,6 +197,13 @@ public class NodeServiceUnitTests {
                 .memory(4)
                 .region("eastus")
                 .build();
+
+        when(azureNodeRepository.save(Mockito.any())).thenReturn(AzureNode.builder().build());
+        when(azureNodeRepository.readAzureNodeByUuid(Mockito.any())).thenReturn(Optional.of(AzureNode.builder()
+                    .nodeMetaData(NodeMetaData.builder().build())
+                    .node(Node.builder().build())
+                .build()));
+        Mockito.doNothing().when(this.eventHandler).handleEvent(ArgumentMatchers.any(PulceoEvent.class));
 
         wireMockServer.stubFor(get(urlEqualTo("/health"))
                 .inScenario("Retry Scenario")
@@ -232,13 +242,22 @@ public class NodeServiceUnitTests {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-storage-resources-response.json")));
 
+        // create dummy applications
+        wireMockServerForPSM.stubFor(post(urlEqualTo("/api/v1/applications"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withJsonBody(new Body("[]").asJson())));
+
         // when
         AzureNode preliminaryAzureNode = this.nodeService.createPreliminaryAzureNode(createNewAzureNodeDTO);
         CompletableFuture<AzureNode> azureNodeFuture = this.nodeService.createAzureNodeAsync(preliminaryAzureNode.getUuid(), createNewAzureNodeDTO);
         azureNodeFuture.get();
+
         // then
         // TODO: further validations
-        verify(this.abstractNodeRepository, new Times(1)).save(ArgumentMatchers.any(AzureNode.class));
+        verify(this.azureNodeRepository, new Times(1)).readAzureNodeByUuid(Mockito.any());
+        verify(this.azureNodeRepository, new Times(2)).save(ArgumentMatchers.any(AzureNode.class));
     }
 
 }

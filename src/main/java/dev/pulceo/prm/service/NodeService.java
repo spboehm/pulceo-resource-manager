@@ -89,7 +89,7 @@ public class NodeService {
         this.eventHandler = eventHandler;
     }
 
-    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String type, String country, String state, String city, List<NodeTag> nodeTags) throws NodeServiceException, InterruptedException {
+    public OnPremNode createOnPremNode(String name, String providerName, String hostName, String pnaInitToken, String type, String country, String state, String city, double latitude, double longitude, List<NodeTag> nodeTags) throws NodeServiceException, InterruptedException {
         Optional<OnPremProvider> onPremProvider = this.providerService.readOnPremProviderByProviderName(providerName);
         if (onPremProvider.isEmpty()) {
             throw new NodeServiceException("Provider does not exist!");
@@ -136,6 +136,8 @@ public class NodeService {
                 .country(country)
                 .state(state)
                 .city(city)
+                .latitude(latitude)
+                .longitude(longitude)
                 .cpuResource(cpuResource)
                 .memoryResource(memoryResource)
                 .storageResource(storageResource)
@@ -220,6 +222,8 @@ public class NodeService {
                 .country(this.getCountryByRegion(createNewAzureNodeDTO.getRegion()))
                 .state(this.getStateByRegion(createNewAzureNodeDTO.getRegion()))
                 .city(this.getCityByRegion(createNewAzureNodeDTO.getRegion()))
+                .latitude(this.getLatitudeByRegion(createNewAzureNodeDTO.getRegion()))
+                .longitude(this.getLongitudeByRegion(createNewAzureNodeDTO.getRegion()))
                 .nodeTags(createNewAzureNodeDTO.getTags().stream().map(NodeTag::fromNodeTagDTO).toList())
                 .build();
 

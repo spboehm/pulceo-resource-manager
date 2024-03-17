@@ -144,9 +144,11 @@ public class NodeServiceIntegrationTest {
                         .withJsonBody(new Body("[]").asJson())));
 
         OnPremNode expectedOnPremNode = NodeUtil.createTestOnPremNode(name, pna1RemoteUUID, pna1UUID, hostName, "Germany", "Bavaria", "Bamberg");
+        expectedOnPremNode.getNode().setLatitude(1.0);
+        expectedOnPremNode.getNode().setLongitude(2.0);
 
         // when
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Bamberg", new ArrayList<>());
+        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Bamberg", 1.0, 2.0, new ArrayList<>());
 
 
         // then
@@ -377,7 +379,7 @@ public class NodeServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("node/pna-read-storage-resources-response.json")));
 
-        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Bamberg", new ArrayList<>());
+        OnPremNode onPremNode = this.nodeService.createOnPremNode(name, providerName, hostName, pnaInitToken, "edge", "Germany", "Bavaria", "Bamberg", 1.0, 2.0, new ArrayList<>());
 
         // when
         UUID remoteUUID = this.nodeService.getRemoteUUID(onPremNode.getUuid());
