@@ -367,11 +367,12 @@ public class NodeService {
             return "Paris (chef-lieu)";
         } else if (region.equals("eastus2")) {
             return "Virginia";
+        } else if (region.equals("westus")) {
+            return "California";
         } else {
             return "";
         }
     }
-
 
     private String getCityByRegion(String region) {
         if (region.equals("eastus")) {
@@ -386,6 +387,8 @@ public class NodeService {
             return "Paris";
         } else if (region.equals("eastus2")) {
             return "Boydton";
+        } else if (region.equals("westus")) {
+            return "San Francisco";
         } else {
             return "";
         }
@@ -403,6 +406,8 @@ public class NodeService {
         } else if (region.equals("francecentral")) {
             return "France";
         } else if (region.equals("eastus2")) {
+            return "USA";
+        } else if (region.equals("westus")) {
             return "USA";
         } else {
             return "";
