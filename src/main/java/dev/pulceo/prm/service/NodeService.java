@@ -414,6 +414,46 @@ public class NodeService {
         }
     }
 
+    private double getLatitudeByRegion(String region) {
+        if (region.equals("eastus")) {
+            return 37.3719;
+        } else if (region.equals("westeurope")) {
+            return 52.3667;
+        } else if (region.equals("northeurope")) {
+            return 53.3478;
+        } else if (region.equals("germanywestcentral")) {
+            return 50.110924;
+        } else if (region.equals("francecentral")) {
+            return 46.3772;
+        } else if (region.equals("eastus2")) {
+            return 36.6681;
+        } else if (region.equals("westus")) {
+            return 47.233;
+        } else {
+            return 0.0;
+        }
+    }
+
+    private double getLongitudeByRegion(String region) {
+        if (region.equals("eastus")) {
+            return -78.37465887756295;
+        } else if (region.equals("westeurope")) {
+            return 4.9;
+        } else if (region.equals("northeurope")) {
+            return -6.2597;
+        } else if (region.equals("germanywestcentral")) {
+            return 8.682127;
+        } else if (region.equals("francecentral")) {
+            return 2.3730;
+        } else if (region.equals("eastus2")) {
+            return -78.3889;
+        } else if (region.equals("westus")) {
+            return -119.852;
+        } else {
+            return 0.0;
+        }
+    }
+
     public Node updateNode(UUID nodeUUID, String key, String value) throws NodeServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(nodeUUID);
         if (abstractNode.isEmpty()) {
