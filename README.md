@@ -4,7 +4,7 @@
 
 [OpenAPI definition for pulceo-resource-manager](https://spboehm.github.io/pulceo-resource-manager/)
 
-## General Prerequisites
+## General prerequisites
 
 - Make sure that the following ports are available on the local system:
   - `80/tcp` (pulceo)
