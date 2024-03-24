@@ -164,3 +164,174 @@ Response:
 }
 ```
 
+## Create Node "fog1" (On-premises)
+
+Request:
+```bash
+curl --request POST \
+  --url http://localhost:8081/api/v1/nodes \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"nodeType":"ONPREM",
+	"type": "fog",
+	"name": "fog1",
+	"providerName":"default",
+	"hostname":"h5138.pi.uni-bamberg.de",
+	"pnaInitToken":"fnvAmtJre13rgEZ2AA0g3AKAtH0mvVi0NmEFZGD1mtEVi6WfacuqdejiA8vtPv47C7SSuHDqVZvT",
+	"country": "Germany",
+	"state": "Bavaria",
+	"city": "Bamberg",
+	"latitude": 49.9036,
+	"longitude": 10.8700,
+	"tags": [
+		{
+			"key": "properties",
+			"value": "C++, Linux, Python"
+		}
+	]
+  }'
+```
+
+Response:
+```bash
+{
+"uuid": "262dbecb-ae4b-442c-9751-39acd183e586",
+"providerName": "default",
+"hostname": "h5138.pi.uni-bamberg.de",
+"pnaUUID": "6dc8fca9-d1a6-4436-b1c9-122bbaa55235",
+"node": {
+  "name": "fog1",
+  "type": "FOG",
+  "layer": 1,
+  "role": "WORKLOAD",
+  "group": "",
+  "country": "Germany",
+  "state": "Bavaria",
+  "city": "Bamberg",
+  "longitude": 10.87,
+  "latitude": 49.9036,
+  "tags": [
+    {
+      "key": "properties",
+      "value": "C++, Linux, Python"
+    }
+  ]
+}
+```
+
+## Create Node "fog2" (On-premises)
+
+Request:
+```bash
+curl --request POST \
+  --url http://localhost:8081/api/v1/nodes \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"nodeType":"ONPREM",
+	"type": "fog",
+	"name": "fog2",
+	"providerName":"default",
+	"hostname":"h5136.pi.uni-bamberg.de",
+	"pnaInitToken":"fnvAmtJre13rgEZ2AA0g3AKAtH0mvVi0NmEFZGD1mtEVi6WfacuqdejiA8vtPv47C7SSuHDqVZvT",
+	"country": "Germany",
+	"state": "Bavaria",
+	"city": "Bamberg",
+	"latitude": 49.9036,
+	"longitude": 10.8700,
+	"tags": [
+		{
+			"key": "properties",
+			"value": "MySQL, .NET, C++, Python"
+		}
+	]
+  }'
+```
+
+Response:
+```bash
+{
+"uuid": "cf230cd5-d8c8-4537-8e7c-5da23973f4ce",
+"providerName": "default",
+"hostname": "h5136.pi.uni-bamberg.de",
+"pnaUUID": "265916fb-2092-40ee-9528-b32f4ea911a1",
+"node": {
+  "name": "fog2",
+  "type": "FOG",
+  "layer": 1,
+  "role": "WORKLOAD",
+  "group": "",
+  "country": "Germany",
+  "state": "Bavaria",
+  "city": "Bamberg",
+  "longitude": 10.87,
+  "latitude": 49.9036,
+  "tags": [
+    {
+      "key": "properties",
+      "value": "MySQL, .NET, C++, Python"
+    }
+  ]
+}
+}
+```
+
+## Create Node "fog3" (On-premises)
+
+Request:
+```bash
+curl --request POST \
+  --url http://localhost:8081/api/v1/nodes \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"nodeType":"ONPREM",
+	"type": "fog",
+	"name": "fog3",
+	"providerName":"default",
+	"hostname":"h5137.pi.uni-bamberg.de",
+	"pnaInitToken":"fnvAmtJre13rgEZ2AA0g3AKAtH0mvVi0NmEFZGD1mtEVi6WfacuqdejiA8vtPv47C7SSuHDqVZvT",
+	"country": "Germany",
+	"state": "Bavaria",
+	"city": "Bamberg",
+	"latitude": 49.9036,
+	"longitude": 10.8700,
+	"tags": [
+		{
+			"key": "properties",
+			"value": "C++, Linux, Python"
+		}
+	]
+  }'
+```
+
+Response:
+```bash
+{
+    "uuid": "b2dd336a-3d28-47c3-9469-673023947939",
+    "providerName": "default",
+    "hostname": "h5137.pi.uni-bamberg.de",
+    "pnaUUID": "be6f0093-ebff-4494-8123-6ab50d3ae8e5",
+    "node": {
+      "name": "fog3",
+      "type": "FOG",
+      "layer": 1,
+      "role": "WORKLOAD",
+      "group": "",
+      "country": "Germany",
+      "state": "Bavaria",
+      "city": "Bamberg",
+      "longitude": 10.87,
+      "latitude": 49.9036,
+      "tags": [
+        {
+          "key": "properties",
+          "value": "C++, Linux, Python"
+        }
+      ]
+    }
+}
+```
+
+## Create a Link
