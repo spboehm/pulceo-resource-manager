@@ -1,6 +1,8 @@
 package dev.pulceo.prm.model.event;
 
 public enum EventType {
+    AZURE_NODE_DEPLOYMENT_STARTED,
+    AZURE_NODE_DEPLOYMENT_COMPLETED,
     NODE_CREATED,
     NODE_UPDATED,
     NODE_CPU_RESOURCES_UPDATED,

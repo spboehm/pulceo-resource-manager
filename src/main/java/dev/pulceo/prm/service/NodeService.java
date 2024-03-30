@@ -251,8 +251,21 @@ public class NodeService {
         // TODO: String providerName, String hostName, String pnaInitToken
 
         try {
+            PulceoEvent pulceoEventAzureNodeDeploymentStarted = PulceoEvent.builder()
+                    .eventType(EventType.AZURE_NODE_DEPLOYMENT_STARTED)
+                    .payload(createNewAzureNodeDTO.toString())
+                    .build();
+            this.eventHandler.handleEvent(pulceoEventAzureNodeDeploymentStarted);
+
             // invoke AzureDeploymentService for creation of VM
             AzureDeloymentResult azureDeloymentResult = this.azureDeploymentService.deploy(createNewAzureNodeDTO.getProviderName(), createNewAzureNodeDTO.getRegion(), createNewAzureNodeDTO.getCpu(), createNewAzureNodeDTO.getMemory());
+
+            PulceoEvent pulceoEventAzureNodeDeploymentCompleted = PulceoEvent.builder()
+                    .eventType(EventType.AZURE_NODE_DEPLOYMENT_COMPLETED)
+                    .payload(azureDeloymentResult.toString())
+                    .build();
+            this.eventHandler.handleEvent(pulceoEventAzureNodeDeploymentCompleted);
+
             logger.info("Received azure deployment response: " + azureDeloymentResult.toString());
             // TODO: poll with /health until available, or alternatively, wait until completion with events
             // TODO: replace with https or make configuration
@@ -309,7 +322,6 @@ public class NodeService {
             azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
 
             AzureNode finalAzureNode = this.azureNodeRepository.save(azureNodeToBeUpdated);
-
 
             // application dummy
             WebClient webClientToPSM = WebClient.create(this.psmEndpoint);
