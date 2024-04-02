@@ -1,13 +1,11 @@
 package dev.pulceo.prm.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Body;
-import dev.pulceo.prm.dto.node.CreateNewAbstractNodeDTO;
-import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
-import dev.pulceo.prm.dto.node.CreateNewOnPremNodeDTO;
-import dev.pulceo.prm.dto.node.NodeDTOType;
+import dev.pulceo.prm.dto.node.*;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.model.provider.AzureCredentials;
 import dev.pulceo.prm.model.provider.AzureProvider;
@@ -36,8 +34,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = { "webclient.scheme=http"})
@@ -165,6 +162,46 @@ public class NodeControllerTests {
     }
 
     @Test
+    public void testUpdateNode() throws Exception {
+        // given
+        CreateNewAbstractNodeDTO createNewOnPremNodeDTO = CreateNewOnPremNodeDTO.builder()
+                .nodeType(NodeDTOType.ONPREM)
+                .name("edge0")
+                .providerName("default")
+                .hostname("127.0.0.1")
+                .pnaInitToken("pna-init-token")
+                .build();
+        String createNewOnPremNodeDTOAsJson = this.objectMapper.writeValueAsString(createNewOnPremNodeDTO);
+
+        NodeServiceIntegrationTest.wireMockServerForPSM.stubFor(WireMock.post(urlEqualTo("/api/v1/applications"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withJsonBody(new Body("[]").asJson())));
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/nodes")
+                        .contentType("application/json")
+                        .accept("application/json")
+                        .content(createNewOnPremNodeDTOAsJson))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        // when and then
+        PatchNodeDTO patchNodeDTO = PatchNodeDTO.builder()
+                .key("layer")
+                .value("2")
+                .build();
+        String patchNodeDTOAsJson = this.objectMapper.writeValueAsString(patchNodeDTO);
+
+        MvcResult mvcResult2 = this.mockMvc.perform(patch("/api/v1/nodes/" + UUID.fromString(objectMapper.readTree(mvcResult.getResponse().getContentAsString()).get("uuid").asText()))
+                        .contentType("application/json")
+                        .accept("application/json")
+                        .content(patchNodeDTOAsJson))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    @Test
     @Disabled
     public void testCreateAzureNode() throws Exception {
         // given
@@ -194,9 +231,6 @@ public class NodeControllerTests {
                         .accept("application/json")
                         .content(createNewAzureNodeDTOAsJson))
                 .andExpect(status().is4xxClientError());
-
     }
-
-
 
 }

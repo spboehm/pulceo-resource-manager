@@ -516,7 +516,7 @@ public class NodeService {
 
         PulceoEvent pulceoEvent = PulceoEvent.builder()
                 .eventType(EventType.NODE_UPDATED)
-                .payload(node.toString())
+                .payload("nodeUUID="+nodeUUID+", key="+key+", value="+value)
                 .build();
         this.eventHandler.handleEvent(pulceoEvent);
 
