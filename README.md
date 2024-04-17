@@ -43,7 +43,7 @@ export PNA_MQTT_CLIENT_PASSWORD="<PASSWORD>"
 
 - Bootstrap PULCEO with the following command
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/main/bootstrap-pulceo.sh)
+bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/v1.0.0/bootstrap-pulceo.sh)
 ```
 
 ## Quickstart with k3d
