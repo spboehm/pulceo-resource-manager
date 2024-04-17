@@ -31,6 +31,22 @@ validate_alphanumeric() {
   fi
 }
 
+function check_version() {
+  local version=$1
+  local repo_url=$2
+  local service=$3
+
+  if [ -z "$version" ]; then
+    read -p "Enter the version for $service (should be like v1.0.0): " version
+    if [[ ! $version =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      version=$(curl -s "$repo_url" | jq -r '.[0].name')
+    fi
+    VARIABLES_CHANGED=true
+  fi
+
+  echo $version
+}
+
 echo ""
 echo "PULCEO - Bootstrapping tool. USE AT OWN RISK!!!"
 echo ""
@@ -43,12 +59,29 @@ else
   echo "No .env-pulceo file found...creating one..."
 fi
 
-mkdir -p ~/.kube
-sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-sudo chown -R $USER:$USER ~/.kube
-sudo chmod 0600 ~/.kube/config
+if [[ ! -f "$HOME/.kube/config" ]]; then
+  echo "No k3s config found...copying from /etc/rancher/k3s/k3s.yaml..."
+  mkdir -p ~/.kube
+  sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+  sudo chown -R $USER:$USER ~/.kube
+  sudo chmod 0600 ~/.kube/config
+else
+  echo "k3s config found..."
+fi
 
 VARIABLES_CHANGED=false
+
+# PRM_VERSION
+PRM_VERSION=$(check_version "$PRM_VERSION" "https://api.github.com/repos/spboehm/pulceo-resource-manager/tags" "PRM")
+echo "USE PRM_VERSION=$PRM_VERSION"
+
+# PMS_VERSION
+PMS_VERSION=$(check_version "$PMS_VERSION" "https://api.github.com/repos/spboehm/pulceo-monitoring-service/tags" "PMS")
+echo "USE PMS_VERSION=$PMS_VERSION"
+
+# PSM_VERSION
+PSM_VERSION=$(check_version "$PSM_VERSION" "https://api.github.com/repos/spboehm/pulceo-service-manager/tags" "PSM")
+echo "USE PSM_VERSION=$PSM_VERSION"
 
 # PNA_MQTT_BROKER_URL
 if [ -z "$PNA_MQTT_BROKER_URL" ]; then
@@ -97,7 +130,7 @@ validate_alphanumeric "PNA_USERNAME" $PNA_USERNAME
 # PNA_PASSWORD
 if [ -z "$PNA_PASSWORD" ]; then
   PNA_PASSWORD=$(generate_password 32)
-    VARIABLES_CHANGED=true
+  VARIABLES_CHANGED=true
 elif [ ${#PNA_PASSWORD} -ne 32 ]; then
   echo "PNA_PASSWORD should be 32 characters long"
   exit 1
@@ -136,7 +169,10 @@ elif [ ${#DOCKER_INFLUXDB_INIT_ADMIN_TOKEN} -ne 8 ]; then
 fi
 validate_alphanumeric "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN" $DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
 
-echo "PNA_MQTT_BROKER_URL=$PNA_MQTT_BROKER_URL" > .env-pulceo
+echo "PRM_VERSION=$PRM_VERSION" > .env-pulceo
+echo "PMS_VERSION=$PMS_VERSION" >> .env-pulceo
+echo "PSM_VERSION=$PSM_VERSION" >> .env-pulceo
+echo "PNA_MQTT_BROKER_URL=$PNA_MQTT_BROKER_URL" >> .env-pulceo
 echo "PNA_MQTT_CLIENT_USERNAME=$PNA_MQTT_CLIENT_USERNAME" >> .env-pulceo
 echo "PNA_MQTT_CLIENT_PASSWORD=$PNA_MQTT_CLIENT_PASSWORD" >> .env-pulceo
 echo "PNA_USERNAME=$PNA_USERNAME" >> .env-pulceo
@@ -193,6 +229,6 @@ kubectl --kubeconfig=/home/$USER/.kube/config create secret generic psm-credenti
   --from-literal=PNA_MQTT_CLIENT_USERNAME=${PNA_MQTT_CLIENT_USERNAME} \
   --from-literal=PNA_MQTT_CLIENT_PASSWORD=${PNA_MQTT_CLIENT_PASSWORD}
 
-kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/main/prm-deployment.yaml
-kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-monitoring-service/main/pms-deployment.yaml
-kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-service-manager/main/psm-deployment.yaml
+kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/$PRM_VERSION/prm-deployment.yaml
+kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-monitoring-service/$PMS_VERSION/pms-deployment.yaml
+kubectl --kubeconfig=/home/$USER/.kube/config apply -f https://raw.githubusercontent.com/spboehm/pulceo-service-manager/$PSM_VERSION/psm-deployment.yaml

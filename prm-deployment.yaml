@@ -77,7 +77,7 @@ spec:
     spec:
       containers:
         - name: pulceo-resource-manager
-          image: ghcr.io/spboehm/pulceo-resource-manager:main
+          image: ghcr.io/spboehm/pulceo-resource-manager:v1.0.0
           imagePullPolicy: Always
           volumeMounts:
             - name: prm-pv-db
