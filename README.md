@@ -12,6 +12,19 @@
   - `8089/tcp` (access to influxdb)
   - `40476/tcp` (for k3d API server)
 - Any Linux distribution is recommended (tested on Ubuntu 20.04 and openSUSE Tumbleweed)
+- The package `jq` must be installed on the machine (e.g., install with `apt-get install -y jq`)
+
+## Use a virtual machine for testing
+
+- Install [VirtualBox](https://www.virtualbox.org/) on your machine by following the official installation guide
+- Install [Vagrant](https://www.vagrantup.com/) on your machine by following the official installation guide
+```bash
+cd vagrant
+vagrant up --provider=virtualbox
+vagrant ssh
+```
+
+Then continue either with the [k3s](#quickstart-with-k3s) or [k3d](#quickstart-with-k3d) quickstart guide.
 
 ## Quickstart with k3s
 - Install [Docker](https://docs.docker.com/get-docker/) on your machine by following the official installation guide
@@ -54,7 +67,7 @@ k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer --port
 
 - Bootstrap PULCEO with the following command
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/main/bootstrap-pulceo.sh)
+bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/v1.0.0/bootstrap-pulceo.sh)
 ```
 
 ## Create a free MQTT broker (recommended)
