@@ -47,6 +47,9 @@ public class AzureDeploymentService {
     @Value("${pna.init.token}")
     private String PNA_INIT_TOKEN;
 
+    @Value("${pna.version}")
+    private String PNA_VERSION;
+
     @Value("${pna.mqtt.broker.url}")
     private String PNA_MQTT_BROKER_URL;
 
@@ -151,6 +154,7 @@ public class AzureDeploymentService {
         exportStatements.add("PNA_MQTT_BROKER_URL=" + this.PNA_MQTT_BROKER_URL);
         exportStatements.add("PNA_MQTT_CLIENT_USERNAME=" + this.PNA_MQTT_CLIENT_USERNAME);
         exportStatements.add("PNA_MQTT_CLIENT_PASSWORD=" + this.PNA_MQTT_CLIENT_PASSWORD);
+        exportStatements.add("PNA_VERSION=" + this.PNA_VERSION);
         exportStatements.add("PNA_USERNAME=" + this.PNA_USERNAME);
         exportStatements.add("PNA_PASSWORD=" + this.PNA_PASSWORD);
         exportStatements.add("PNA_INIT_TOKEN=" + this.PNA_INIT_TOKEN);
