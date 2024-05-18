@@ -5,7 +5,6 @@ import dev.pulceo.prm.exception.TagServiceException;
 import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.model.node.NodeTag;
 import dev.pulceo.prm.repository.NodeTagRepository;
-import jakarta.transaction.TransactionScoped;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,12 +56,18 @@ public class TagService {
         }
     }
 
-    public List<NodeTag> readAllNodeTags() {
+    public List<NodeTag> readAllNodeTags(Optional<String> key, Optional<String> value) {
         List<NodeTag> nodeTags = new ArrayList<>();
-        this.nodeTagRepository.findAll().forEach(nodeTags::add);
+        if (key.isPresent() && value.isPresent()) {
+            this.nodeTagRepository.findNodeTagsByKeyAndValue(key.get(), value.get()).forEach(nodeTags::add);
+        } else if (key.isPresent()) {
+            this.nodeTagRepository.findNodeTagByKey(key.get()).forEach(nodeTags::add);
+        } else if (value.isPresent()) {
+            this.nodeTagRepository.findNodeTagsByValue(value.get()).forEach(nodeTags::add);
+        } else {
+            this.nodeTagRepository.findAll().forEach(nodeTags::add);
+        }
         return nodeTags;
     }
-
-
 
 }

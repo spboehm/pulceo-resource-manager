@@ -1,7 +1,6 @@
 package dev.pulceo.prm.controller;
 
 import dev.pulceo.prm.dto.node.CreateTagDTO;
-import dev.pulceo.prm.dto.node.NodeTagDTO;
 import dev.pulceo.prm.dto.node.TagDTO;
 import dev.pulceo.prm.dto.node.TagType;
 import dev.pulceo.prm.exception.TagServiceException;
@@ -54,11 +53,11 @@ public class TagController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<TagDTO>> readTagsByType(@RequestParam(defaultValue = "node") String tagType) throws TagServiceException {
+    public ResponseEntity<List<TagDTO>> readTagsByType(@RequestParam(defaultValue = "node") String tagType, @RequestParam("key") Optional<String> key, @RequestParam("value") Optional<String> value) throws TagServiceException {
         if (tagType.toUpperCase().equals(TagType.NODE.toString())) {
 
             List<TagDTO> tagDTOs = new ArrayList<>();
-            List<NodeTag> nodeTags = this.tagService.readAllNodeTags();
+            List<NodeTag> nodeTags = this.tagService.readAllNodeTags(key, value);
             for (NodeTag nodeTag : nodeTags) {
                 tagDTOs.add(TagDTO.fromNodeTag(nodeTag));
             }

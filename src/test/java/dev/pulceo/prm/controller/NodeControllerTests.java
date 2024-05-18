@@ -1,13 +1,10 @@
 package dev.pulceo.prm.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Body;
 import dev.pulceo.prm.dto.node.*;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
-import dev.pulceo.prm.model.node.NodeTag;
 import dev.pulceo.prm.model.provider.AzureCredentials;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.model.provider.ProviderMetaData;
@@ -17,7 +14,6 @@ import dev.pulceo.prm.repository.AbstractNodeRepository;
 import dev.pulceo.prm.repository.AzureProviderRepository;
 import dev.pulceo.prm.repository.CloudRegistrationRepository;
 import dev.pulceo.prm.service.NodeServiceIntegrationTest;
-import dev.pulceo.prm.service.NodeServiceUnitTests;
 import dev.pulceo.prm.service.ProviderService;
 import dev.pulceo.prm.util.SimulatedPulceoNodeAgent;
 import org.junit.jupiter.api.*;
@@ -25,10 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.WireMockSpring;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import wiremock.org.apache.hc.client5.http.impl.Wire;
 
 import java.util.List;
 import java.util.UUID;
@@ -236,14 +230,14 @@ public class NodeControllerTests {
                 .andExpect(status().is4xxClientError());
     }
 
-    // TODO: move this test to the right class
+    // /* Move this to the right class */
     @Test
     public void readAllTagsFromCreatedOnPremNode() throws Exception {
         // given
         this.testCreateOnPremNode();
 
         // when and then
-        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/tags?type=node"))
+        this.mockMvc.perform(get("/api/v1/tags?type=node"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tagKey").value("key-test"))
                 .andExpect(jsonPath("$[0].tagValue").value("value-test"))
@@ -263,7 +257,7 @@ public class NodeControllerTests {
                 .build();
 
         // validate created tag
-        MvcResult mvcResultCreatedTag = this.mockMvc.perform(post("/api/v1/tags")
+        this.mockMvc.perform(post("/api/v1/tags")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(createTagDTO)))
                 .andExpect(status().isCreated())
@@ -272,10 +266,75 @@ public class NodeControllerTests {
                 .andReturn();
 
         // validate list of tags
-        MvcResult mvcResultListOfTags = this.mockMvc.perform(get("/api/v1/tags?type=node"))
+        this.mockMvc.perform(get("/api/v1/tags?type=node"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tagKey").value("key-test"))
                 .andExpect(jsonPath("$[0].tagValue").value("value-test"))
+                .andReturn();
+    }
+
+    @Test
+    public void testAddNewTagToNodeWithInvalidNode() throws Exception {
+        // given
+        CreateTagDTO createTagDTO = CreateTagDTO.builder()
+                .tagType(TagType.NODE)
+                .resourceId("edge0")
+                .tagKey("os")
+                .tagValue("linux")
+                .build();
+
+        // when and then
+        this.mockMvc.perform(post("/api/v1/tags")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(createTagDTO)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void testReadTagsByTypeAndKey() throws Exception {
+        // given
+        this.testCreateOnPremNode();
+
+        CreateTagDTO createTagDTO = CreateTagDTO.builder()
+                .tagType(TagType.NODE)
+                .resourceId("edge0")
+                .tagKey("os")
+                .tagValue("linux")
+                .build();
+
+        this.mockMvc.perform(post("/api/v1/tags")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(createTagDTO)));
+
+        // when and then
+        this.mockMvc.perform(get("/api/v1/tags?type=node&key=os"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].tagKey").value("os"))
+                .andExpect(jsonPath("$[0].tagValue").value("linux"))
+                .andReturn();
+    }
+
+    @Test
+    public void testReadTagsByTypeAndKeyAndValue() throws Exception {
+        // given
+        this.testCreateOnPremNode();
+
+        CreateTagDTO createTagDTO = CreateTagDTO.builder()
+                .tagType(TagType.NODE)
+                .resourceId("edge0")
+                .tagKey("os")
+                .tagValue("linux")
+                .build();
+
+        this.mockMvc.perform(post("/api/v1/tags")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(createTagDTO)));
+
+        // when and then
+        this.mockMvc.perform(get("/api/v1/tags?type=node&key=os&value=linux"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].tagKey").value("os"))
+                .andExpect(jsonPath("$[0].tagValue").value("linux"))
                 .andReturn();
     }
 
