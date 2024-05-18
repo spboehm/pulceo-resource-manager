@@ -56,7 +56,7 @@ public class TagService {
         }
     }
 
-    public List<NodeTag> readAllNodeTags(Optional<String> key, Optional<String> value) {
+    public List<NodeTag> readNodeTags(Optional<String> key, Optional<String> value) {
         List<NodeTag> nodeTags = new ArrayList<>();
         if (key.isPresent() && value.isPresent()) {
             this.nodeTagRepository.findNodeTagsByKeyAndValue(key.get(), value.get()).forEach(nodeTags::add);

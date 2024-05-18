@@ -57,7 +57,7 @@ public class TagController {
         if (tagType.toUpperCase().equals(TagType.NODE.toString())) {
 
             List<TagDTO> tagDTOs = new ArrayList<>();
-            List<NodeTag> nodeTags = this.tagService.readAllNodeTags(key, value);
+            List<NodeTag> nodeTags = this.tagService.readNodeTags(key, value);
             for (NodeTag nodeTag : nodeTags) {
                 tagDTOs.add(TagDTO.fromNodeTag(nodeTag));
             }
