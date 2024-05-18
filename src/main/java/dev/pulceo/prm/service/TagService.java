@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class TagService {
@@ -68,6 +69,19 @@ public class TagService {
             this.nodeTagRepository.findAll().forEach(nodeTags::add);
         }
         return nodeTags;
+    }
+
+    @Transactional
+    public void deleteNodeTagByUUID(UUID nodeTagUUID) throws TagServiceException {
+        Optional<NodeTag> nodeTag = this.nodeTagRepository.findByUuid(nodeTagUUID);
+        if (nodeTag.isEmpty()) {
+            throw new TagServiceException("Node tag with id %s does not exist!".formatted(nodeTagUUID));
+        }
+        Optional<AbstractNode> abstractNode = this.nodeService.readAbstractNodeByUUID(nodeTag.get().getAbstractNode().getUuid());
+        if (abstractNode.isEmpty()) {
+            throw new TagServiceException("Node with id %s does not exist!".formatted(nodeTag.get().getAbstractNode().getUuid()));
+        }
+        abstractNode.get().getNode().deleteNodeTag(nodeTag.get());
     }
 
 }
