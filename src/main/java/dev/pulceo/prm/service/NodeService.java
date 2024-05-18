@@ -33,7 +33,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -481,16 +484,6 @@ public class NodeService {
         }
     }
 
-    public void addTagToNode(UUID nodeUUID, NodeTag nodeTag) throws NodeServiceException {
-        Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(nodeUUID);
-        if (abstractNode.isEmpty()) {
-            throw new NodeServiceException("Node with UUID " + nodeUUID + " does not exist!");
-        }
-        Node node = this.nodeRepository.findById(abstractNode.get().getNode().getId()).orElseThrow();
-        Node updatedNode = node.addNodeTag(nodeTag);
-        this.nodeRepository.save(updatedNode);
-    }
-
     public Node updateNode(UUID nodeUUID, String key, String value) throws NodeServiceException, InterruptedException {
         Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(nodeUUID);
         if (abstractNode.isEmpty()) {
@@ -843,7 +836,7 @@ public class NodeService {
         return this.abstractNodeRepository.findByName(name);
     }
 
-    private boolean hostNameAlreadyExists(String hostName) throws NodeServiceException {
+    private boolean hostNameAlreadyExists(String hostName) {
         return this.nodeMetaDataRepository.findByHostname(hostName).isPresent();
     }
 

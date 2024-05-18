@@ -338,4 +338,28 @@ public class NodeControllerTests {
                 .andReturn();
     }
 
+    @Test
+    public void testDeleteTag() throws Exception {
+        // given
+        this.testCreateOnPremNode();
+
+        CreateTagDTO createTagDTO = CreateTagDTO.builder()
+                .tagType(TagType.NODE)
+                .resourceId("edge0")
+                .tagKey("os")
+                .tagValue("linux")
+                .build();
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/tags")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(createTagDTO)))
+                .andReturn();
+
+        UUID tagUUID = UUID.fromString(objectMapper.readTree(mvcResult.getResponse().getContentAsString()).get("tagId").asText());
+
+        // when and then
+        this.mockMvc.perform(delete("/api/v1/tags/" + tagUUID))
+                .andExpect(status().isNoContent());
+    }
+
 }

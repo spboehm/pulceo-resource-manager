@@ -1,6 +1,5 @@
 package dev.pulceo.prm.service;
 
-import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.exception.TagServiceException;
 import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.model.node.NodeTag;
@@ -41,19 +40,10 @@ public class TagService {
             throw new TagServiceException("Tag %s already exists for this node...consider updating instead of creating a new one.".formatted(nodeTag.getKey()));
         } else {
             // create the node tag on node
-            try {
-                nodeTag.setAbstractNode(abstractNode.get());
-                nodeTag.setNode(abstractNode.get().getNode());
-                this.nodeService.addTagToNode(abstractNode.get().getUuid(), nodeTag);
-            } catch (NodeServiceException e) {
-                throw new TagServiceException("Failed to add tag to node...");
-            }
-            return NodeTag.builder()
-                    .abstractNode(abstractNode.get())
-                    .node(abstractNode.get().getNode())
-                    .key(nodeTag.getKey())
-                    .value(nodeTag.getValue())
-                    .build();
+            nodeTag.setAbstractNode(abstractNode.get());
+            nodeTag.setNode(abstractNode.get().getNode());
+            abstractNode.get().getNode().addNodeTag(nodeTag);
+            return nodeTag;
         }
     }
 
