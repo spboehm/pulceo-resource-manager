@@ -79,6 +79,12 @@ public class Node extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NodeTag> nodeTags = new ArrayList<>();
 
+    public Node addNodeTag(NodeTag nodeTag) {
+        nodeTags.add(nodeTag);
+        nodeTag.setNode(this);
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

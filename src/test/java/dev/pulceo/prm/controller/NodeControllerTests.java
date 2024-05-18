@@ -238,7 +238,7 @@ public class NodeControllerTests {
 
     // TODO: move this test to the right class
     @Test
-    public void readAlltagsFromCreatedOnPremNode() throws Exception {
+    public void readAllTagsFromCreatedOnPremNode() throws Exception {
         // given
         this.testCreateOnPremNode();
 
@@ -262,15 +262,21 @@ public class NodeControllerTests {
                 .tagValue("linux")
                 .build();
 
-        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/tags")
+        // validate created tag
+        MvcResult mvcResultCreatedTag = this.mockMvc.perform(post("/api/v1/tags")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(createTagDTO)))
-                .andExpect(status().isCreated()).andReturn();
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.tagKey").value("os"))
+                .andExpect(jsonPath("$.tagValue").value("linux"))
+                .andReturn();
 
-        // then
-        System.out.println(this.objectMapper.writeValueAsString(mvcResult.getResponse().getContentAsString()));
-
-
+        // validate list of tags
+        MvcResult mvcResultListOfTags = this.mockMvc.perform(get("/api/v1/tags?type=node"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].tagKey").value("key-test"))
+                .andExpect(jsonPath("$[0].tagValue").value("value-test"))
+                .andReturn();
     }
 
 }

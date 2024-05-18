@@ -4,13 +4,17 @@ import dev.pulceo.prm.dto.node.CreateTagDTO;
 import dev.pulceo.prm.dto.node.NodeTagDTO;
 import dev.pulceo.prm.dto.node.TagDTO;
 import dev.pulceo.prm.dto.node.TagType;
+import dev.pulceo.prm.exception.TagServiceException;
 import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.model.node.NodeTag;
 import dev.pulceo.prm.service.NodeService;
 import dev.pulceo.prm.service.TagService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,30 +33,28 @@ public class TagController {
     }
 
     @PostMapping("")
-    public ResponseEntity<TagDTO> createTag(@RequestBody CreateTagDTO createTagDTO) {
+    public ResponseEntity<TagDTO> createTag(@RequestBody @Valid CreateTagDTO createTagDTO) throws TagServiceException {
         // decide if node or link
         if (createTagDTO.getTagType().toString().equals(TagType.NODE.toString())) {
             Optional<AbstractNode> abstractNode = this.resolveAbstractNode(createTagDTO.getResourceId());
             if (abstractNode.isEmpty()) {
-                return ResponseEntity.status(404).build();
+                throw new TagServiceException("Node with id %s does not exist".formatted(createTagDTO.getResourceId()));
             }
 
-            // else continue
             try {
                 NodeTag createdNodeTag = this.tagService.createNodeTag(NodeTag.fromCreateNodeTagDTO(createTagDTO, abstractNode.get(), abstractNode.get().getNode()));
                 return ResponseEntity.status(201).body(TagDTO.fromNodeTag(createdNodeTag));
-            } catch (Exception e) {
-                e.printStackTrace();
-                return ResponseEntity.status(400).build();
+            } catch (TagServiceException e) {
+                throw new TagServiceException("Failed to create tag...");
             }
         } else {
             // TODO: implement for links...
-            return ResponseEntity.status(400).build();
+            throw new TagServiceException("Only NODE tags are supported at the moment...");
         }
     }
 
     @GetMapping("")
-    public ResponseEntity<List<TagDTO>> readTagsByType(@RequestParam(defaultValue = "node") String tagType) {
+    public ResponseEntity<List<TagDTO>> readTagsByType(@RequestParam(defaultValue = "node") String tagType) throws TagServiceException {
         if (tagType.toUpperCase().equals(TagType.NODE.toString())) {
 
             List<TagDTO> tagDTOs = new ArrayList<>();
@@ -63,7 +65,7 @@ public class TagController {
             return ResponseEntity.status(200).body(tagDTOs);
         } else {
             // TODO: implement here link tags etc...
-            return ResponseEntity.status(400).build();
+            throw new TagServiceException("Only NODE tags are supported at the moment...");
         }
     }
 
@@ -81,6 +83,15 @@ public class TagController {
     private static boolean checkIfUUID(String uuid)  {
         String uuidRegex = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
         return uuid.matches(uuidRegex);
+    }
+
+    @ExceptionHandler(value = TagServiceException.class)
+    public ResponseEntity<CustomErrorResponse> handleCloudRegistrationException(TagServiceException tagServiceException) {
+        CustomErrorResponse error = new CustomErrorResponse("BAD_REQUEST", tagServiceException.getMessage());
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setErrorMsg(tagServiceException.getMessage());
+        error.setTimestamp(LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
 }

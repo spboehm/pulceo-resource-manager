@@ -325,6 +325,13 @@ public class NodeService {
             azureNodeToBeUpdated.setCloudRegistration(cloudRegistration);
             azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
 
+            // set bidirectional references for NodeTags
+            List<NodeTag> nodeTags = createNewAzureNodeDTO.getTags().stream().map(NodeTag::fromNodeTagDTO).toList();
+            for (NodeTag nodeTag : nodeTags) {
+                nodeTag.setAbstractNode(azureNodeToBeUpdated);
+                nodeTag.setNode(azureNodeToBeUpdated.getNode());
+            }
+
             AzureNode finalAzureNode = this.azureNodeRepository.save(azureNodeToBeUpdated);
 
             // application dummy
@@ -480,8 +487,8 @@ public class NodeService {
             throw new NodeServiceException("Node with UUID " + nodeUUID + " does not exist!");
         }
         Node node = this.nodeRepository.findById(abstractNode.get().getNode().getId()).orElseThrow();
-        node.getNodeTags().add(nodeTag);
-//        this.nodeRepository.save(node);
+        Node updatedNode = node.addNodeTag(nodeTag);
+        this.nodeRepository.save(updatedNode);
     }
 
     public Node updateNode(UUID nodeUUID, String key, String value) throws NodeServiceException, InterruptedException {

@@ -45,7 +45,6 @@ public class TagService {
                 nodeTag.setAbstractNode(abstractNode.get());
                 nodeTag.setNode(abstractNode.get().getNode());
                 this.nodeService.addTagToNode(abstractNode.get().getUuid(), nodeTag);
-                this.nodeTagRepository.save(nodeTag);
             } catch (NodeServiceException e) {
                 throw new TagServiceException("Failed to add tag to node...");
             }
