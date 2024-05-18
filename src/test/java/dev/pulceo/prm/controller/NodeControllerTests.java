@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Body;
 import dev.pulceo.prm.dto.node.*;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
+import dev.pulceo.prm.model.node.NodeTag;
 import dev.pulceo.prm.model.provider.AzureCredentials;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.model.provider.ProviderMetaData;
@@ -29,12 +30,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import wiremock.org.apache.hc.client5.http.impl.Wire;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = { "webclient.scheme=http"})
@@ -74,7 +77,6 @@ public class NodeControllerTests {
     void before() {
         this.abstractLinkRepository.deleteAll();
         this.abstractNodeRepository.deleteAll();
-
         this.cloudRegistrationRepository.deleteAll();
     }
 
@@ -106,6 +108,7 @@ public class NodeControllerTests {
                 .providerName("default")
                 .hostname("127.0.0.1")
                 .pnaInitToken("pna-init-token")
+                .tags(List.of(NodeTagDTO.builder().key("key-test").value("value-test").build()))
                 .build();
         String createNewOnPremNodeDTOAsJson = this.objectMapper.writeValueAsString(createNewOnPremNodeDTO);
 
@@ -231,6 +234,43 @@ public class NodeControllerTests {
                         .accept("application/json")
                         .content(createNewAzureNodeDTOAsJson))
                 .andExpect(status().is4xxClientError());
+    }
+
+    // TODO: move this test to the right class
+    @Test
+    public void readAlltagsFromCreatedOnPremNode() throws Exception {
+        // given
+        this.testCreateOnPremNode();
+
+        // when and then
+        MvcResult mvcResult = this.mockMvc.perform(get("/api/v1/tags?type=node"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].tagKey").value("key-test"))
+                .andExpect(jsonPath("$[0].tagValue").value("value-test"))
+                .andReturn();
+    }
+
+    @Test
+    public void testAddNewTagToNode() throws Exception {
+        // given
+        this.testCreateOnPremNode();
+
+        CreateTagDTO createTagDTO = CreateTagDTO.builder()
+                .tagType(TagType.NODE)
+                .resourceId("edge0")
+                .tagKey("os")
+                .tagValue("linux")
+                .build();
+
+        MvcResult mvcResult = this.mockMvc.perform(post("/api/v1/tags")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(createTagDTO)))
+                .andExpect(status().isCreated()).andReturn();
+
+        // then
+        System.out.println(this.objectMapper.writeValueAsString(mvcResult.getResponse().getContentAsString()));
+
+
     }
 
 }

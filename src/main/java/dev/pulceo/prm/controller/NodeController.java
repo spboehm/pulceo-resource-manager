@@ -13,6 +13,7 @@ import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.service.AzureDeploymentService;
 import dev.pulceo.prm.service.NodeService;
+import dev.pulceo.prm.service.TagService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.HTML;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +38,15 @@ public class NodeController {
     private final Logger logger = LoggerFactory.getLogger(NodeController.class);
 
     private final NodeService nodeService;
+    private final TagService tagService;
     private final ModelMapper modelMapper;
 
     private final AzureDeploymentService azureDeploymentService;
 
     @Autowired
-    public NodeController(NodeService nodeService, ModelMapper modelMapper, AzureDeploymentService azureDeploymentService) {
+    public NodeController(NodeService nodeService, TagService tagService, ModelMapper modelMapper, AzureDeploymentService azureDeploymentService) {
         this.nodeService = nodeService;
+        this.tagService = tagService;
         this.modelMapper = modelMapper;
         this.azureDeploymentService = azureDeploymentService;
     }

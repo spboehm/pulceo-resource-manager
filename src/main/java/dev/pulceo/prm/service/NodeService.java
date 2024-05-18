@@ -1,11 +1,9 @@
 package dev.pulceo.prm.service;
 
 import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
-import dev.pulceo.prm.dto.node.NodeDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.pna.node.storage.StorageResourceDTO;
-import dev.pulceo.prm.dto.psm.ApplicationDTO;
 import dev.pulceo.prm.dto.psm.CreateNewApplicationDTO;
 import dev.pulceo.prm.dto.psm.ShortMetricResponseDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
@@ -158,6 +156,12 @@ public class NodeService {
                 .node(node)
                 .cloudRegistration(cloudRegistration)
                 .build();
+
+        // set bidirectional references for NodeTags
+        for (NodeTag nodeTag : nodeTags) {
+            nodeTag.setAbstractNode(onPremNode);
+            nodeTag.setNode(node);
+        }
 
         OnPremNode readyOnPremNode = this.abstractNodeRepository.save(onPremNode);
 
@@ -468,6 +472,16 @@ public class NodeService {
         } else {
             return 0.0;
         }
+    }
+
+    public void addTagToNode(UUID nodeUUID, NodeTag nodeTag) throws NodeServiceException {
+        Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(nodeUUID);
+        if (abstractNode.isEmpty()) {
+            throw new NodeServiceException("Node with UUID " + nodeUUID + " does not exist!");
+        }
+        Node node = this.nodeRepository.findById(abstractNode.get().getNode().getId()).orElseThrow();
+        node.getNodeTags().add(nodeTag);
+//        this.nodeRepository.save(node);
     }
 
     public Node updateNode(UUID nodeUUID, String key, String value) throws NodeServiceException, InterruptedException {

@@ -18,6 +18,12 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+@NamedEntityGraph(
+        name = "graph.Node.nodeTags",
+        attributeNodes = {
+                @NamedAttributeNode("nodeTags")
+        }
+)
 public class Node extends BaseEntity {
 
     @NotBlank(message="Name is required!")
@@ -70,7 +76,7 @@ public class Node extends BaseEntity {
     private StorageResource storageResource = StorageResource.builder().build();
 
     @Builder.Default
-    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NodeTag> nodeTags = new ArrayList<>();
 
     @Override
