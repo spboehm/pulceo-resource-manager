@@ -9,6 +9,7 @@ import dev.pulceo.prm.model.node.NodeTag;
 import dev.pulceo.prm.service.NodeService;
 import dev.pulceo.prm.service.TagService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,11 @@ public class TagController {
     private final TagService tagService;
     private final NodeService nodeService;
 
+    @Value("${pulceo.lb.endpoint}")
+    private String pulceoLBEndpoint;
+
+    private final String apiBasePathNodes = "/api/v1/nodes";
+
     public TagController(TagService tagService, NodeService nodeService) {
         this.tagService = tagService;
         this.nodeService = nodeService;
@@ -42,7 +48,7 @@ public class TagController {
 
             try {
                 NodeTag createdNodeTag = this.tagService.createNodeTag(NodeTag.fromCreateNodeTagDTO(createTagDTO, abstractNode.get(), abstractNode.get().getNode()));
-                return ResponseEntity.status(201).body(TagDTO.fromNodeTag(createdNodeTag));
+                return ResponseEntity.status(201).body(TagDTO.fromNodeTag(createdNodeTag, this.pulceoLBEndpoint, this.apiBasePathNodes));
             } catch (TagServiceException e) {
                 throw new TagServiceException("Failed to create tag...");
             }
@@ -59,13 +65,20 @@ public class TagController {
             List<TagDTO> tagDTOs = new ArrayList<>();
             List<NodeTag> nodeTags = this.tagService.readNodeTags(key, value);
             for (NodeTag nodeTag : nodeTags) {
-                tagDTOs.add(TagDTO.fromNodeTag(nodeTag));
+                tagDTOs.add(TagDTO.fromNodeTag(nodeTag, this.pulceoLBEndpoint, this.apiBasePathNodes));
             }
             return ResponseEntity.status(200).body(tagDTOs);
         } else {
             // TODO: implement here link tags etc...
             throw new TagServiceException("Only NODE tags are supported at the moment...");
         }
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public ResponseEntity<Void> deleteNodeTagById(@PathVariable String id) throws TagServiceException {
+        this.tagService.deleteNodeTagByUUID(UUID.fromString(id));
+        return ResponseEntity.status(204).build();
     }
 
     private Optional<AbstractNode> resolveAbstractNode(String id) {
