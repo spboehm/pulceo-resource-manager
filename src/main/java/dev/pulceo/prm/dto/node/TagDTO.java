@@ -21,7 +21,7 @@ public class TagDTO {
                 .tagType(TagType.NODE)
                 .parentResource(ResourceInformationDTO.builder()
                         .resourceType("NODE")
-                        .resourceUUID(nodeTag.getNode().getUuid().toString())
+                        .resourceUUID(nodeTag.getAbstractNode().getUuid().toString())
                         .resourceId(nodeTag.getAbstractNode().getName())
                         .url(lbEndpoint + apiBasePath + "/" + nodeTag.getAbstractNode().getUuid().toString())
                         .build())
