@@ -1,11 +1,9 @@
 package dev.pulceo.prm.service;
 
 import dev.pulceo.prm.dto.node.CreateNewAzureNodeDTO;
-import dev.pulceo.prm.dto.node.NodeDTO;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.pna.node.storage.StorageResourceDTO;
-import dev.pulceo.prm.dto.psm.ApplicationDTO;
 import dev.pulceo.prm.dto.psm.CreateNewApplicationDTO;
 import dev.pulceo.prm.dto.psm.ShortMetricResponseDTO;
 import dev.pulceo.prm.dto.registration.CloudRegistrationRequestDTO;
@@ -35,7 +33,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -158,6 +159,12 @@ public class NodeService {
                 .node(node)
                 .cloudRegistration(cloudRegistration)
                 .build();
+
+        // set bidirectional references for NodeTags
+        for (NodeTag nodeTag : nodeTags) {
+            nodeTag.setAbstractNode(onPremNode);
+            nodeTag.setNode(node);
+        }
 
         OnPremNode readyOnPremNode = this.abstractNodeRepository.save(onPremNode);
 
@@ -320,6 +327,13 @@ public class NodeService {
             azureNodeToBeUpdated.getNodeMetaData().setHostname(azureDeloymentResult.getFqdn());
             azureNodeToBeUpdated.setCloudRegistration(cloudRegistration);
             azureNodeToBeUpdated.setAzureDeloymentResult(azureDeloymentResult);
+
+            // set bidirectional references for NodeTags
+            List<NodeTag> nodeTags = createNewAzureNodeDTO.getTags().stream().map(NodeTag::fromNodeTagDTO).toList();
+            for (NodeTag nodeTag : nodeTags) {
+                nodeTag.setAbstractNode(azureNodeToBeUpdated);
+                nodeTag.setNode(azureNodeToBeUpdated.getNode());
+            }
 
             AzureNode finalAzureNode = this.azureNodeRepository.save(azureNodeToBeUpdated);
 
@@ -822,7 +836,7 @@ public class NodeService {
         return this.abstractNodeRepository.findByName(name);
     }
 
-    private boolean hostNameAlreadyExists(String hostName) throws NodeServiceException {
+    private boolean hostNameAlreadyExists(String hostName) {
         return this.nodeMetaDataRepository.findByHostname(hostName).isPresent();
     }
 

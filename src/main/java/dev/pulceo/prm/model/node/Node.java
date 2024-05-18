@@ -6,7 +6,10 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
@@ -18,6 +21,12 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+@NamedEntityGraph(
+        name = "graph.Node.nodeTags",
+        attributeNodes = {
+                @NamedAttributeNode("nodeTags")
+        }
+)
 public class Node extends BaseEntity {
 
     @NotBlank(message="Name is required!")
@@ -70,8 +79,19 @@ public class Node extends BaseEntity {
     private StorageResource storageResource = StorageResource.builder().build();
 
     @Builder.Default
-    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NodeTag> nodeTags = new ArrayList<>();
+
+    public Node addNodeTag(NodeTag nodeTag) {
+        nodeTags.add(nodeTag);
+        nodeTag.setNode(this);
+        return this;
+    }
+
+    public void deleteNodeTag(NodeTag nodeTag) {
+        nodeTags.remove(nodeTag);
+        nodeTag.setNode(null);
+    }
 
     @Override
     public boolean equals(Object o) {

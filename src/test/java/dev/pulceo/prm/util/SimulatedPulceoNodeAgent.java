@@ -15,6 +15,18 @@ public class SimulatedPulceoNodeAgent {
     private final WireMockServer wireMockServer;
     private static final List<SimulatedPulceoNodeAgent> list = new ArrayList<>();
 
+    public static void main(String[] args) {
+        createAgents(2);
+        // press any key to stop agents
+        try {
+            System.in.read();
+            stopAgents();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public static List<SimulatedPulceoNodeAgent> createAgents(int number) {
         for (int i = 1; i< number + 1; i++) {
             SimulatedPulceoNodeAgent simulatedPulceoNodeAgent = new SimulatedPulceoNodeAgent(i, "127.0.0." + i);

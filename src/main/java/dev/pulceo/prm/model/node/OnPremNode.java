@@ -92,9 +92,9 @@ public class OnPremNode extends AbstractNode {
     @Override
     public String toString() {
         return "OnPremNode{" +
-                "onPremProvider=" + onPremProvider +
-                ", nodeMetaData=" + nodeMetaData +
-                ", node=" + node +
+                "onPremProvider=" + onPremProvider.getId() +
+                ", nodeMetaData=" + nodeMetaData.getPnaUUID() +
+                ", node=" + node.getId() +
                 '}';
     }
 }
