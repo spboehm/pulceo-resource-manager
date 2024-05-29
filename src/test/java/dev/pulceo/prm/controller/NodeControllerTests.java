@@ -232,6 +232,19 @@ public class NodeControllerTests {
 
     // /* Move this to the right class */
     @Test
+    public void readNodeTagsByNode() throws Exception {
+        // given
+        this.testCreateOnPremNode();
+
+        // when and then
+        this.mockMvc.perform(get("/api/v1/nodes/edge0/tags"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].tagKey").value("key-test"))
+                .andExpect(jsonPath("$[0].tagValue").value("value-test"))
+                .andReturn();
+    }
+
+    @Test
     public void readAllTagsFromCreatedOnPremNode() throws Exception {
         // given
         this.testCreateOnPremNode();
