@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="WireMock prm.json" type="WireMock" factoryName="WireMock">
+    <option name="port" value="7878" />
+    <option name="stubsFilePath" value="$PROJECT_DIR$/stub/prm.json" />
+    <method v="2" />
+  </configuration>
+</component>
