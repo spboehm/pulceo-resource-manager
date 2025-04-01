@@ -1,13 +1,10 @@
 package dev.pulceo.prm.controller;
 
-import com.azure.core.annotation.Patch;
 import dev.pulceo.prm.dto.pna.node.cpu.CPUResourceDTO;
 import dev.pulceo.prm.dto.pna.node.memory.MemoryResourceDTO;
 import dev.pulceo.prm.dto.pna.node.storage.StorageResourceDTO;
-import dev.pulceo.prm.model.node.AbstractNode;
-import dev.pulceo.prm.model.node.CPUResource;
-import dev.pulceo.prm.model.node.MemoryResource;
-import dev.pulceo.prm.model.node.StorageResource;
+import dev.pulceo.prm.exception.NodeServiceException;
+import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.service.NodeService;
 import dev.pulceo.prm.service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +30,16 @@ public class ResourceController {
     }
 
     @GetMapping("/cpus")
-    public ResponseEntity<List<CPUResourceDTO>> readAllCPUs() {
-        List<AbstractNode> nodes = this.nodeService.readAllNodes();
+    public ResponseEntity<List<CPUResourceDTO>> readAllCPUs(@RequestParam(required = false) NodeType type) throws NodeServiceException {
+        List<AbstractNode> nodes;
+        if (type == null) {
+            nodes = this.nodeService.readAllNodes();
+        } else {
+            nodes = this.nodeService.readNodesByType(type);
+            if (nodes.isEmpty()) {
+                return ResponseEntity.status(404).build();
+            }
+        }
         List<CPUResourceDTO> cpuResourcesDTO = new ArrayList<>();
         for (AbstractNode node : nodes) {
             Long cpuResourcesId = node.getNode().getCpuResource().getId();
@@ -49,8 +54,16 @@ public class ResourceController {
     }
 
     @GetMapping("/memory")
-    public ResponseEntity<List<MemoryResourceDTO>> readAllMemory() {
-        List<AbstractNode> nodes = this.nodeService.readAllNodes();
+    public ResponseEntity<List<MemoryResourceDTO>> readAllMemory(@RequestParam(required = false) NodeType type) throws NodeServiceException {
+        List<AbstractNode> nodes;
+        if (type == null) {
+            nodes = this.nodeService.readAllNodes();
+        } else {
+            nodes = this.nodeService.readNodesByType(type);
+            if (nodes.isEmpty()) {
+                return ResponseEntity.status(404).build();
+            }
+        }
         List<MemoryResourceDTO> memoryResourceDTO = new ArrayList<>();
         for (AbstractNode node : nodes) {
             Long memoryResourcesID = node.getNode().getMemoryResource().getId();
@@ -65,8 +78,16 @@ public class ResourceController {
     }
 
     @GetMapping("/storage")
-    public ResponseEntity<List<StorageResourceDTO>> readAllStorage() {
-        List<AbstractNode> nodes = this.nodeService.readAllNodes();
+    public ResponseEntity<List<StorageResourceDTO>> readAllStorage(@RequestParam(required = false) NodeType type) throws NodeServiceException {
+        List<AbstractNode> nodes;
+        if (type == null) {
+            nodes = this.nodeService.readAllNodes();
+        } else {
+            nodes = this.nodeService.readNodesByType(type);
+            if (nodes.isEmpty()) {
+                return ResponseEntity.status(404).build();
+            }
+        }
         List<StorageResourceDTO> storageResourceDTO = new ArrayList<>();
         for (AbstractNode node : nodes) {
             Long storageResourcesID = node.getNode().getStorageResource().getId();
@@ -79,4 +100,6 @@ public class ResourceController {
         }
         return ResponseEntity.ok(storageResourceDTO);
     }
+
+    // TODO: add exeception handler
 }

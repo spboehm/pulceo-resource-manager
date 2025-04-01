@@ -739,6 +739,21 @@ public class NodeService {
         return listOfNodes;
     }
 
+    @Transactional
+    public List<AbstractNode> readNodesByType(NodeType nodeType) throws NodeServiceException {
+            List<OnPremNode> onPremNodes = this.onPremNoderepository.findOnPremNodesByNodeType(nodeType);
+            List<AzureNode> azureNodes = this.azureNodeRepository.findAzureNodesByNodeType(nodeType);
+            List<AbstractNode> abstractNodes = new ArrayList<>();
+            for (OnPremNode onPremNode : onPremNodes) {
+                abstractNodes.add(onPremNode);
+            }
+            for (AzureNode azureNode : azureNodes) {
+                abstractNodes.add(azureNode);
+            }
+            return abstractNodes;
+    }
+
+
     public UUID getRemoteUUID(UUID localUUID) throws NodeServiceException {
         Optional<AbstractNode> abstractNode = this.abstractNodeRepository.findByUuid(localUUID);
         if (abstractNode.isEmpty()) {

@@ -250,8 +250,17 @@ public class NodeController {
 
     @GetMapping("")
     // effectively, only NodeDTO is returned, but the method signature is kept for future use
-    public ResponseEntity<List<AbstractNodeDTO>> readAllNodes() {
-        List<AbstractNode> abstractNodeList = this.nodeService.readAllNodes();
+    public ResponseEntity<List<AbstractNodeDTO>> readAllNodes(@RequestParam(required = false) NodeType type) throws NodeServiceException {
+        List<AbstractNode> abstractNodeList;
+        if (type == null) {
+            abstractNodeList = this.nodeService.readAllNodes();
+        } else {
+            abstractNodeList = this.nodeService.readNodesByType(type);
+            if (abstractNodeList.isEmpty()) {
+                return ResponseEntity.status(400).build();
+            }
+        }
+
         List<AbstractNodeDTO> abstractNodeDTOList = new ArrayList<>();
         for (AbstractNode abstractNode : abstractNodeList) {
             InternalNodeType internalNodeType = abstractNode.getInternalNodeType();

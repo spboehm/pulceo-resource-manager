@@ -123,6 +123,14 @@ public class NodeControllerTests {
     }
 
     @Test
+    public void testReadNodesByNodeType() throws Exception {
+        // given
+
+
+    }
+
+
+    @Test
     public void testReadNodeCpuByUUID() throws Exception {
         // given
         CreateNewAbstractNodeDTO createNewOnPremNodeDTO = CreateNewOnPremNodeDTO.builder()

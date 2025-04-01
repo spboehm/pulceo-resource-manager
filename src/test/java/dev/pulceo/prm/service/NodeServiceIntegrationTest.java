@@ -9,9 +9,7 @@ import dev.pulceo.prm.exception.AzureDeploymentServiceException;
 import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.exception.NodeServiceException;
 import dev.pulceo.prm.exception.ProviderServiceException;
-import dev.pulceo.prm.model.node.AzureDeloymentResult;
-import dev.pulceo.prm.model.node.AzureNode;
-import dev.pulceo.prm.model.node.OnPremNode;
+import dev.pulceo.prm.model.node.*;
 import dev.pulceo.prm.model.provider.AzureCredentials;
 import dev.pulceo.prm.model.provider.AzureProvider;
 import dev.pulceo.prm.model.provider.ProviderMetaData;
@@ -29,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.WireMockSpring;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -183,6 +182,20 @@ public class NodeServiceIntegrationTest {
         // then
         // TODO: further evaluations
         assertEquals(preliminaryAzureNode.getNode().getName(), "cloud-0");
+    }
+
+    @Test
+    public void testReadNodesByNodeType() throws NodeServiceException, InterruptedException, ProviderServiceException {
+        // given
+        testCreateOnPremNode();
+        testCreatePreliminaryAzureNode();
+
+        // when
+        List<AbstractNode> edgeNodes = this.nodeService.readNodesByType(NodeType.EDGE);
+        List<AbstractNode> cloudNodes = this.nodeService.readNodesByType(NodeType.CLOUD);
+
+        // then
+        assert(edgeNodes.size() == cloudNodes.size());
     }
 
     @Test
