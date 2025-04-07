@@ -43,7 +43,7 @@ export PNA_MQTT_CLIENT_PASSWORD="<PASSWORD>"
 
 - Bootstrap PULCEO with the following command
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/v1.0.0/bootstrap-pulceo.sh)
+bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/v1.3.0/bootstrap-pulceo.sh)
 ```
 
 ## Quickstart with k3d
@@ -67,7 +67,7 @@ k3d cluster create pulceo-test --api-port 40476 --port 80:80@loadbalancer --port
 
 - Bootstrap PULCEO with the following command
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/v1.0.0/bootstrap-pulceo.sh)
+bash <(curl -s https://raw.githubusercontent.com/spboehm/pulceo-resource-manager/v1.3.0/bootstrap-pulceo.sh)
 ```
 
 ## Create a free MQTT broker (recommended)
