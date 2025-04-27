@@ -20,7 +20,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class LinkService {
@@ -273,5 +276,9 @@ public class LinkService {
         this.nodeLinkRepository.findBySrcNode(abstractNode.get()).forEach(abstractLinks::add);
         this.nodeLinkRepository.findByDestNode(abstractNode.get()).forEach(abstractLinks::add);
         return abstractLinks;
+    }
+
+    public void reset() {
+        this.abstractLinkRepository.deleteAll();
     }
 }

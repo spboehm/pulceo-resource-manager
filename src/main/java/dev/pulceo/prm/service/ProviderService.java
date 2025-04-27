@@ -9,6 +9,8 @@ import dev.pulceo.prm.repository.AzureProviderRepository;
 import dev.pulceo.prm.repository.OnPremProviderRepository;
 import dev.pulceo.prm.repository.ProviderMetaDataRepository;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ import java.util.Optional;
 @Service
 public class ProviderService {
 
+    private final Logger logger = LoggerFactory.getLogger(ProviderService.class);
     private final ProviderMetaDataRepository providerMetaDataRepository;
     private final OnPremProviderRepository onPremProviderRepository;
     private final AzureProviderRepository azureProviderRepository;
@@ -134,6 +137,18 @@ public class ProviderService {
                     this.azureProviderRepository.delete(azureProvider.get());
                 }
             }
+        }
+    }
+
+    public void reset() {
+        this.onPremProviderRepository.deleteAll();
+        this.azureProviderRepository.deleteAll();
+        this.providerMetaDataRepository.deleteAll();
+        // Reinitialize the default provider
+        try {
+            this.initDefaultProvider();
+        } catch (ProviderServiceException e) {
+            this.logger.error("Error initializing default provider: {}", e.getMessage());
         }
     }
 }

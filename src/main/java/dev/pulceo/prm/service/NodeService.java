@@ -913,4 +913,8 @@ public class NodeService {
         return CompletableFuture.completedFuture(null);
     }
 
+    public void reset() {
+        this.abstractNodeRepository.deleteAll();
+    }
+
 }
