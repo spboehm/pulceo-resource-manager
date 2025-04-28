@@ -914,6 +914,7 @@ public class NodeService {
     }
 
     public void reset() {
+        this.logger.info("Resetting node service");
         this.abstractNodeRepository.deleteAll();
     }
 

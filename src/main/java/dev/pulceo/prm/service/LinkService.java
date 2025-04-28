@@ -15,6 +15,8 @@ import dev.pulceo.prm.model.node.AbstractNode;
 import dev.pulceo.prm.repository.AbstractLinkRepository;
 import dev.pulceo.prm.repository.NodeLinkRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import java.util.UUID;
 @Service
 public class LinkService {
 
+    private final Logger logger = LoggerFactory.getLogger(LinkService.class);
     private final AbstractLinkRepository abstractLinkRepository;
     private final NodeLinkRepository nodeLinkRepository;
     private final NodeService nodeService;
@@ -279,6 +282,7 @@ public class LinkService {
     }
 
     public void reset() {
+        this.logger.info("Resetting all link service...");
         this.abstractLinkRepository.deleteAll();
     }
 }

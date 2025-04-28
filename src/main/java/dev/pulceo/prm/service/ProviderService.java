@@ -141,6 +141,7 @@ public class ProviderService {
     }
 
     public void reset() {
+        this.logger.info("Resetting provider service...");
         this.onPremProviderRepository.deleteAll();
         this.azureProviderRepository.deleteAll();
         this.providerMetaDataRepository.deleteAll();
