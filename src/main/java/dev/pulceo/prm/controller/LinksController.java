@@ -1,6 +1,9 @@
 package dev.pulceo.prm.controller;
 
-import dev.pulceo.prm.dto.link.*;
+import dev.pulceo.prm.dto.link.AbstractLinkDTO;
+import dev.pulceo.prm.dto.link.CreateNewAbstractLinkDTO;
+import dev.pulceo.prm.dto.link.CreateNewNodeLinkDTO;
+import dev.pulceo.prm.dto.link.NodeLinkDTO;
 import dev.pulceo.prm.exception.LinkServiceException;
 import dev.pulceo.prm.model.link.AbstractLink;
 import dev.pulceo.prm.model.link.NodeLink;
@@ -12,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +88,15 @@ public class LinksController {
     private static boolean checkIfUUID(String uuid)  {
         String uuidRegex = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
         return uuid.matches(uuidRegex);
+    }
+
+    @ExceptionHandler(value = LinkServiceException.class)
+    public ResponseEntity<CustomErrorResponse> handleCloudRegistrationException(LinkServiceException linkServiceException) {
+        CustomErrorResponse error = new CustomErrorResponse("BAD_REQUEST", linkServiceException.getMessage());
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setErrorMsg(linkServiceException.getMessage());
+        error.setTimestamp(LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
 }
