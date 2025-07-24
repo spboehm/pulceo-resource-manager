@@ -1,10 +1,7 @@
 package dev.pulceo.prm.dto.orchestration;
 
 import dev.pulceo.prm.model.orchestration.ImmutableOrchestrationContext;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
@@ -14,6 +11,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class OrchestrationContextDTO {
 
+    @Builder.Default
+    private String service = "prm";
     private String uuid;
     private String name;
 
